@@ -2,91 +2,83 @@
 
 ## Mac Maker
 
-Ansible based provisioner for OSX machines.
+A portable single binary configuration tool for OSX machines.
 
-[Project Documentation](https://mac_maker.readthedocs.io/)
+- Brings [Ansible](https://www.ansible.com/) powered Configuration Management to your Mac.
+- Install all the apps you need, and configure your Mac exactly how you like it.
+- Mix and match existing Ansible roles such [asdf](https://github.com/osx-provisioner/role-asdf), [ClamAV](https://github.com/osx-provisioner/role-clamav) and [Homeshick](https://github.com/osx-provisioner/role-homeshick) with the huge array of Mac roles on [Ansible Galaxy](https://galaxy.ansible.com/).
 
-### Master Branch Builds (Staging Environment)
-- [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push-generic/badge.svg?branch=master)](https://github.com/osx-provisioner/mac_maker/actions)
-- [![mac_maker Wheel Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push-wheel/badge.svg?branch=master)](https://github.com/osx-provisioner/mac_maker/actions)
+### Master Branch Builds
+- GitHub:
+  - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=master)](https://github.com/osx-provisioner/mac_maker/actions)
+- TravisCI: 
+  - ![TravisCI](https://travis-ci.com/osx-provisioner/mac_maker.svg?branch=master)
 
-### Production Branch Builds (Tags Created on Production Branch)
-- [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push-generic/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
-- [![mac_maker Wheel Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push-wheel/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
+### Production Branch Builds
+- GitHub:
+  - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
+- TravisCI:
+  - ![TravisCI](https://travis-ci.com/osx-provisioner/mac_maker.svg?branch=production)
 
-### Release Builds
-- [![mac_maker Release Container](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-release-container/badge.svg)](https://github.com/osx-provisioner/mac_maker/actions)
-- [![mac_maker Release Wheel](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-release-wheel/badge.svg)](https://github.com/osx-provisioner/mac_maker/actions)
+## Quick Start
 
-## Getting Started With Python In A Box
+### How do I use this?
 
-Refer to the [python-in-a-box documentation](https://github.com/Shared-Vision-Solutions/python-in-a-box) to get oriented, and learn how to manage your development environment.
+Copy the `mac_maker` binary to the OSX machine you'd like to put under configuration management.
+If you have a working internet connection, you can start installing `Mac Maker Profiles`.
 
-## Tooling Reference
-The CLI is installed by default inside the container, and is also available on the host machine.
-Run the CLI without arguments to see the complete list of available commands: `dev`
+### Mac Maker Profiles
 
-[The 'pib_cli' Python Package](https://pypi.org/project/pib-cli/)
+Mac Maker uses the concept of "profiles", to bundle together the Ansible configuration required to configure your Mac.
 
-The local CLI configuration is managed by the [cli.yml](./assets/cli.yml) file.
+Here's an [example profile](https://github.com/osx-provisioner/profile-example) for you to test out:
 
-## Development Dependencies
+1. Start Mac Maker: `./mac_maker`
+2. Run the these commands, to check and apply the profile
+  - `precheck github https://github.com/osx-provisioner/profile-example`
+  - `apply github https://github.com/osx-provisioner/profile-example`
 
-You'll need to install:
- - [Docker](https://www.docker.com/) 
- - [Docker Compose](https://docs.docker.com/compose/install/)
+You can work with "profiles" in one of two ways for now:
 
-## Build and Start the Development Environment
+1) Create a public GitHub Repository that contains your profile, taking care NOT to included privileged content.
+2) Create your profile in any private git repository, and clone it to a USB key (or other portable media).  Add a `spec.json` file to the USB stick telling Mac Maker how to find it.
 
-Build the development environment container (this takes a few minutes):
-- `docker-compose build`
+### How do I create a Profile?
 
-Start the environment container:
-- `docker-compose up -d`
-
-Spawn a shell inside the container:
-- `./container`
-
-## Environment
-The [local.env](./assets/local.env) file can be modified to inject environment variable content into the container.
-
-You can override the values set in this file by setting shell ENV variables prior to starting the container:
-- `export GIT_HOOKS_PROTECTED_BRANCHES='.*'`
-- `docker-compose kill` (Kill the current running container.)
-- `docker-compose rm` (Remove the stopped container.)
-- `docker-compose up -d` (Restart the dev environment, with a new container, containing the override.)
-- `./container`
-
-## Git Hooks
-Git hooks are installed that will enforce linting and unit-testing on the specified branches.
-
-The following environment variables in the  [local.env](./assets/local.env) file can be used to customize this behavior:
-- `GIT_HOOKS` (Set this value to 1 to enable the pre-commit hook)
-- `GIT_HOOKS_PROTECTED_BRANCHES` (Customize this regex to specify the branches that should enforce the Git Hook on commit.)
-
-Once installed, the hooks required the presence of `pib_cli`, so either inside the container, or with the help of the `pib_setup_hostmachine` command (documented below). 
-
-Use the [scripts/extras.sh](scripts/extras.sh) script to install the hooks:
-
-- `source scripts/extras.sh`
-- `install_git_hooks`
+Use [this template](https://github.com/osx-provisioner/profile-generator) to create your own custom profiles.
 
 
-## Installing a virtual environment, and the CLI on your host machine
+### What's a spec.json file?
 
-The [scripts/extras.sh](scripts/extras.sh) script does this for you.
+A Mac Maker profile has a specific directory structure.  The `spec.json` file lets you mix and match where the directories and files are. 
+It's a bit inflexible in certain ways, because it requires absolute paths, but this makes it ideal to work off a USB stick or any portable media.
 
-First install [poetry](https://python-poetry.org/) on your host machine:
-- `pip install poetry`
+```json
+{
+  "workspace_root_path": "The absolute path to the root folder of your cloned profile repository.",
+  "profile_data_path": "This absolute path usually points to the `profile` folder inside your profile repository.",
+  "galaxy_requirements_file": "This absolute path usually points to the `profile_data_path/requirements.yml` file inside your profile repository.",
+  "playbook": "This absolute path usually points to the `profile_data_path/install.yml` file inside your profile repository.",
+  "roles_path": [
+    "This absolute path usually points to the `profile_data_path/roles` folder inside your profile repository.",
+    "You can append several roles directories here, they should all be absolute paths."
+  ],
+  "inventory": "This absolute path usually points to the `profile_data_path/inventory` file inside your repository."
+}
+```
 
-Next, source this script, setup the extras, and use the `dev` command on your host:
-- `source scripts/extras.sh`
-- `pib_setup_hostmachine` (to install the poetry dependencies)  
-- `dev --help` (to run the cli outside the container)
+Every Mac you bring your USB stick to will end up with the same configuration.
 
-This is most useful for making an IDE like pycharm aware of what's installed in your project.
+## License
 
-> It is still recommended to work inside the container, as you'll have access to the full managed python environment, 
-> as well as any additional services you are running in containers.  
+As this project effectively bundles Ansible, it must comply with the [GNU GPL](./LICENSE).
+You are however free to use and modify this source, as long as the license's terms are respected.
 
-If you wish to use the cli outside the container for all tasks, [tomll](https://github.com/pelletier/go-toml) and [gitleaks](https://github.com/zricethezav/gitleaks) will also need to be installed, or the [cli.yml](./assets/cli.yml) configuration will need to be customized to remove these commands. (Not recommended.)  
+(Pull requests are most welcome, as I sincerely hope this project can be of use to others.)
+
+## Detailed Documentation
+
+The project's full documentation can be found here:
+  - [Mac Maker Documentation](https://mac_maker.readthedocs.io/)
+
+Complete build instructions are included, so you can build your own binary.

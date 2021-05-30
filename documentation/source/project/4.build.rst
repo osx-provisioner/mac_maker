@@ -1,0 +1,17 @@
+Build Instructions
+==================
+
+To create a binary executable follow these steps from the Terminal:
+
+1. Install `Home Brew <https://brew.sh/>`_  on Your OSX build machine.
+
+2. Clone this repository, and enter the repository's root folder.
+
+3. Use the `./scripts/build.sh` to setup Python, and build for you:
+
+.. code-block:: console
+
+    ./scripts/build.sh pyenv 3.8.10
+    ./scripts/build.sh binary 10.14
+
+4. The binary executable can be found in the `./dist` folder.

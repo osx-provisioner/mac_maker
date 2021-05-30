@@ -44,10 +44,25 @@
     version = "0.0.1"
 
     [tool.poetry.dependencies]
-      python = ">=3.8.0,<4.0.0"
+      PyYAML = "^5.4.1"
+      ansible = "^4.0.0"
+      click = ">=7.0.0,<8.0.0"
+      pyinstaller = "^4.3"
+      python = ">=3.8.0,<3.10.0"
+      requests = "^2.25.1"
+
+      [tool.poetry.dependencies.click-shell]
+        branch = "feature_custom_exceptions"
+        git = "https://github.com/niall-byrne/click-shell.git"
 
     [tool.poetry.dev-dependencies]
-      pib_cli = "^0.1.2"
+      mypy = "^0.812"
+      parameterized = "^0.8.1"
+      pib_cli = "^0.1.0"
+      pyinstaller = "^4.3"
+      sphinx-autodoc-annotation = "^1.0"
+      sphinx-autopackagesummary = "^1.3"
+      sphinx-click = "^2.5.0"
 
     [[tool.poetry.packages]]
       include = "mac_maker"
@@ -58,7 +73,7 @@
   [tool.pylint]
 
     [tool.pylint.basic]
-      argument-rgx = "[a-z_][a-z0-9_]{2,30}$|^pk$"
+      argument-rgx = "[a-z_][a-z0-9_]{1,30}$|^pk$"
       attr-rgx = "[a-z_][a-z0-9_]{2,30}$"
       bad-functions = "map,filter,apply,input"
       bad-names = "foo,bar,baz,toto,tutu,tata"

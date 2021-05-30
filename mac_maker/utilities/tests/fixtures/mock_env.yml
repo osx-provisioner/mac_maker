@@ -1,0 +1,8 @@
+---
+# Mock Environment Variable Data
+- name: USER
+  description: POSIX systems use this value to identify the current user.  This is the user that will be configured.
+
+- name: JUMPCLOUD_CONNECT_KEY
+  description: This value can be retrieved from the JumpCloud admin portal.  (Log into your account.)
+

@@ -1,5 +1,5 @@
 ---
-name: mac_maker-push-generic
+name: mac_maker-push
 
 # Workflow Secrets:
 # SLACK_WEBHOOK              (Required, for slack notifications...)
@@ -12,7 +12,75 @@ on:
 
 jobs:
 
-  build:
+  osx_build:
+
+    runs-on: macos-${{ matrix.os }}
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [10.15]
+        platform: [x86_64]
+        python-version: [3.8.10]
+
+    steps:
+      - name: OSX Build -- Checkout
+        uses: actions/checkout@v1
+
+      - name: OSX Build -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+
+      - name: OSX Build -- Setup Python ${{ matrix.python-version }}
+        run: |
+          ./scripts/build.sh pyenv "${PYTHON_VERSION}"
+
+      - name: OSX Build -- Setup Build Environment
+        shell: bash -l {0}
+        run: |
+          eval $(pyenv init --path)
+          pip install poetry wheel
+          poetry install
+        env:
+          PYENV_VERSION: ${{ matrix.python-version }}
+
+      - name: OSX Build -- Build Mac Maker Binary
+        shell: bash -l {0}
+        run: |
+          eval $(pyenv init --path)
+          ./scripts/build.sh binary "${OS_VERSION}"
+        env:
+          PYENV_VERSION: ${{ matrix.python-version }}
+          OS_VERSION: ${{ matrix.os }}
+          PLATFORM: ${{ matrix.platform }}
+
+      - name: OSX Build -- Test the version command
+        shell: bash -l {0}
+        run: |
+          eval $(pyenv init --path)
+          ./dist/mac_maker version
+        env:
+          PYENV_VERSION: ${{ matrix.python-version }}
+
+      - name: OSX Build -- Upload Build Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: built_binary
+          path: ./dist/mac_maker_${{ matrix.os }}_${{ matrix.platform }}.tar.gz
+          retention-days: 1
+
+      - name: OSX Build -- Report Job Status (Success)
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} was successful"
+
+      - name: OSX Build -- Report Job Status (Failure)
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} failed!"
+
+  container_build:
 
     runs-on: ubuntu-latest
     strategy:
@@ -22,69 +90,81 @@ jobs:
           - python-version: 3.8
 
     steps:
-      - name: Build -- Checkout
+      - name: Container Build -- Checkout
         uses: actions/checkout@v1
 
-      - name: Build -- Setup Environment
+      - name: Container Build -- Setup Environment
         run: |
           source .github/scripts/setup.sh
         env:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           PYTHON_VERSION: ${{ matrix.python-version }}
 
-      - name: Build -- Create Docker Mounted Content
+      - name: Container Build -- Create Docker Mounted Content
         run: |
           echo | ssh-keygen
           touch ${HOME}/.gitconfig
           touch ${HOME}/.gitconfig_global
 
-      - name: Build -- Ensure File System is Writable by the Container
+      - name: Container Build -- Ensure File System is Writable by the Container
         run: |
           sudo chmod -R o+w .
 
-      - name: Build -- Build Container
+      - name: Container Build -- Build Container
         run: |
           source .github/scripts/build_container.sh
 
-      - name: Build -- Run TOML Linter
+      - name: Container Build -- Run TOML Linter
         run: |
           docker-compose exec -T "${PROJECT_NAME}" tomll /app/pyproject.toml
 
-      - name: Build -- Run Linter
+      - name: Container Build -- Run Linter
         run: |
           docker-compose exec -T "${PROJECT_NAME}" dev lint
 
-      - name: Build -- Run Sec Test
+      - name: Container Build -- Run Sec Test
         run: |
           docker-compose exec -T "${PROJECT_NAME}" dev sectest
 
-      - name: Build -- Run Unit Tests
+      - name: Container Build -- Run Unit Tests
         run: |
           docker-compose exec -T "${PROJECT_NAME}" dev coverage
 
-      - name: Build -- Run Release Validation
+      - name: Container Build -- Run MyPy
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" mypy "${PROJECT_NAME}"
+
+      - name: Container Build -- Run Release Validation
         run: |
           docker-compose exec -T "${PROJECT_NAME}" ./scripts/release.sh
 
-      - name: Build -- Report Job Status (Success)
+      - name: Container Build -- Report Job Status (Success)
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: build for Python ${PYTHON_VERSION} was successful"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: container build for Python ${PYTHON_VERSION} was successful"
 
-      - name: Build -- Report Job Status (Failure)
+      - name: Container Build -- Report Job Status (Failure)
         if: failure()
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: build for Python ${PYTHON_VERSION} failed!"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: container build for Python ${PYTHON_VERSION} failed!"
 
   create_release:
-    needs: [build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
+    needs: [osx_build, container_build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Create Release -- Checkout
+        if: contains(github.ref, '/tags/v')
         uses: actions/checkout@v1
 
+      - name: Download Built Binary
+        if: contains(github.ref, '/tags/v')
+        uses: actions/download-artifact@v2
+        with:
+          name: built_binary
+
       - name: Create Release -- Setup Environment
+        if: contains(github.ref, '/tags/v')
         run: |
           source .github/scripts/setup.sh
         env:
@@ -102,8 +182,9 @@ jobs:
         env:
           REPO: ${{ github.repository }}
 
-      - name: Create Release -- Create Github Release
+      - name: Create Release -- Create GitHub Release
         if: contains(github.ref, '/tags/v')
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -115,9 +196,26 @@ jobs:
             ## Deployment Checklist
             - [ ] Ensure documentation is accurate
             - [ ] Ensure readthedocs integration is working
-            - [ ] Ensure unnecessary alerts are ignored/disabled
-          draft: true
+          draft: false
           prerelease: false
+
+      - name: Create Release -- Build Wheel
+        if: contains(github.ref, '/tags/v')
+        run: |
+          BINARY_NAME=$(ls *.tar.gz)
+          echo "BINARY_NAME=${BINARY_NAME}" >> $GITHUB_ENV
+
+      - name: Create Release -- Upload Release Asset
+        if: contains(github.ref, '/tags/v')
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.BINARY_NAME }}
+          asset_name: ${{ env.BINARY_NAME }}
+          asset_content_type: application/gzip
 
       - name: Create Release -- Report Success
         if: contains(github.ref, '/tags/v')
@@ -217,7 +315,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7]
+        python-version: [3.8]
 
     steps:
       - name: Workflow Lint -- Set up Python ${{ matrix.python-version }}

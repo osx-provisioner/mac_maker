@@ -1,0 +1,5 @@
+Command Line Reference
+======================
+.. click:: mac_maker.cli:cli
+    :prog: mac_maker.cli
+    :show-nested:

@@ -31,7 +31,6 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-*.spec
 
 # Installer logs
 pip-log.txt
@@ -104,7 +103,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -145,3 +143,19 @@ override.env
 
 # LockFile
 poetry.lock
+
+# PEX
+*.pex
+
+# Exported Lock Requirements
+exported.txt
+
+# Ansible
+galaxy_roles
+installer.workspace
+spec.json
+
+# Sphinx
+documentation/source/codebase/mac_maker/_autosummary
+
+

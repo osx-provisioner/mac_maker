@@ -30,7 +30,9 @@ RUN useradd user -d /home/user        \
 
 # Install Latest Poetry
 RUN pip install poetry             && \
-    pip install --upgrade pip
+    pip install --upgrade pip      && \
+    mkdir -p /usr/local/src        && \
+    chown user:user /usr/local/src
 
 # Include the local binary folder in PATH
 ENV PATH "/home/user/.local/bin/:${PATH}"

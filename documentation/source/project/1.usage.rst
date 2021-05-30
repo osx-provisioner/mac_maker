@@ -1,0 +1,46 @@
+Using Mac Maker
+===============
+
+=============
+Using the CLI
+=============
+
+When using Mac Maker, you can choose to apply commands directly from the CLI, or inside the Mac Maker shell.
+
+To spawn a shell, simply start the application:
+
+.. code-block:: console
+
+    ./mac_maker
+
+To run a command directly, simply append the command at the cli:
+
+.. code-block:: console
+
+    ./mac_maker precheck github https://github.com/osx-provisioner/profile-example
+
+======================
+Avoiding a SUDO Prompt
+======================
+
+To avoid the interactive SUDO prompt, simply set the `ANSIBLE_BECOME_PASSWORD` environment variable:
+
+.. code-block:: console
+
+    export ANSIBLE_BECOME_PASSWORD="secret123"
+    ./mac_maker apply github https://github.com/osx-provisioner/profile-example
+
+
+===============================
+Terminating a Stuck Ansible Job
+===============================
+
+If you run into a problem with your Ansible Play, simply press `Control + C` to terminate the process.
+
+=======================
+Security Considerations
+=======================
+
+Your sudo password is stored internally as an environment variable by Mac Maker.  It will be propagated to the the forked processes used to run the Ansible commands, but it is NOT written to disk at any point.
+
+If you are using public GitHub profiles to manage your configuration BE SURE to keep secret content out of the repositories.  If you wish to use sensitive material in your Ansible Plays, create a `spec.json` file, and create a USB stick. You should follow standard Ansible best practices, including making use of `vault <https://docs.ansible.com/ansible/latest/user_guide/vault.html>`_ to handle sensitive material.

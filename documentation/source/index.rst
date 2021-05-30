@@ -7,9 +7,8 @@ Mac Maker's documentation
 .. toctree::
    :glob:
 
-   codebase/*
    project/*
-
+   codebase/*
 
 Indices and tables
 ==================

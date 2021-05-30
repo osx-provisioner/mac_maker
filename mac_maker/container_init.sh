@@ -6,7 +6,8 @@ DEVELOPMENT() {
 }
 
 PRODUCTION() {
-  mac_maker
+  pushd "mac_maker" || exit 127
+  while true; do sleep 1; done
 }
 
 eval "${ENVIRONMENT}"

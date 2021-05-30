@@ -31,6 +31,17 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx_autopackagesummary',
+    'sphinx_autodoc_annotation',
+    'sphinx_click.ext',
+]
+
+autosummary_generate = True
+
+autosummary_mock_imports = [
+    "mac_maker.tests",
+    "mac_maker.ansible_controller.tests",
+    "mac_maker.utilities.tests",
 ]
 
 source_suffix = {
