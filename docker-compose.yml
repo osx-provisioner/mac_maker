@@ -1,0 +1,16 @@
+---
+version: "3"
+
+services:
+  mac_maker:
+    build:
+      context: .
+      dockerfile: assets/Dockerfile
+      target: development
+    env_file:
+      - assets/local.env
+    volumes:
+      - ${HOME}/.ssh:/home/user/.ssh
+      - ${HOME}/.gitconfig:/home/user/.gitconfig
+      - ${HOME}/.gitconfig_global:/home/user/.gitconfig_global
+      - ./:/app

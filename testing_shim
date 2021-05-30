@@ -1,0 +1,5 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+from mac_maker import app
+
+app.main()

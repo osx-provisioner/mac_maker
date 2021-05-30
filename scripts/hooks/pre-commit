@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -eo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+
+bypass() {
+
+  # Bypass Unless GitHooks Are Enabled
+  [[ "${GIT_HOOKS}" == "1" ]] && exit 0
+
+  local_branch="$(git rev-parse --abbrev-ref HEAD)"
+  protected_branches="${GIT_HOOKS_PROTECTED_BRANCHES}"
+
+  if [[ ! ${local_branch} =~ ${protected_branches} ]]; then
+        exit 0
+  fi
+
+}
+
+main() {
+
+  bypass
+
+  pushd "${ROOT}"  > /dev/null
+  
+    dev lint
+    dev sectest
+    dev test
+    find scripts -type f -exec shellcheck -x "{}" \;
+    shellcheck .github/*.sh
+
+    if [[ -n "$(git diff)" ]]; then
+
+      git status
+
+      exec < /dev/tty
+      echo -e "\\nWARNING: You have uncommitted changes!"
+      read -r -p "Type 'yes' to confirm you wish to proceed with this commit: " confirm
+      [[ ${confirm} != "yes" ]] && echo 'ABORTED' && exit 127
+
+      exit 0
+
+    fi
+
+  popd  > /dev/null
+
+}
+
+main

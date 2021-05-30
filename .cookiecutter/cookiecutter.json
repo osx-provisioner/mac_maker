@@ -1,0 +1,14 @@
+{
+    "_pib_cli_version": "0.1.2",
+    "_template": "python-in-a-box/",
+    "author": "Niall Byrne",
+    "description": "Ansible based provisioner for OSX machines.",
+    "email": "niall@niallbyrne.ca",
+    "github_username": "osx-provisioner",
+    "include_gitconfig": "true",
+    "include_gitconfig_global": "true",
+    "include_ssh_keys": "true",
+    "project_name": "Mac Maker",
+    "project_slug": "mac_maker",
+    "python_version": "3.8"
+}

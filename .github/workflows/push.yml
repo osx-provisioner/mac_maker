@@ -1,0 +1,249 @@
+---
+name: mac_maker-push-generic
+
+# Workflow Secrets:
+# SLACK_WEBHOOK              (Required, for slack notifications...)
+
+on:
+  push:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        include:
+          - python-version: 3.8
+
+    steps:
+      - name: Build -- Checkout
+        uses: actions/checkout@v1
+
+      - name: Build -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+
+      - name: Build -- Create Docker Mounted Content
+        run: |
+          echo | ssh-keygen
+          touch ${HOME}/.gitconfig
+          touch ${HOME}/.gitconfig_global
+
+      - name: Build -- Ensure File System is Writable by the Container
+        run: |
+          sudo chmod -R o+w .
+
+      - name: Build -- Build Container
+        run: |
+          source .github/scripts/build_container.sh
+
+      - name: Build -- Run TOML Linter
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" tomll /app/pyproject.toml
+
+      - name: Build -- Run Linter
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" dev lint
+
+      - name: Build -- Run Sec Test
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" dev sectest
+
+      - name: Build -- Run Unit Tests
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" dev coverage
+
+      - name: Build -- Run Release Validation
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" ./scripts/release.sh
+
+      - name: Build -- Report Job Status (Success)
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: build for Python ${PYTHON_VERSION} was successful"
+
+      - name: Build -- Report Job Status (Failure)
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: build for Python ${PYTHON_VERSION} failed!"
+
+  create_release:
+    needs: [build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create Release -- Checkout
+        uses: actions/checkout@v1
+
+      - name: Create Release -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Create Release -- Prepare Content
+        if: contains(github.ref, '/tags/v')
+        run: |
+          echo "{}" > package.json
+
+      - name: Create Release -- Generate Changelog
+        if: contains(github.ref, '/tags/v')
+        uses: scottbrenner/generate-changelog-action@1.0.3
+        id: Changelog
+        env:
+          REPO: ${{ github.repository }}
+
+      - name: Create Release -- Create Github Release
+        if: contains(github.ref, '/tags/v')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.BRANCH_OR_TAG }}
+          release_name: Release ${{ env.BRANCH_OR_TAG }}
+          body: |
+            ${{ steps.Changelog.outputs.changelog }}
+            ## Deployment Checklist
+            - [ ] Ensure documentation is accurate
+            - [ ] Ensure readthedocs integration is working
+            - [ ] Ensure unnecessary alerts are ignored/disabled
+          draft: true
+          prerelease: false
+
+      - name: Create Release -- Report Success
+        if: contains(github.ref, '/tags/v')
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: automated release has been created:\nhttps://github.com/${USERNAME}/${PROJECT_NAME}/releases"
+
+      - name: Create Release -- Report Failure
+        if: failure() && contains(github.ref, '/tags/v')
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: automated release generation failed!"
+
+  documentation_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Documentation Test -- Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Documentation Test -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Documentation Test -- Documentation Validation
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.11
+        with:
+          use-quiet-mode: 'no'
+          use-verbose-mode: 'yes'
+
+      - name: Documentation Test -- Report Success
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: documentation checks were successful!"
+
+      - name: Documentation Test -- Report Failure
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: documentation checks failed!"
+
+  security_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Security Test -- Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Documentation Test -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Security Test -- Run Gitleaks
+        uses: zricethezav/gitleaks-action@master
+
+      - name: Security Test -- Report Success
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: security checks were successful!"
+      - name: Security Test -- Report Failure
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: security checks failed!"
+
+  shellcheck_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Shellcheck -- Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Shellcheck -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Shellcheck -- Check Scripts
+        run: |
+          source .github/scripts/shellcheck.sh
+
+      - name: Shellcheck -- Report Job Status on Success
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: shellcheck checks were successful!"
+
+      - name: Shellcheck -- Report Job Status on Failure
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: shellcheck checks failed!"
+
+  workflow_lint_test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.7]
+
+    steps:
+      - name: Workflow Lint -- Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Workflow Lint -- Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Workflow Lint -- Setup Environment
+        run: |
+          source ./.github/scripts/setup.sh
+          pip install yamllint
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Workflow Lint PIB -- Run Linter
+        run: |
+          yamllint ./.github/workflows -c .yamllint.yml -f standard
+
+      - name: Workflow Lint -- Report Job Status on Success
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: workflow linting was successful!"
+
+      - name: Workflow Lint -- Report Job Status on Failure
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: workflow linting has failed!"

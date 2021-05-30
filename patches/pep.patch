@@ -1,0 +1,165 @@
+diff --git a/.style.yapf b/.style.yapf
+deleted file mode 100644
+index 258a5e5..0000000
+--- a/.style.yapf
++++ /dev/null
+@@ -1,7 +0,0 @@
+-[style]
+-based_on_style = google
+-indent_width = 2
+-split_before_logical_operator = true
+-align_closing_bracket_with_visual_indent = false
+-dedent_closing_brackets = true
+-force_multiline_dict = true
+diff --git a/.yapfignore b/.yapfignore
+deleted file mode 100644
+index 71253f9..0000000
+--- a/.yapfignore
++++ /dev/null
+@@ -1,2 +0,0 @@
+-**/*_pb2.py
+-venv/**/*.py
+diff --git a/assets/cli.yml b/assets/cli.yml
+index e151af4..cd0594c 100644
+--- a/assets/cli.yml
++++ b/assets/cli.yml
+@@ -25,7 +25,7 @@
+   path_method: "project_root"
+   commands:
+     - 'tomll pyproject.toml'
+-    - 'yapf -i --recursive .'
++    - 'black .'
+     - 'isort "${PROJECT_NAME}"'
+   success: "Formatting Finished!"
+   failure: "Formatting Error!"
+diff --git a/documentation/source/conf.py b/documentation/source/conf.py
+index d1df78c..b703c17 100644
+--- a/documentation/source/conf.py
++++ b/documentation/source/conf.py
+@@ -9,17 +9,17 @@
+ import os
+ import sys
+
+-if os.path.exists('/app'):
+-  sys.path.insert(0, os.path.abspath('/app'))
+-if os.path.exists('../../mac_maker'):
+-  sys.path.insert(0, os.path.abspath('../..'))
+-  sys.path.insert(0, os.path.abspath('../../mac_maker'))
++if os.path.exists("/app"):
++    sys.path.insert(0, os.path.abspath("/app"))
++if os.path.exists("../../mac_maker"):
++    sys.path.insert(0, os.path.abspath("../.."))
++    sys.path.insert(0, os.path.abspath("../../mac_maker"))
+
+ # -- Project information -----------------------------------------------------
+-project = 'mac_maker'
+-copyright = '2020, Niall Byrne'
+-author = 'Niall Byrne'
+-os.environ['PROJECT_NAME'] = project
++project = "mac_maker"
++copyright = "2020, Niall Byrne"
++author = "Niall Byrne"
++os.environ["PROJECT_NAME"] = project
+
+ # -- General configuration ---------------------------------------------------
+
+@@ -27,18 +27,18 @@ os.environ['PROJECT_NAME'] = project
+ # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+ # ones.
+ extensions = [
+-    'sphinx.ext.autodoc',
+-    'sphinx.ext.autosummary',
+-    'sphinx.ext.todo',
+-    'sphinx.ext.viewcode',
++    "sphinx.ext.autodoc",
++    "sphinx.ext.autosummary",
++    "sphinx.ext.todo",
++    "sphinx.ext.viewcode",
+ ]
+
+ source_suffix = {
+-    '.rst': 'restructuredtext',
++    ".rst": "restructuredtext",
+ }
+
+ # Add any paths that contain templates here, relative to this directory.
+-templates_path = ['_templates']
++templates_path = ["_templates"]
+
+ # List of patterns, relative to source directory, that match files and
+ # directories to ignore when looking for source files.
+@@ -51,12 +51,10 @@ exclude_patterns = []
+ # The theme to use for HTML and HTML Help pages.  See the documentation for
+ # a list of builtin themes.
+ #
+-html_theme = 'haiku'
++html_theme = "haiku"
+
+ # Add any paths that contain custom static files (such as style sheets) here,
+ # relative to this directory. They are copied after the builtin static files,
+ # so a file named "default.css" will overwrite the builtin "default.css".
+-html_static_path = ['_static']
+-html_theme_options = {
+-    'body_max_width': '100%'
+-}
++html_static_path = ["_static"]
++html_theme_options = {"body_max_width": "100%"}
+diff --git a/mac_maker/app.py b/mac_maker/app.py
+index b4ea8c1..d1d00fa 100644
+--- a/mac_maker/app.py
++++ b/mac_maker/app.py
+@@ -4,5 +4,5 @@ import sys
+
+
+ def main():
+-  """The main function for this application."""
+-  sys.stdout.write("Hello World!")
++    """The main function for this application."""
++    sys.stdout.write("Hello World!")
+diff --git a/mac_maker/tests/test_app.py b/mac_maker/tests/test_app.py
+index 2fc921a..462a825 100644
+--- a/mac_maker/tests/test_app.py
++++ b/mac_maker/tests/test_app.py
+@@ -7,8 +7,7 @@ from ..app import main
+
+
+ class AppTest(TestCase):
+-
+-  def test_app_stdout(self):
+-    with mock.patch('sys.stdout', new=StringIO()) as mock_stdout:
+-      main()
+-      self.assertEqual(mock_stdout.getvalue(), "Hello World!")
++    def test_app_stdout(self):
++        with mock.patch("sys.stdout", new=StringIO()) as mock_stdout:
++            main()
++            self.assertEqual(mock_stdout.getvalue(), "Hello World!")
+diff --git a/pyproject.toml b/pyproject.toml
+index dded875..7c5e6ab 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -21,7 +21,7 @@
+   [tool.isort]
+     default_section = "FIRSTPARTY"
+     include_trailing_comma = true
+-    indent = "  "
++    indent = "    "
+     length_sort = false
+     line_length = 80
+     multi_line_output = 3
+@@ -51,6 +51,7 @@
+       python = ">=3.8.0,<4.0.0"
+
+     [tool.poetry.dev-dependencies]
++      black = "^20.8b1"
+       pib_cli = "^0.1.2"
+
+     [[tool.poetry.packages]]
+@@ -105,7 +106,7 @@
+
+     [tool.pylint.format]
+       ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+-      indent-string = "  "
++      indent-string = "    "
+       max-line-length = 80
+       max-module-lines = 1000
+       no-space-check = "trailing-comma,dict-separator"
