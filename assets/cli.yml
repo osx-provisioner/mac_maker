@@ -1,0 +1,67 @@
+# Development Environment CLI Configuration
+---
+- name: "build-docs"
+  path_method: "project_docs"
+  commands:
+    - "make html"
+  success: "Documentation Built"
+  failure: "Error Building Documentation"
+- name: "build-wheel"
+  path_method: "project_root"
+  commands:
+    - "poetry build"
+  success: "Wheel Built"
+  failure: "Error Building Wheel"
+- name: "coverage"
+  path_method: "project_root"
+  commands: |
+    pytest --cov-config=.coveragerc --cov-report term-missing --cov-fail-under=100 --cov="${PROJECT_NAME}" "${PROJECT_NAME}/" ${PIB_OVERLOAD_ARGUMENTS}
+    EXIT_CODE="$?"
+    coverage html
+    exit "${EXIT_CODE}"
+  success: "Coverage Passed!"
+  failure: "Coverage Failed!"
+- name: "fmt"
+  path_method: "project_root"
+  commands:
+    - 'tomll pyproject.toml'
+    - 'yapf -i --recursive .'
+    - 'isort "${PROJECT_NAME}"'
+  success: "Formatting Finished!"
+  failure: "Formatting Error!"
+- name: "leaks"
+  path_method: "project_root"
+  commands:
+    - 'gitleaks --path=. -v'
+  success: "Credential Leaks Test Passed!"
+  failure: "Credential Leaks Test Failed!"
+- name: "lint"
+  path_method: "project_root"
+  commands:
+    - 'shellcheck ${PROJECT_NAME}/container_init.sh'
+    - 'yamllint *.yml .*.yml assets/ .github/workflows/'
+    - 'isort -c "${PROJECT_NAME}"'
+    - 'pytest --pylint --pylint-jobs=2 "${PROJECT_NAME}"'
+  success: "Linter Test Passed!"
+  failure: "Linter Test Failed!"
+- name: "reinstall-requirements"
+  path_method: "project_root"
+  commands:
+    - "poetry lock"
+    - "poetry install"
+  success: "Reinstall Succeeded!"
+  failure: "Reinstall Failed!"
+- name: "sectest"
+  path_method: "project_root"
+  commands:
+    - 'bandit -r "${PROJECT_NAME}" -c .bandit.rc --ini .bandit -x tests'
+    - 'echo "\nPoetry is exporting the lockfile standby..."'
+    - 'poetry export --without-hashes --dev -f requirements.txt | safety check --stdin'
+  success: "Security Test Passed!"
+  failure: "Security Test Failed!"
+- name: "test"
+  path_method: "project_root"
+  commands:
+    - 'pytest ${PIB_OVERLOAD_ARGUMENTS}'
+  success: "Unittests Passed!"
+  failure: "Unittests Failed!"
