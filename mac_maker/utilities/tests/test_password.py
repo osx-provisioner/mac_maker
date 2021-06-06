@@ -9,6 +9,14 @@ from .. import filesystem, password
 PASSWORD_MODULE = password.__name__
 
 
+class MockPopenResponse:
+  """Mock :class:`subprocess.Popen` response."""
+
+  def __init__(self, returncode):
+    self.returncode = returncode
+    self.communicate = mock.Mock()
+
+
 class TestSUDO(fixtures_git.GitTestHarness):
   """Test the SUDO password class."""
 
@@ -18,6 +26,10 @@ class TestSUDO(fixtures_git.GitTestHarness):
     self.filesystem = filesystem.FileSystem(self.root_folder)
     self.sudo_password = "secret123"
     self.password_helper = password.SUDO(self.filesystem)
+    self.successful_sudo = mock.Mock()
+
+    self.successful_sudo = MockPopenResponse(0)
+    self.unsuccessful_sudo = MockPopenResponse(1)
 
   def test_initialize(self):
     self.assertEqual(
@@ -28,7 +40,14 @@ class TestSUDO(fixtures_git.GitTestHarness):
 
   @mock.patch(PASSWORD_MODULE + ".getpass.getpass")
   @mock.patch(PASSWORD_MODULE + ".os")
-  def test_prompt_for_sudo(self, m_os, m_prompt):
+  @mock.patch(PASSWORD_MODULE + ".subprocess.Popen")
+  def test_prompt_for_sudo(self, m_p_open, m_os, m_prompt):
+
+    m_p_open.side_effect = [
+        self.unsuccessful_sudo,
+        self.successful_sudo,
+    ]
+
     m_prompt.return_value = "Some Value"
 
     self.password_helper.prompt_for_sudo()
@@ -37,7 +56,11 @@ class TestSUDO(fixtures_git.GitTestHarness):
         m_prompt.return_value,
         self.password_helper.sudo_password,
     )
-    m_prompt.assert_called_once_with(config.SUDO_PROMPT)
+    m_prompt.call_list = [
+        mock.call(config.SUDO_PROMPT),
+        mock.call(config.SUDO_PROMPT),
+    ]
+
     m_os.environ.__setitem__.assert_called_once_with(
         'ANSIBLE_BECOME_PASSWORD', m_prompt.return_value
     )

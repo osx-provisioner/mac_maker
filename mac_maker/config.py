@@ -39,5 +39,6 @@ PRECHECK = {
 STATE_FILE_NAME = "spec.json"
 
 SUDO_PROMPT = "Please enter the SUDO password for your MAC: "
+SUDO_CHECK_COMMAND = "sudo -kS /bin/echo"
 
 WORKSPACE = 'installer.workspace'
