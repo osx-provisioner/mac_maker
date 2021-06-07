@@ -12,7 +12,7 @@ PRECHECK_MODULE = precheck.__name__
 class TestValidator(TestCase):
   """Test the precheck YAML configuration validator."""
 
-  def test_not_a_list(self):
+  def test_invalid_env_file(self):
     yaml_data = "not a list"
     validator = PrecheckConfig(yaml_data)
 
@@ -21,25 +21,7 @@ class TestValidator(TestCase):
 
     self.assertEqual(str(exc.exception), PrecheckConfig.syntax_error)
 
-  def test_list_of_non_dicts(self):
-    yaml_data = "[1,2,3,4]"
-    validator = PrecheckConfig(yaml_data)
-
-    with self.assertRaises(PrecheckConfigException) as exc:
-      validator.is_valid_env_file()
-
-    self.assertEqual(str(exc.exception), PrecheckConfig.syntax_error)
-
-  def test_list_wrong_dicts(self):
-    yaml_data = '[{"one" : "two"}]'
-    validator = PrecheckConfig(yaml_data)
-
-    with self.assertRaises(PrecheckConfigException) as exc:
-      validator.is_valid_env_file()
-
-    self.assertEqual(str(exc.exception), PrecheckConfig.syntax_error)
-
-  def test_correct_dicts(self):
+  def test_correct(self):
     yaml_data = '[{"name" : "name", "description": "description"}]'
     validator = PrecheckConfig(yaml_data)
     validator.is_valid_env_file()

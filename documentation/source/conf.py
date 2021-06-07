@@ -34,6 +34,7 @@ extensions = [
     'sphinx_autopackagesummary',
     'sphinx_autodoc_annotation',
     'sphinx_click.ext',
+    'sphinx-jsonschema',
 ]
 
 autosummary_generate = True

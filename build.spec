@@ -12,6 +12,7 @@ a = Analysis(['entrypoint.py'],
              pathex=[],
              binaries=[],
              datas=[
+              ('mac_maker', 'mac_maker'),
               (os.path.join(site.getsitepackages()[0], 'ansible'), 'ansible'),
               (os.path.join(site.getsitepackages()[0], 'ansible_collections'), 'ansible_collections'),
               (os.path.join(site.getsitepackages()[0], f'mac_maker-{pkg_resources.get_distribution("mac_maker").version}.dist-info'), f'mac_maker-{pkg_resources.get_distribution("mac_maker").version}.dist-info')

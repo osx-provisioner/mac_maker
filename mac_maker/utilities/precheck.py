@@ -1,8 +1,11 @@
 """Profile precheck validator."""
 
+import json
 import os
+from pathlib import Path
 
 import yaml
+from jsonschema import ValidationError, validate
 
 
 class PrecheckConfigException(BaseException):
@@ -13,29 +16,30 @@ class PrecheckConfig:
   """Profile precheck validator."""
 
   syntax_error = "Invalid YAML syntax."
+  schema_definition = (
+      Path(os.path.dirname(__file__)).parent / "schemas" / "env_v1.json"
+  )
 
   def __init__(self, yaml_document):
+    self.schema = self._load_schema()
+
     try:
       self.parsed_yaml = yaml.safe_load(yaml_document)
     except yaml.YAMLError as exc:
-      raise PrecheckConfigException from exc
+      raise PrecheckConfigException(self.syntax_error) from exc
+
+  def _load_schema(self) -> dict:
+    with open(self.schema_definition) as fhandle:
+      schema = json.load(fhandle)
+    return schema
 
   def is_valid_env_file(self):
     """Validate an environment variable requirements file."""
 
-    self._validate_is_list()
-    self._validate_contains_env_dictionaries()
-
-  def _validate_is_list(self):
-    if not isinstance(self.parsed_yaml, list):
-      raise PrecheckConfigException(self.syntax_error)
-
-  def _validate_contains_env_dictionaries(self):
-    for instance in self.parsed_yaml:
-      if isinstance(instance, dict):
-        if 'name' in instance and 'description' in instance:
-          continue
-      raise PrecheckConfigException(self.syntax_error)
+    try:
+      validate(self.parsed_yaml, self.schema)
+    except ValidationError as exc:
+      raise PrecheckConfigException(self.syntax_error) from exc
 
   def validate_environment(self):
     """Validate the environment against the parsed configuration file."""

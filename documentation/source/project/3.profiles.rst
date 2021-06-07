@@ -1,0 +1,55 @@
+Mac Maker Profiles
+==================
+
+Profiles are essentially a standardized Ansible Playbook, with explicitly defined dependencies, and some a some extra metadata.
+
+The directory structure is defined as follows:
+
+::
+
+    root
+    │
+    ├── profile
+    │   │
+    │   ├── __precheck__
+    │   │   │
+    │   │   ├── env.yml
+    │   │   └── notes.txt
+    │   │
+    │   ├── requirements.yml
+    │   └── install.yml
+    │
+    └── pyproject.toml
+
+
+=================
+Precheck Metadata
+=================
+
+This information exists to give the end user of a profile a way of validating they have set any required environment variables, and provides a way for them to review any release notes.
+
+- The `notes.txt` file contains free form release notes about the profile.
+- The `env.yml` file defines all required environment files consumed by the profile.
+
+.. toctree::
+   profiles/env.yml.spec.rst
+
+===================
+Galaxy Requirements
+===================
+
+The `requirements.yml` file is the Ansible Galaxy dependencies definition file.  Any external roles or collections the profile requires should be defined here.  Mac Maker will download and install these dependencies prior to applying your profile.
+
+- `requirements.yml File Specification <https://docs.ansible.com/ansible/devel/user_guide/collections_using.html#install-multiple-collections-with-a-requirements-file>`_
+
+======================
+`install.yml` Playbook
+======================
+
+The `install.yml` playbook is the Ansible `entrypoint` into the profile.  This playbook is called when Mac Maker applies the profile.
+
+All roles and tasks should be defined in this file, and should be accessed from relative paths to this file.
+
+(Frequently it makes sense to created sub-folders under profile to nest `task`, `vars` and `handler` files for a profile).
+
+
