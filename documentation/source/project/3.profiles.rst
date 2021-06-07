@@ -1,7 +1,9 @@
+.. _profile-label:
+
 Mac Maker Profiles
 ==================
 
-Profiles are essentially a standardized Ansible Playbook, with explicitly defined dependencies, and some a some extra metadata.
+Profiles are essentially a standardized Ansible Playbook, with explicitly defined dependencies, and some extra metadata.
 
 The directory structure is defined as follows:
 
@@ -50,6 +52,6 @@ The `install.yml` playbook is the Ansible `entrypoint` into the profile.  This p
 
 All roles and tasks should be defined in this file, and should be accessed from relative paths to this file.
 
-(Frequently it makes sense to created sub-folders under profile to nest `task`, `vars` and `handler` files for a profile).
+(Frequently it makes sense to created sub-folders under `profile` to nest `tasks`, `vars` and `handlers` files for larger, more organized set of Ansible tasks.).
 
 

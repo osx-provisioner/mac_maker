@@ -1,6 +1,7 @@
 """Test the JobSpec class."""
 
-from io import StringIO
+import json
+import os
 from logging import Logger
 from pathlib import Path
 from unittest import TestCase, mock
@@ -33,6 +34,37 @@ class TestSpecClass(TestCase):
     )
 
 
+class TestSpecValidity(TestCase):
+  """Test the JobSpec class validation methods."""
+
+  def setUp(self):
+    self.spec = spec.JobSpec()
+    self.mock_spec_file_location = Path("spec.json")
+    self.mock_workspace = mock.Mock()
+    self.mock_job_spec = {
+        'spec_file_content': "some content",
+        'spec_file_location': "some location"
+    }
+    self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
+
+  def test_v1_spec(self):
+    v1_mock_spec = self.fixtures_folder / "mock_v1_job_spec.json"
+    self.spec.create_job_spec_from_filesystem(v1_mock_spec)
+
+  def test_v1_spec_invalid(self):
+    v1_mock_spec = self.fixtures_folder / "mock_v1_invalid_job_spec.json"
+
+    with self.assertRaises(spec.JobSpecFileException) as exc:
+      self.spec.create_job_spec_from_filesystem(v1_mock_spec)
+
+    self.assertListEqual(
+        json.loads(exc.exception.args[0]), [
+            "'collections_path' is a required property",
+            "'roles_path' is a required property",
+        ]
+    )
+
+
 @mock.patch(SPEC_MODULE + '.FileSystem')
 class TestSpecCreateSpecFromGithub(TestCase):
   """Test the JobSpec class create_job_spec_from_github method."""
@@ -56,27 +88,26 @@ class TestSpecCreateSpecFromGithub(TestCase):
     )
 
 
-@mock.patch('builtins.open')
 class TestSpecCreateSpecFromFileSystem(TestCase):
   """Test the JobSpec class create_job_spec_from_filesystem method."""
 
   def setUp(self):
     self.spec = spec.JobSpec()
-    self.mock_spec_file_location = "/root/dir1/spec.json"
+    self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
 
-  def test_create_job_spec_from_github_results(self, m_open):
+  def test_create_job_spec_from_filesystem(self):
 
-    m_open.return_value.__enter__.return_value = StringIO('{"one": "two"}')
-    results = self.spec.create_job_spec_from_filesystem(
-        self.mock_spec_file_location
-    )
+    spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
 
-    self.assertEqual(
+    results = self.spec.create_job_spec_from_filesystem(spec_fixture)
+
+    with open(spec_fixture) as fhandle:
+      expected_result = json.load(fhandle)
+
+    self.assertDictEqual(
         results, {
-            'spec_file_content': {
-                "one": "two"
-            },
-            'spec_file_location': self.mock_spec_file_location,
+            'spec_file_content': expected_result,
+            'spec_file_location': spec_fixture,
         }
     )
 

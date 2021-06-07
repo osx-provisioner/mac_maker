@@ -1,0 +1,13 @@
+{
+  "workspace_root_path": "/Volumes/USB/osx-profile-development",
+  "profile_data_path": "/Volumes/USB/osx-profile-development/profile",
+  "galaxy_requirements_file": "/Volumes/USB/osx-profile-development/profile/requirements.yml",
+  "playbook": "/Volumes/USB/osx-profile-development/profile/install.yml",
+  "roles_paths": [
+    "/Volumes/USB/osx-profile-development/profile/roles"
+  ],
+  "collections_paths": [
+    "/Volumes/USB/osx-profile-development/profile/collections"
+  ],
+  "inventory": "/Volumes/USB/osx-profile-development/profile/inventory"
+}

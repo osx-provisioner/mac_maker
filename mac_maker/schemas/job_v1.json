@@ -1,0 +1,67 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Mac Maker v1 Job File Specification",
+    "type": "object",
+    "properties":
+        {
+            "collections_path":
+                {
+                    "description": "A list of absolute paths where Ansible Collections are found.  The `first` entry is the location where Ansible Galaxy requirements will be installed.",
+                    "type": "array",
+                    "items":
+                        {
+                            "description": "An absolute path to a location where Ansible Collections are found.",
+                            "type": "string"
+                        },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+            "galaxy_requirements_file":
+                {
+                    "description": "This is the absolute path to the Ansible Galaxy requirements YAML file.",
+                    "type": "string"
+                },
+            "inventory":
+                {
+                    "description": "The absolute path to the Ansible inventory file.  By default this file is written by Ansible to `profile_data_path/inventory`.",
+                    "type": "string"
+                },
+            "playbook":
+                {
+                    "description": "This is the absolute path to the top-level profile playbook YAML file.",
+                    "type": "string"
+                },
+            "profile_data_path":
+                {
+                    "description": "This is the absolute path to the top-level profile folder (usually, `workspace_root_path/profile`).",
+                    "type": "string"
+                },
+            "roles_path":
+                {
+                    "description": "A list of absolute paths where Ansible Roles are found.  The `first` entry is the location where Ansible Galaxy requirements will be installed.",
+                    "type": "array",
+                    "items":
+                        {
+                            "description": "An absolute path to a location where Ansible Roles are found.",
+                            "type": "string"
+                        },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+            "workspace_root_path":
+                {
+                    "description": "This is the absolute path on the file system to the profile's Git repository root folder.",
+                    "type": "string"
+                }
+        },
+    "required":
+        [
+            "collections_path",
+            "galaxy_requirements_file",
+            "inventory",
+            "playbook",
+            "profile_data_path",
+            "roles_path",
+            "workspace_root_path"
+        ]
+}

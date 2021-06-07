@@ -1,0 +1,42 @@
+Mac Maker Job Spec Files
+========================
+
+`Job Spec` files or `spec` files, are JSON files that contain a series of absolute paths, that tell `Mac Maker` where to find the Ansible configuration required to provision a Mac.
+
+Absolute paths are a bit of a pain to work with, but they are an excellent choice for removable media, such as USB sticks.  If you wish to work with a **private** code source as your `Mac Maker Profile`, creating a `Spec` file on removable media is a simple solution.
+
+.. toctree::
+   spec/spec.json.spec.rst
+
+=======================
+Working With Spec Files
+=======================
+
+Generally `Mac Maker Profiles` conform to the same basic structure, but `Spec` files allow you to break all conventions and point to whatever locations are convenient to you.
+
+- :ref:`Profile Details and Specification <profile-label>`
+
+The one unusual `Spec` file JSON key, is `inventory`.  Ansible uses an `inventory <https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html>`_ file to manage the lists of hosts that it will connect to.  In `Mac Maker`'s traditional use case, it's always connecting to localhost- so the inventory file has hard coded preset content for this.  This content is always written to a file named "inventory" in the `profile_data_path` filesystem location.
+
+Using a `spec` file, it's possible to configure Ansible to provision remote Macs.  There is complexity involved in doing this securely, please consult the `Ansible documentation <https://docs.ansible.com/ansible/latest/user_guide/connection_details.html>`_ for more details.
+
+====================
+An Example Spec File
+====================
+
+.. code-block:: json
+
+  {
+    "workspace_root_path": "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development",
+    "profile_data_path": "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development/profile",
+    "galaxy_requirements_file": "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development/profile/requirements.yml",
+    "playbook": "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development/profile/install.yml",
+    "roles_path": [
+      "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development/profile/roles"
+    ],
+    "collections_path": [
+      "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development/profile/collections"
+    ],
+    "inventory": "/Volumes/USB/mac_maker/installer.workspace/osx-profile-development/profile/inventory"
+  }
+

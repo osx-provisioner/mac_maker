@@ -35,6 +35,7 @@ extensions = [
     'sphinx_autodoc_annotation',
     'sphinx_click.ext',
     'sphinx-jsonschema',
+    'sphinx.ext.intersphinx',
 ]
 
 autosummary_generate = True
