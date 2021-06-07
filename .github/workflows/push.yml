@@ -24,9 +24,11 @@ jobs:
 
     steps:
       - name: OSX Build -- Checkout
+        if: contains(github.ref, '/tags/v')
         uses: actions/checkout@v1
 
       - name: OSX Build -- Setup Environment
+        if: contains(github.ref, '/tags/v')
         run: |
           source .github/scripts/setup.sh
         env:
@@ -34,10 +36,12 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
 
       - name: OSX Build -- Setup Python ${{ matrix.python-version }}
+        if: contains(github.ref, '/tags/v')
         run: |
           ./scripts/build.sh pyenv "${PYTHON_VERSION}"
 
       - name: OSX Build -- Setup Build Environment
+        if: contains(github.ref, '/tags/v')
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
@@ -47,6 +51,7 @@ jobs:
           PYENV_VERSION: ${{ matrix.python-version }}
 
       - name: OSX Build -- Build Mac Maker Binary
+        if: contains(github.ref, '/tags/v')
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
@@ -57,6 +62,7 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
 
       - name: OSX Build -- Test the version command
+        if: contains(github.ref, '/tags/v')
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
@@ -65,6 +71,7 @@ jobs:
           PYENV_VERSION: ${{ matrix.python-version }}
 
       - name: OSX Build -- Upload Build Artifact
+        if: contains(github.ref, '/tags/v')
         uses: actions/upload-artifact@v2
         with:
           name: built_binary
@@ -72,11 +79,12 @@ jobs:
           retention-days: 1
 
       - name: OSX Build -- Report Job Status (Success)
+        if: contains(github.ref, '/tags/v')
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} was successful"
 
       - name: OSX Build -- Report Job Status (Failure)
-        if: failure()
+        if: failure() && contains(github.ref, '/tags/v')
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} failed!"
 
