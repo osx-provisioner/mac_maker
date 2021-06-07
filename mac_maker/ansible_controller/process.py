@@ -1,24 +1,25 @@
 """Process management for Ansible commands."""
 
+import importlib
 import logging
 import os
 import shlex
-from typing import Type, Union
+import traceback
 
-from ansible.cli import CLI
-from ansible.utils.display import initialize_locale
+import click
 from click_shell.exceptions import ClickShellCleanExit, ClickShellUncleanExit
 from .. import config
+from . import environment
 
 
 class AnsibleProcess:
   """Process management for Ansible commands."""
 
-  def __init__(self, ansible_cli_class: Type[CLI], state: dict):
+  def __init__(self, ansible_module: str, ansible_class: str, state: dict):
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.state = state
-    self.ansible_cli_class = ansible_cli_class
-    self.pid: Union[None, int] = None
+    self.ansible_class = ansible_class
+    self.ansible_module = ansible_module
 
   def spawn(self, command: str):
     """Spawns an Ansible CLI Command in it's own process.
@@ -27,19 +28,11 @@ class AnsibleProcess:
     """
 
     self.log.debug("AnsibleProcess: Preparing to Fork for Ansible Process")
-    self.pid = os.fork()
-    if self.pid == 0:
+    pid = os.fork()
+    if pid == 0:
       self._forked_process(command)
     else:
-      self._main_process()
-
-  def _execution_location(self):
-    os.chdir(self.state['profile_data_path'])
-
-  def _environment(self):
-    initialize_locale()
-    roles_paths_string = ":".join(self.state['roles_path'])
-    os.environ[config.ENV_ANSIBLE_ROLES_PATH] = roles_paths_string
+      self._main_process(command, pid)
 
   def _forked_process(self, command: str):
     try:
@@ -51,19 +44,38 @@ class AnsibleProcess:
       self._environment()
       self._execution_location()
 
-      instance = self.ansible_cli_class(shlex.split(command))
+      ansible_cli_module = importlib.import_module(self.ansible_module)
+      ansible_cli_class = getattr(ansible_cli_module, self.ansible_class)
+
+      instance = ansible_cli_class(shlex.split(command))
+
       try:
         instance.run()
       except Exception:
+        traceback.print_exc()
         raise ClickShellUncleanExit()  # pylint: disable=raise-missing-from
       raise ClickShellCleanExit()
     except KeyboardInterrupt:
       self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
-  def _main_process(self):
+  def _environment(self):
+    display = importlib.import_module(config.ANSIBLE_LIBRARY_LOCALE_MODULE)
+    display.initialize_locale()
+    env = environment.Environment(self.state)
+    env.setup()
+
+  def _execution_location(self):
+    os.chdir(self.state['profile_data_path'])
+
+  def _main_process(self, command: str, pid: int):
     try:
-      os.waitpid(self.pid, 0)
+      _, exit_status = os.waitpid(pid, 0)
+      if os.WEXITSTATUS(exit_status):
+        click.echo("ANSIBLE ERROR: Non zero exit code.")
+        click.echo("COMMAND: %s" % command)
+        self.log.error("AnsibleProcess: Forked process reports error.")
+        raise ClickShellUncleanExit()
       self.log.debug("AnsibleProcess: Forked process has completed.")
     except KeyboardInterrupt:
       self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
