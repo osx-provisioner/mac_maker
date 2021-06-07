@@ -1,5 +1,6 @@
 ---
 sudo: required
+if: tag IS present
 language: bash
 jobs:
   include:
