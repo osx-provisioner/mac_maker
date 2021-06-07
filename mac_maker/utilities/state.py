@@ -31,6 +31,7 @@ class State:
         "playbook":
             filesystem.get_playbook_file(string=True),
         "roles_path": [filesystem.get_roles_path(string=True)],
+        "collections_path": [filesystem.get_collections_path(string=True)],
         "inventory":
             filesystem.get_inventory_file(string=True),
     }

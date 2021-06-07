@@ -106,3 +106,18 @@ class TestFileSystem(TestCase):
         self.filesystem.get_roles_path(string=True),
         str((self.mock_root / config.PROFILE_FOLDER_PATH / "roles").resolve())
     )
+
+  def test_get_collections_path(self):
+    self.assertEqual(
+        self.filesystem.get_collections_path(),
+        self.mock_root / config.PROFILE_FOLDER_PATH / "collections"
+    )
+
+  def test_get_collections_path_str(self):
+    self.assertEqual(
+        self.filesystem.get_collections_path(string=True),
+        str(
+            (self.mock_root / config.PROFILE_FOLDER_PATH /
+             "collections").resolve()
+        )
+    )

@@ -51,3 +51,8 @@ class FileSystem:
   def get_roles_path(self) -> Path:
     """Returns the current Ansible roles folder location(s)."""
     return self.get_profile_data_path() / "roles"
+
+  @convertable_path
+  def get_collections_path(self) -> Path:
+    """Returns the current Ansible collections folder location(s)."""
+    return self.get_profile_data_path() / "collections"

@@ -1,12 +1,14 @@
 """Test the State class."""
 
 import json
+import os
 from io import StringIO
 from logging import Logger
 from pathlib import Path
 from unittest import TestCase, mock
 
-from .. import state
+from jsonschema import validate
+from .. import filesystem, state
 
 STATE_MODULE = state.__name__
 
@@ -21,11 +23,24 @@ class TestStateClass(TestCase):
     }
     self.mock_state_file_name = Path("spec.json")
 
+    self.schema_definition = (
+        Path(os.path.dirname(__file__)).parent.parent / "schemas" /
+        "job_v1.json"
+    )
+
   def test_init_settings(self):
     self.assertIsInstance(
         self.state.log,
         Logger,
     )
+
+  def test_state_generation_conforms_to_spec(self):
+    with open(self.schema_definition) as fhandle:
+      schema = json.load(fhandle)
+
+    mock_fs = filesystem.FileSystem("/root/mockdir")
+    generated_state = self.state.state_generate(mock_fs)
+    validate(generated_state, schema)
 
   @mock.patch('builtins.open')
   def test_state_dehydrate(self, m_open):
