@@ -5,8 +5,12 @@
 A portable single binary configuration tool for OSX machines.
 
 - Brings [Ansible](https://www.ansible.com/) powered Configuration Management to your Mac.
-- Install all the apps you need, and configure your Mac exactly how you like it.
-- Mix and match existing Ansible roles such [asdf](https://github.com/osx-provisioner/role-asdf), [ClamAV](https://github.com/osx-provisioner/role-clamav) and [Homeshick](https://github.com/osx-provisioner/role-homeshick) with the huge array of Mac roles on [Ansible Galaxy](https://galaxy.ansible.com/).
+- Mix and match existing Ansible roles such [asdf](https://github.com/osx-provisioner/role-asdf), [clamav](https://github.com/osx-provisioner/role-clamav) and [homeshick](https://github.com/osx-provisioner/role-homeshick) with the huge array of Mac roles on [Ansible Galaxy](https://galaxy.ansible.com/).
+
+### Generate a consistent, reproducible "profile" of your machine
+
+- Start with a freshly installed Mac, and apply a `Mac Maker Profile` to add all the customizations and applications you want.
+- Alternatively, start with an existing Mac you already use, and incrementally build a `Mac Maker Profile` putting all your existing apps and customizations under version control.
 
 ### Master Branch Builds
 - GitHub:
@@ -24,12 +28,22 @@ A portable single binary configuration tool for OSX machines.
 
 ### How do I use this?
 
-Copy the `mac_maker` binary to the OSX machine you'd like to put under configuration management.
-If you have a working internet connection, you can start installing `Mac Maker Profiles`.
+If you'd like to try it out, head over to the [Mac Maker Releases](https://github.com/osx-provisioner/mac_maker/releases) and download a pre-built binary.
+
+- Note that these binaries are only for Intel Macs. 
+- They are unsigned, and not notarized by Apple.
+- As such, they will trigger a warning about software from an unidentified developer.
+
+### OK, but you still didn't tell me how to get started...
+
+- Copy the `mac_maker` binary to the OSX machine you'd like to put under configuration management.
+- If you have a working internet connection, you can start working with `Mac Maker Profiles`.  
+- To try creating your own `Profile`, check out [this](https://github.com/osx-provisioner/profile-generator) repository.
+- To learn more about `Mac Maker Profiles`, and to try out a simple example, continue reading here.
 
 ### Mac Maker Profiles
 
-Mac Maker uses the concept of "profiles", to bundle together the Ansible configuration required to configure your Mac.
+Mac Maker uses the concept of `Profiles`, to bundle together the Ansible configuration required to configure your Mac.
 
 Here's an [example profile](https://github.com/osx-provisioner/profile-example) for you to test out:
 
@@ -38,36 +52,16 @@ Here's an [example profile](https://github.com/osx-provisioner/profile-example) 
   - `precheck github https://github.com/osx-provisioner/profile-example`
   - `apply github https://github.com/osx-provisioner/profile-example`
 
-You can work with "profiles" in one of two ways for now:
+You can work with `Profiles` in one of two ways:
 
-1) Create a public GitHub Repository that contains your profile, taking care NOT to included privileged content.
-2) Create your profile in any private git repository, and clone it to a USB key (or other portable media).  Add a `spec.json` file to the USB stick telling Mac Maker how to find it.
+- Create a public GitHub Repository that contains your profile, taking care NOT to included privileged content.
+- Create your profile in any private git repository, and clone it to a USB key (or other portable media).  Add a `spec.json` file to the USB stick telling Mac Maker how to find it.
 
-### How do I create a Profile?
+To find out more:
 
-Use [this template](https://github.com/osx-provisioner/profile-generator) to create your own custom profiles.
-
-
-### What's a spec.json file?
-
-A Mac Maker profile has a specific directory structure.  The `spec.json` file lets you mix and match where the directories and files are. 
-It's a bit inflexible in certain ways, because it requires absolute paths, but this makes it ideal to work off a USB stick or any portable media.
-
-```json
-{
-  "workspace_root_path": "The absolute path to the root folder of your cloned profile repository.",
-  "profile_data_path": "This absolute path usually points to the `profile` folder inside your profile repository.",
-  "galaxy_requirements_file": "This absolute path usually points to the `profile_data_path/requirements.yml` file inside your profile repository.",
-  "playbook": "This absolute path usually points to the `profile_data_path/install.yml` file inside your profile repository.",
-  "roles_path": [
-    "This absolute path usually points to the `profile_data_path/roles` folder inside your profile repository.",
-    "You can append several roles directories here, they should all be absolute paths."
-  ],
-  "inventory": "This absolute path usually points to the `profile_data_path/inventory` file inside your repository."
-}
-```
-
-Every Mac you bring your USB stick to will end up with the same configuration.
+- Read about the `Mac Maker Profiles`, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/3.profiles.html).
+- Use [this template](https://github.com/osx-provisioner/profile-generator) to create your own custom profiles.
+- Read about the `spec.json` file, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/4.spec_files.html).
 
 ## License
 
