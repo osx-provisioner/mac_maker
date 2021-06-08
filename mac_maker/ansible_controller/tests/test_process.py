@@ -9,7 +9,7 @@ from ... import config
 from ...utilities import filesystem, state
 from .. import process
 
-ANSIBLE_PROCESS = process.__name__
+PROCESS_MODULE = process.__name__
 
 
 class TestAnsibleProcessClass(TestCase):
@@ -41,8 +41,8 @@ class TestAnsibleProcessClass(TestCase):
     self.assertEqual(self.process.ansible_class, self.mock_class)
 
 
-@mock.patch(ANSIBLE_PROCESS + ".os")
-@mock.patch(ANSIBLE_PROCESS + ".importlib.import_module")
+@mock.patch(PROCESS_MODULE + ".os")
+@mock.patch(PROCESS_MODULE + ".importlib.import_module")
 class TestAnsibleProcessSpawn(TestCase):
   """Test starting the AnsibleRunner class."""
 
@@ -76,6 +76,30 @@ class TestAnsibleProcessSpawn(TestCase):
     mock_cli_class.assert_called_once_with(split_command)
     mock_cli_class.return_value.run.assert_called_once_with()
 
+  @mock.patch(
+      PROCESS_MODULE + ".sys.argv", [
+          'apply',
+          'github',
+          'https://github.com/osx-provisioner/profile-example.git',
+      ]
+  )
+  def test_spawn_forked_process_without_shell(self, m_import, m_os):
+    split_command = shlex.split(self.command)
+
+    mock_display = mock.Mock()
+    mock_cli_module = mock.Mock()
+    mock_cli_class = getattr(mock_cli_module, self.mock_class)
+    m_import.side_effect = [mock_display, mock_cli_module]
+
+    m_os.fork.return_value = 0
+
+    with self.assertRaises(SystemExit):
+      self.process.spawn(self.command)
+
+    m_os.fork.assert_called_once_with()
+    mock_cli_class.assert_called_once_with(split_command)
+    mock_cli_class.return_value.run.assert_called_once_with()
+
   def test_spawn_forked_process_dynamic_imports(self, m_import, m_os):
 
     mock_display = mock.Mock()
@@ -94,7 +118,7 @@ class TestAnsibleProcessSpawn(TestCase):
         ]
     )
 
-  @mock.patch(ANSIBLE_PROCESS + ".environment.Environment.setup")
+  @mock.patch(PROCESS_MODULE + ".environment.Environment.setup")
   def test_spawn_forked_process_environment(self, m_env, m_import, m_os):
     m_os.fork.return_value = 0
 

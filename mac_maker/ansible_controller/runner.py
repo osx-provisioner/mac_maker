@@ -4,7 +4,7 @@ import logging
 
 import click
 from .. import config
-from .process import AnsibleProcess
+from . import process
 
 
 class AnsibleRunner:
@@ -69,7 +69,7 @@ class AnsibleRunner:
     return command
 
   def _do_ansible_galaxy_roles(self, galaxy_command):
-    controller = AnsibleProcess(
+    controller = process.AnsibleProcess(
         config.ANSIBLE_LIBRARY_GALAXY_MODULE,
         config.ANSIBLE_LIBRARY_GALAXY_CLASS,
         self.state,
@@ -83,7 +83,7 @@ class AnsibleRunner:
     )
 
   def _do_ansible_galaxy_col(self, galaxy_command):
-    controller = AnsibleProcess(
+    controller = process.AnsibleProcess(
         config.ANSIBLE_LIBRARY_GALAXY_MODULE,
         config.ANSIBLE_LIBRARY_GALAXY_CLASS,
         self.state,
@@ -97,7 +97,7 @@ class AnsibleRunner:
     )
 
   def _do_ansible_playbook(self, ansible_command):
-    controller = AnsibleProcess(
+    controller = process.AnsibleProcess(
         config.ANSIBLE_LIBRARY_PLAYBOOK_MODULE,
         config.ANSIBLE_LIBRARY_PLAYBOOK_CLASS,
         self.state,

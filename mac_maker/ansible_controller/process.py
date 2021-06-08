@@ -4,11 +4,12 @@ import importlib
 import logging
 import os
 import shlex
+import sys
 import traceback
 
 import click
 from click_shell.exceptions import ClickShellCleanExit, ClickShellUncleanExit
-from .. import config
+from .. import cli, config
 from . import environment
 
 
@@ -54,7 +55,7 @@ class AnsibleProcess:
       except Exception:
         traceback.print_exc()
         raise ClickShellUncleanExit()  # pylint: disable=raise-missing-from
-      raise ClickShellCleanExit()
+      self._perform_clean_exit()
     except KeyboardInterrupt:
       self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
       raise ClickShellUncleanExit() from KeyboardInterrupt
@@ -80,3 +81,14 @@ class AnsibleProcess:
     except KeyboardInterrupt:
       self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
       raise ClickShellUncleanExit() from KeyboardInterrupt
+
+  def _perform_clean_exit(self):
+    if self._was_started_without_shell():
+      sys.exit(0)
+    raise ClickShellCleanExit()
+
+  def _was_started_without_shell(self):
+    for command in cli.cli.commands.keys():
+      if command in sys.argv:
+        return True
+    return False

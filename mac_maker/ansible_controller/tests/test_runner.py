@@ -35,7 +35,7 @@ class TestAnsibleRunnerClass(TestCase):
 
 
 @mock.patch(RUNNER_MODULE + ".click.echo")
-@mock.patch(RUNNER_MODULE + ".AnsibleProcess")
+@mock.patch(RUNNER_MODULE + ".process.AnsibleProcess")
 class TestAnsibleRunnerSequence(TestCase):
   """Test starting the AnsibleRunner class."""
 
