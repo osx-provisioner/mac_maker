@@ -1,6 +1,4 @@
-#!/Users/nbyrne/Library/Caches/pypoetry/virtualenvs/mac-maker-sTprDtj--py3.8/bin/python
-
-#!/usr/local/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from mac_maker import cli
 
