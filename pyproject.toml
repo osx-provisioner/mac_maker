@@ -60,6 +60,7 @@
       mypy = "^0.812"
       parameterized = "^0.8.1"
       pib_cli = "^0.1.0"
+      pydocstyle = "^6.1.1"
       pyinstaller = "^4.3"
       sphinx-autodoc-annotation = "^1.0"
       sphinx-autopackagesummary = "^1.3"

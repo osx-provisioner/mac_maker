@@ -1,0 +1,5 @@
+[pydocstyle]
+inherit = false
+ignore = D102,D103,D105,D106,D107,D202,D203,D205,D213
+match = (test_|fixtures_|integration_).*\.py
+match-dir = .*

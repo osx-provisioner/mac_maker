@@ -1,4 +1,4 @@
-"""Test the OSX-Provisioner CLI"""
+"""Test the OSX-Provisioner CLI."""
 
 from unittest import mock
 

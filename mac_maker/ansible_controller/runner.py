@@ -15,8 +15,8 @@ class AnsibleRunner:
     self.debug = debug
     self.state = state_object
 
-  def start(self) -> None:
-    """Starts the Ansible provisioning workflow."""
+  def start(self):
+    """Start the Ansible provisioning workflow."""
 
     galaxy_roles_command = self._construct_galaxy_roles_command()
     galaxy_col_command = self._construct_galaxy_col_command()

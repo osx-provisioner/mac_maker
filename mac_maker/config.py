@@ -1,4 +1,4 @@
-"""Mac Maker configuration settings"""
+"""Mac Maker configuration settings."""
 
 from pathlib import Path
 

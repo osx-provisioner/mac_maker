@@ -86,7 +86,7 @@ class GithubRepository:
     )
 
   def get_zip_bundle_root_folder(self, branch_name: Union[str, None]) -> str:
-    """Returns the name of the top level folder inside a repo's zip bundle."""
+    """Return the name of the top level folder inside a repo's zip bundle."""
 
     branch_name = self.get_branch_name(branch_name)
     return f"{self._parsed_url.group('repo')}-{branch_name}"

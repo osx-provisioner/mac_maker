@@ -27,7 +27,7 @@ class Logger:
     return logging.Formatter(config.LOGGER_FORMAT)
 
   def setup(self):
-    """Configures the project's logger."""
+    """Configure the project's logger."""
 
     self.logger.setLevel(self.level)
     self.handler.setFormatter(self._get_stdout_formatter())
