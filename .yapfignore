@@ -1,3 +1,12 @@
 **/*_pb2.py
-venv/**/*.py
 *.pex
+
+installer.workspace/**/*.py
+htmlcov/**/*.py
+build/**/*.py
+dist/**/*.py
+venv/**/*.py
+
+.mypy_cache/**/*.py
+.pytest_cache/**/*.py
+.idea/**/*.py
