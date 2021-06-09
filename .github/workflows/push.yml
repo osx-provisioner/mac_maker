@@ -12,7 +12,56 @@ on:
 
 jobs:
 
+  apply:
+    needs: [osx_build]
+
+    # Only on tags, master and production branches.
+
+    runs-on: macos-${{ matrix.os }}
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [10.15]
+        platform: [x86_64]
+        python-version: [3.8.10]
+
+    steps:
+      - name: Apply Test -- Checkout
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+        uses: actions/checkout@v1
+
+      - name: Apply Test -- Download Built Binary
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+        uses: actions/download-artifact@v2
+        with:
+          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}
+
+      - name: Apply Test -- Clear Quarantine Attribute
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+        run: |
+          tar xvzf mac_maker_${{ matrix.os }}_${{ matrix.platform }}.tar.gz
+          xattr -d -r com.apple.quarantine mac_maker_${{ matrix.os }}_${{ matrix.platform }}
+
+      - name: Apply Test -- Apply a Profile
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+        run: |
+          cd mac_maker_${{ matrix.os }}_${{ matrix.platform }}
+          export ANSIBLE_BECOME_PASSWORD="skip the prompt"
+          ./mac_maker apply github https://github.com/osx-provisioner/profile-example.git
+
+      - name: Apply Test -- Report Job Status (Success)
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} profile application using built binary (${{ matrix.os }} ${{ matrix.platform }}) was successful"
+
+      - name: Apply Test -- Report Job Status (Failure)
+        if: failure() && (contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production')
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os }} profile application using built binary (${{ matrix.os }} ${{ matrix.platform }}) failed!"
+
   osx_build:
+
+    # Only on tags, master and production branches.
 
     runs-on: macos-${{ matrix.os }}
     strategy:
@@ -24,11 +73,11 @@ jobs:
 
     steps:
       - name: OSX Build -- Checkout
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         uses: actions/checkout@v1
 
       - name: OSX Build -- Setup Environment
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         run: |
           source .github/scripts/setup.sh
         env:
@@ -36,12 +85,12 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
 
       - name: OSX Build -- Setup Python ${{ matrix.python-version }}
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         run: |
           ./scripts/build.sh pyenv "${PYTHON_VERSION}"
 
       - name: OSX Build -- Setup Build Environment
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
@@ -51,7 +100,7 @@ jobs:
           PYENV_VERSION: ${{ matrix.python-version }}
 
       - name: OSX Build -- Build Mac Maker Binary
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
@@ -62,7 +111,7 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
 
       - name: OSX Build -- Test the version command
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
@@ -71,20 +120,20 @@ jobs:
           PYENV_VERSION: ${{ matrix.python-version }}
 
       - name: OSX Build -- Upload Build Artifact
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         uses: actions/upload-artifact@v2
         with:
-          name: built_binary
+          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}
           path: ./dist/mac_maker_${{ matrix.os }}_${{ matrix.platform }}.tar.gz
           retention-days: 1
 
       - name: OSX Build -- Report Job Status (Success)
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} was successful"
 
       - name: OSX Build -- Report Job Status (Failure)
-        if: failure() && contains(github.ref, '/tags/v')
+        if: failure() && (contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production')
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} failed!"
 
@@ -156,9 +205,15 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: container build for Python ${PYTHON_VERSION} failed!"
 
   create_release:
-    needs: [osx_build, container_build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
+    needs: [apply, container_build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
 
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [10.15]
+        platform: [x86_64]
+        python-version: [3.8.10]
 
     steps:
       - name: Create Release -- Checkout
@@ -169,7 +224,7 @@ jobs:
         if: contains(github.ref, '/tags/v')
         uses: actions/download-artifact@v2
         with:
-          name: built_binary
+          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}
 
       - name: Create Release -- Setup Environment
         if: contains(github.ref, '/tags/v')
@@ -202,8 +257,8 @@ jobs:
           body: |
             ${{ steps.Changelog.outputs.changelog }}
             ## Deployment Checklist
-            - [ ] Ensure documentation is accurate
-            - [ ] Ensure readthedocs integration is working
+            - [] Ensure documentation is accurate
+            - [] Ensure readthedocs integration is working
           draft: false
           prerelease: false
 
@@ -341,7 +396,7 @@ jobs:
         env:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-      - name: Workflow Lint PIB -- Run Linter
+      - name: Workflow Lint -- Run Linter
         run: |
           yamllint ./.github/workflows -c .yamllint.yml -f standard
 
