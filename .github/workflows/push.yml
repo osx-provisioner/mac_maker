@@ -240,7 +240,7 @@ jobs:
 
       - name: Create Release -- Generate Changelog
         if: contains(github.ref, '/tags/v')
-        uses: scottbrenner/generate-changelog-action@1.0.3
+        uses: scottbrenner/generate-changelog-action@v1.3.1
         id: Changelog
         env:
           REPO: ${{ github.repository }}
@@ -335,7 +335,7 @@ jobs:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Security Test -- Run Gitleaks
-        uses: zricethezav/gitleaks-action@master
+        uses: zricethezav/gitleaks-action@v1.6.0
 
       - name: Security Test -- Report Success
         run: |
