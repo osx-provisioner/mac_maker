@@ -74,6 +74,10 @@ COPY . /app
 # Create A Symlink For the Bash Customizations
 RUN ln -sf /app/assets/.bash_customize /home/user/.bash_customize
 
+# https://github.com/python-poetry/poetry/issues/3321
+RUN mkdir -p /home/user/.local/lib/python${PYTHON_VERSION}/site-packages && \
+    mkdir -p /home/user/.local/bin
+
 # Setup The Dev CLI
 RUN poetry lock                                                 && \
     poetry install                                              && \
@@ -94,6 +98,11 @@ COPY . /app
 
 # Install the Production Dependencies
 USER root
+
+# https://github.com/python-poetry/poetry/issues/3321
+RUN mkdir -p /home/user/.local/lib/python${PYTHON_VERSION}/site-packages && \
+    mkdir -p /home/user/.local/bin
+
 RUN poetry lock                                                 && \
     poetry install --no-dev                                     && \
     pip uninstall -y poetry
