@@ -15,7 +15,7 @@
 
     [tool.coverage.run]
       branch = true
-      omit = ["*/test*","setup.py"]
+      omit = ["*/test*", "setup.py"]
       source = ["."]
 
   [tool.isort]
@@ -33,7 +33,7 @@
     authors = ["Niall Byrne <niall@niallbyrne.ca>"]
     description = "Ansible based provisioner for OSX machines."
     documentation = "https://github.com/osx-provisioner/mac_maker/README.md"
-    exclude = ["**/tests/*","**/*.sh"]
+    exclude = ["**/tests/*", "**/*.sh"]
     homepage = "https://github.com/osx-provisioner/mac_maker"
     include = ["mac_maker/data/*"]
     keywords = []

@@ -29,7 +29,7 @@ RUN useradd user -d /home/user        \
  && chown -R user:user /app
 
 # Install Latest Poetry
-RUN pip install poetry             && \
+RUN pip install poetry!=1.1.8      && \
     pip install --upgrade pip      && \
     mkdir -p /usr/local/src        && \
     chown user:user /usr/local/src
