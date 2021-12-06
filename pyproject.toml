@@ -47,7 +47,7 @@
       PyYAML = "^5.4.1"
       ansible = "^4.0.0"
       click = ">=7.0.0,<8.0.0"
-      jsonschema = "^3.2.0"
+      jsonschema = "^4.2.1"
       pyinstaller = "^4.3"
       python = ">=3.8.0,<3.10.0"
       requests = "^2.25.1"
