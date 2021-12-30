@@ -43,7 +43,7 @@ class TestSUDO(fixtures_git.GitTestHarness):
   @mock.patch(PASSWORD_MODULE + ".subprocess.Popen")
   def test_prompt_for_sudo(self, m_p_open, m_os, m_prompt):
 
-    m_p_open.side_effect = [
+    m_p_open.return_value.__enter__.side_effect = [
         self.unsuccessful_sudo,
         self.successful_sudo,
     ]

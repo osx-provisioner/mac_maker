@@ -27,7 +27,7 @@ class InventoryFile:
 
     self._ensure_path_exists()
 
-    with open(self.spec['inventory'], "w") as fhandle:
+    with open(self.spec['inventory'], "w", encoding="utf-8") as fhandle:
       fhandle.write(config.ANSIBLE_INVENTORY_CONTENT)
     self.log.debug(
         "InventoryFile: inventory has been written to %s",

@@ -74,7 +74,7 @@ class AnsibleProcess:
       _, exit_status = os.waitpid(pid, 0)
       if os.WEXITSTATUS(exit_status):
         click.echo("ANSIBLE ERROR: Non zero exit code.")
-        click.echo("COMMAND: %s" % command)
+        click.echo(f"COMMAND: {command}")
         self.log.error("AnsibleProcess: Forked process reports error.")
         raise ClickShellUncleanExit()
       self.log.debug("AnsibleProcess: Forked process has completed.")

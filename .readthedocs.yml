@@ -6,9 +6,10 @@ sphinx:
   configuration: documentation/source/conf.py
 formats: []
 python:
-  version: 3.8
+  version: "3.8"
   install:
     - method: pip
       path: .
-    - requirements: documentation/requirements.txt
+      extra_requirements:
+        - docs
   system_packages: false

@@ -2,7 +2,7 @@
 
 import unittest
 
-from ... import jobs
+from ...cli import Jobs
 
 
 class GitTestHarness(unittest.TestCase):
@@ -18,4 +18,4 @@ class GitTestHarness(unittest.TestCase):
     self.repository_ssh_url = (
         f"git@github.com:{self.org_name}/{self.repo_name}.git"
     )
-    self.jobs = jobs.Jobs()
+    self.jobs = Jobs()

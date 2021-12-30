@@ -29,7 +29,7 @@ class PrecheckConfig:
       raise PrecheckConfigException(self.syntax_error) from exc
 
   def _load_schema(self) -> dict:
-    with open(self.schema_definition) as fhandle:
+    with open(self.schema_definition, encoding="utf-8") as fhandle:
       schema = json.load(fhandle)
     return schema
 
@@ -50,9 +50,8 @@ class PrecheckConfig:
       if environment_variable_name not in os.environ:
         violations.append(self._env_validation_error(definition))
 
-    is_valid = violations == []
     return {
-        'is_valid': is_valid,
+        'is_valid': not violations,
         'violations': violations,
     }
 

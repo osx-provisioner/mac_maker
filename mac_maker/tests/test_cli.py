@@ -19,6 +19,7 @@ class CLITestHarness(fixtures_git.GitTestHarness):
     self.runner = CliRunner()
 
 
+# pylint: disable=no-member
 @parameterized_class(
     [
         {

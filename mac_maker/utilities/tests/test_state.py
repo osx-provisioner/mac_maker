@@ -35,7 +35,7 @@ class TestStateClass(TestCase):
     )
 
   def test_state_generation_conforms_to_spec(self):
-    with open(self.schema_definition) as fhandle:
+    with open(self.schema_definition, encoding="utf-8") as fhandle:
       schema = json.load(fhandle)
 
     mock_fs = filesystem.FileSystem("/root/mockdir")
@@ -51,7 +51,9 @@ class TestStateClass(TestCase):
         self.mock_state_data,
         self.mock_state_file_name,
     )
-    m_open.assert_called_once_with(self.mock_state_file_name, "w")
+    m_open.assert_called_once_with(
+        self.mock_state_file_name, "w", encoding="utf-8"
+    )
 
     self.assertDictEqual(
         self.mock_state_data,
@@ -67,6 +69,6 @@ class TestStateClass(TestCase):
 
     result = self.state.state_rehydrate(self.mock_state_file_name)
 
-    m_open.assert_called_once_with(self.mock_state_file_name)
+    m_open.assert_called_once_with(self.mock_state_file_name, encoding="utf-8")
 
     self.assertDictEqual(result, self.mock_state_data)

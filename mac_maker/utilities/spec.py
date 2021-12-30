@@ -31,7 +31,7 @@ class JobSpec:
     self.schema = self._load_json_file(self.schema_definition)
 
   def _load_json_file(self, json_file_location: Union[Path, str]) -> Dict:
-    with open(json_file_location) as fhandle:
+    with open(json_file_location, encoding="utf-8") as fhandle:
       json_file_content = json.load(fhandle)
     return json_file_content
 
@@ -98,12 +98,16 @@ class JobSpec:
 
     spec_file = self.state_manager.state_rehydrate(Path(spec_file_location))
     workspace_root = Path(spec_file['workspace_root_path'])
-    precheck_data = dict()
+    precheck_data = {}
 
-    with open(workspace_root / config.PRECHECK['notes']) as notes_fh:
+    with open(
+        workspace_root / config.PRECHECK['notes'], encoding="utf-8"
+    ) as notes_fh:
       precheck_data['notes'] = notes_fh.read()
 
-    with open(workspace_root / config.PRECHECK['env']) as env_fh:
+    with open(
+        workspace_root / config.PRECHECK['env'], encoding="utf-8"
+    ) as env_fh:
       precheck_data['env'] = env_fh.read()
 
     return precheck_data

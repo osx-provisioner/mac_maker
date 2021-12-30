@@ -67,3 +67,9 @@
     - 'pytest ${PIB_OVERLOAD_ARGUMENTS}'
   success: "Unittests Passed!"
   failure: "Unittests Failed!"
+- name: "types"
+  path_method: "project_root"
+  commands:
+    - 'mypy ${PROJECT_NAME}'
+  success: "Type Check Passed!"
+  failure: "Type Check Failed!"

@@ -10,8 +10,12 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
 
-jobs:
+env:
+  PROJECT_NAME: "mac_maker"
+  USERNAME: "osx-provisioner"
+  VERBOSE_NOTIFICATIONS: 0
 
+jobs:
   apply:
     needs: [osx_build]
 
@@ -28,7 +32,7 @@ jobs:
     steps:
       - name: Apply Test -- Checkout
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Apply Test -- Download Built Binary
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
@@ -55,7 +59,7 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} profile application using built binary (${{ matrix.os }} ${{ matrix.platform }}) was successful"
 
       - name: Apply Test -- Report Job Status (Failure)
-        if: failure() && (contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production')
+        if: failure()
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os }} profile application using built binary (${{ matrix.os }} ${{ matrix.platform }}) failed!"
 
@@ -74,7 +78,7 @@ jobs:
     steps:
       - name: OSX Build -- Checkout
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: OSX Build -- Setup Environment
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
@@ -133,7 +137,7 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} was successful"
 
       - name: OSX Build -- Report Job Status (Failure)
-        if: failure() && (contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production')
+        if: failure()
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os }} binary build for Python ${PYTHON_VERSION} failed!"
 
@@ -148,7 +152,7 @@ jobs:
 
     steps:
       - name: Container Build -- Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Container Build -- Setup Environment
         run: |
@@ -189,13 +193,14 @@ jobs:
 
       - name: Container Build -- Run MyPy
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" mypy "${PROJECT_NAME}"
+          docker-compose exec -T "${PROJECT_NAME}" dev types
 
       - name: Container Build -- Run Release Validation
         run: |
           docker-compose exec -T "${PROJECT_NAME}" ./scripts/release.sh
 
       - name: Container Build -- Report Job Status (Success)
+        if: ${{ env.VERBOSE_NOTIFICATIONS  == '1' }}
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: container build for Python ${PYTHON_VERSION} was successful"
 
@@ -218,7 +223,9 @@ jobs:
     steps:
       - name: Create Release -- Checkout
         if: contains(github.ref, '/tags/v')
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Download Built Binary
         if: contains(github.ref, '/tags/v')
@@ -296,7 +303,7 @@ jobs:
 
     steps:
       - name: Documentation Test -- Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Documentation Test -- Setup Environment
         run: |
@@ -311,6 +318,7 @@ jobs:
           use-verbose-mode: 'yes'
 
       - name: Documentation Test -- Report Success
+        if: ${{ env.VERBOSE_NOTIFICATIONS  == '1' }}
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: documentation checks were successful!"
 
@@ -326,7 +334,9 @@ jobs:
     steps:
 
       - name: Security Test -- Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Documentation Test -- Setup Environment
         run: |
@@ -338,8 +348,10 @@ jobs:
         uses: zricethezav/gitleaks-action@v1.6.0
 
       - name: Security Test -- Report Success
+        if: ${{ env.VERBOSE_NOTIFICATIONS  == '1' }}
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: security checks were successful!"
+
       - name: Security Test -- Report Failure
         if: failure()
         run: |
@@ -351,7 +363,7 @@ jobs:
 
     steps:
       - name: Shellcheck -- Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Shellcheck -- Setup Environment
         run: |
@@ -364,6 +376,7 @@ jobs:
           source .github/scripts/shellcheck.sh
 
       - name: Shellcheck -- Report Job Status on Success
+        if: ${{ env.VERBOSE_NOTIFICATIONS  == '1' }}
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: shellcheck checks were successful!"
 
@@ -371,6 +384,52 @@ jobs:
         if: failure()
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: shellcheck checks failed!"
+
+  start_notification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start -- Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Start -- Setup Environment
+        run: |
+          source ./.github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Start -- Report Job Status on Success
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: workflow has started!"
+
+      - name: Start -- Report Job Status on Failure
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: error reporting job status!"
+
+  success_notification:
+    needs: [create_release]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Success -- Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Success -- Setup Environment
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Success -- Report Job Status on Success
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: all checks were successful!"
+
+      - name: Success -- Report Job Status on Failure
+        if: failure()
+        run: |
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: error reporting job status!"
 
   workflow_lint_test:
 
@@ -387,7 +446,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Workflow Lint -- Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Workflow Lint -- Setup Environment
         run: |
@@ -401,6 +460,7 @@ jobs:
           yamllint ./.github/workflows -c .yamllint.yml -f standard
 
       - name: Workflow Lint -- Report Job Status on Success
+        if: ${{ env.VERBOSE_NOTIFICATIONS  == '1' }}
         run: |
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: workflow linting was successful!"
 

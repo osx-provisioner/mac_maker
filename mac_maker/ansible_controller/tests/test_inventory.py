@@ -41,7 +41,9 @@ class TestInventoryFile(TestCase):
         exist_ok=True,
     )
 
-    m_open.assert_called_once_with(self.spec['inventory'], 'w')
+    m_open.assert_called_once_with(
+        self.spec['inventory'], 'w', encoding="utf-8"
+    )
     handle = m_open()
     handle.write.assert_called_once_with(config.ANSIBLE_INVENTORY_CONTENT)
 

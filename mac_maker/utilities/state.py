@@ -37,14 +37,14 @@ class State:
     }
 
   def state_dehydrate(self, state_data: dict, state_filename: Path) -> dict:
-    """Write a state file to disk.
+    """Read a state file to disk.
 
     :param state_data: The Python dictionary that represents the state.
     :param state_filename: The path to the state file that will be written.
     """
 
     self.log.debug("State: saving State as Spec File")
-    with open(state_filename, "w") as file_handle:
+    with open(state_filename, "w", encoding="utf-8") as file_handle:
       json.dump(state_data, file_handle)
     return state_data
 
@@ -55,6 +55,6 @@ class State:
     """
 
     self.log.debug("State: Loading State from Spec File")
-    with open(state_filename) as file_handle:
+    with open(state_filename, encoding="utf-8") as file_handle:
       state_data = json.load(file_handle)
     return state_data

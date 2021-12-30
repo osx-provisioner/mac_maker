@@ -11,6 +11,7 @@ from .. import logger
 LOGGING_MODULE = logger.__name__
 
 
+# pylint: disable=no-member
 @parameterized_class(
     [
         {

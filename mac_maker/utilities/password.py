@@ -25,14 +25,14 @@ class SUDO:
 
         entered_password = getpass.getpass(config.SUDO_PROMPT)
 
-        check_sudo = subprocess.Popen(
+        with subprocess.Popen(
             shlex.split(config.SUDO_CHECK_COMMAND),
             stdin=subprocess.PIPE,
             stderr=subprocess.PIPE,
-        )
-        check_sudo.communicate((entered_password + '\n').encode('utf-8'))
+        ) as check_sudo:
+          check_sudo.communicate((entered_password + '\n').encode('utf-8'))
 
-        if not check_sudo.returncode:
-          self.sudo_password = entered_password
-          os.environ[config.ENV_ANSIBLE_BECOME_PASSWORD] = entered_password
-          return
+          if not check_sudo.returncode:
+            self.sudo_password = entered_password
+            os.environ[config.ENV_ANSIBLE_BECOME_PASSWORD] = entered_password
+            return

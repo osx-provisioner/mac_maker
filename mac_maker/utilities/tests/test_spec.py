@@ -101,7 +101,7 @@ class TestSpecCreateSpecFromFileSystem(TestCase):
 
     results = self.spec.create_job_spec_from_filesystem(spec_fixture)
 
-    with open(spec_fixture) as fhandle:
+    with open(spec_fixture, encoding="utf-8") as fhandle:
       expected_result = json.load(fhandle)
 
     self.assertDictEqual(

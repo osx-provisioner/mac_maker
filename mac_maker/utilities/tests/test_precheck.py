@@ -45,7 +45,7 @@ class TestValidateEnv(TestCase):
   def setUpClass(cls):
     super().setUpClass()
     yaml_env_fixture = Path(__file__).parent / "fixtures" / "mock_env.yml"
-    with open(yaml_env_fixture) as fhandle:
+    with open(yaml_env_fixture, encoding="utf-8") as fhandle:
       cls.mock_yaml_data = fhandle.read()
 
   def setUp(self):
