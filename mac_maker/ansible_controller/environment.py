@@ -2,20 +2,27 @@
 
 import logging
 import os
-from typing import Dict
+from typing import Dict, List, Literal, Union
 
 from .. import config
+from ..utilities.state import TypeState
+
+TypeStateAnsibleValues = Union[Literal["roles_path"],
+                               Literal["collections_path"]]
 
 
 class Environment:
-  """Ansible runtime environment."""
+  """Ansible runtime environment.
 
-  def __init__(self, state: dict):
+  :param state: The loaded runtime state.
+  """
+
+  def __init__(self, state: TypeState) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.env: Dict[str, str] = {}
     self.state = state
 
-  def setup(self):
+  def setup(self) -> None:
     """Configure the environment for the current Ansible job."""
 
     self.log.debug(
@@ -29,24 +36,26 @@ class Environment:
     self._save()
     self.log.debug("Environment: Ansible runtime environment is ready.")
 
-  def _combine_env_with_state(self, variable_name: str, state_name: str):
+  def _combine_env_with_state(
+      self, variable_name: str, state_name: TypeStateAnsibleValues
+  ) -> None:
     existing_env_value = self._env_to_list(variable_name)
     existing_state_value = self._state_to_list(state_name)
     new_env_value = existing_state_value + existing_env_value
     self.env[variable_name] = self._list_to_env(new_env_value)
 
-  def _env_to_list(self, variable_name: str) -> list:
+  def _env_to_list(self, variable_name: str) -> List[str]:
     value = os.getenv(variable_name, None)
     if value is None:
       return []
     return value.split(":")
 
-  def _state_to_list(self, state_name: str) -> list:
+  def _state_to_list(self, state_name: TypeStateAnsibleValues) -> List[str]:
     return self.state[state_name]
 
-  def _list_to_env(self, list_content: list) -> str:
+  def _list_to_env(self, list_content: List[str]) -> str:
     return ":".join(list_content)
 
-  def _save(self):
+  def _save(self) -> None:
     for key, value in self.env.items():
       os.environ[key] = value

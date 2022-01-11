@@ -4,26 +4,31 @@ import logging
 
 import click
 from .. import config
+from ..utilities.state import TypeState
 from . import process
 
 
 class AnsibleRunner:
-  """AnsibleRunner workflow class."""
+  """AnsibleRunner workflow class.
 
-  def __init__(self, state_object: dict, debug: bool = False):
+  :param state: The loaded state object object.
+  :param debug: Activate or deactivate debug logs.
+  """
+
+  def __init__(self, state: TypeState, debug: bool = False):
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.debug = debug
-    self.state = state_object
+    self.state = state
 
-  def start(self):
+  def start(self) -> None:
     """Start the Ansible provisioning workflow."""
 
     galaxy_roles_command = self._construct_galaxy_roles_command()
     galaxy_col_command = self._construct_galaxy_col_command()
     playbook_command = self._construct_ansible_playbook_command()
 
-    self._do_ansible_galaxy_roles(galaxy_roles_command)
-    self._do_ansible_galaxy_col(galaxy_col_command)
+    self._do_install_galaxy_roles(galaxy_roles_command)
+    self._do_install_galaxy_col(galaxy_col_command)
     self._do_ansible_playbook(playbook_command)
 
   def _construct_galaxy_roles_command(self) -> str:
@@ -68,7 +73,7 @@ class AnsibleRunner:
       command += " -vvvv"
     return command
 
-  def _do_ansible_galaxy_roles(self, galaxy_command):
+  def _do_install_galaxy_roles(self, galaxy_command: str) -> None:
     controller = process.AnsibleProcess(
         config.ANSIBLE_LIBRARY_GALAXY_MODULE,
         config.ANSIBLE_LIBRARY_GALAXY_CLASS,
@@ -82,7 +87,7 @@ class AnsibleRunner:
         self.state['roles_path'][0],
     )
 
-  def _do_ansible_galaxy_col(self, galaxy_command):
+  def _do_install_galaxy_col(self, galaxy_command: str) -> None:
     controller = process.AnsibleProcess(
         config.ANSIBLE_LIBRARY_GALAXY_MODULE,
         config.ANSIBLE_LIBRARY_GALAXY_CLASS,
@@ -96,7 +101,7 @@ class AnsibleRunner:
         self.state['collections_path'][0],
     )
 
-  def _do_ansible_playbook(self, ansible_command):
+  def _do_ansible_playbook(self, ansible_command: str) -> None:
     controller = process.AnsibleProcess(
         config.ANSIBLE_LIBRARY_PLAYBOOK_MODULE,
         config.ANSIBLE_LIBRARY_PLAYBOOK_CLASS,

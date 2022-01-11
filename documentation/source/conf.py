@@ -32,11 +32,18 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_autopackagesummary',
-    'sphinx_autodoc_annotation',
+    'sphinx_autodoc_typehints',
     'sphinx_click.ext',
     'sphinx-jsonschema',
     'sphinx.ext.intersphinx',
 ]
+
+autoclass_content = 'both'
+
+typehints_fully_qualified = False
+always_document_param_types = True
+typehints_defaults = "comma"
+typehints_document_rtype = True
 
 autosummary_generate = True
 

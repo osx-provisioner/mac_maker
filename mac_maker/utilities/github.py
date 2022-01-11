@@ -3,7 +3,8 @@
 import logging
 import re
 from io import BytesIO
-from typing import Dict, Union
+from pathlib import Path
+from typing import Dict, Match, Optional, Union
 from zipfile import ZipFile
 
 import requests
@@ -11,11 +12,14 @@ from .. import config
 
 
 class InvalidGithubRepository(BaseException):
-  """Raised when a repository URL cannot be parsed."""
+  """Raised when a Github repository URL cannot be parsed."""
 
 
 class GithubRepository:
-  """GitHub code repository representation."""
+  """GitHub code repository representation.
+
+  :param repository: The http URL of the repository.
+  """
 
   match_http = re.compile(config.GITHUB_HTTP_REGEX, re.IGNORECASE)
   match_ssh = re.compile(config.GITHUB_SSH_REGEX, re.IGNORECASE)
@@ -25,22 +29,23 @@ class GithubRepository:
     self.logger = logging.getLogger(config.LOGGER_NAME)
     self._parsed_url = self._parse_repository_url(repository)
 
-  def _parse_repository_url(self, repository: str) -> re.Match:
+  def _parse_repository_url(self, repository: str) -> Match[str]:
     parsed_url = re.match(self.match_http, repository)
     if not parsed_url:
       parsed_url = re.match(self.match_ssh, repository)
     if not parsed_url:
       self.logger.error(
-          "GithubRepository: Cannot parse github repository url from: %s",
+          "GithubRepository: Cannot parse a github repository url from: %s",
           repository,
       )
       raise InvalidGithubRepository("Invalid GitHub Repository.")
     return parsed_url
 
-  def get_branch_name(self, branch_name: Union[str, None]) -> str:
-    """Return the branch name, supporting the default branch.
+  def get_branch_name(self, branch_name: Optional[str]) -> str:
+    """Return the given branch name, or the default branch.
 
     :param branch_name: The branch of the repository to use.
+    :returns: The given branch name, or the default branch.
     """
 
     if branch_name is None:
@@ -48,36 +53,46 @@ class GithubRepository:
     return branch_name
 
   def get_repo_name(self) -> str:
-    """Return the repo name of the repository."""
+    """Return the repo name of the repository.
+
+    :return: The name of the repository.
+    """
 
     return f"{self._parsed_url.group('repo')}"
 
   def get_org_name(self) -> str:
-    """Return the org (or user) name of the repository."""
+    """Return the org (or user) name of the repository.
+
+    :return: The org (or user) name of the repository.
+    """
     return f"{self._parsed_url.group('org')}"
 
   def get_http_url(self) -> str:
-    """Return the http url for the repository."""
+    """Return the http url for the repository.
 
+    :return: The http url of the repository.
+    """
     return (
         f"https://github.com/{self._parsed_url.group('org')}/"
         f"{self._parsed_url.group('repo')}.git"
     )
 
   def get_ssh_url(self) -> str:
-    """Return the ssh url for the repository."""
+    """Return the ssh url for the repository.
 
+    :return: The ssh url of the repository.
+    """
     return (
         f"git@github.com:{self._parsed_url.group('org')}/"
         f"{self._parsed_url.group('repo')}.git"
     )
 
-  def get_zip_bundle_url(self, branch_name: Union[str, None]) -> str:
+  def get_zip_bundle_url(self, branch_name: Optional[str]) -> str:
     """Generate a zipfile url for the given branch.
 
     :param branch_name: The branch of the repository to use.
+    :return: The url of the zipfile bundle for this branch.
     """
-
     branch_name = self.get_branch_name(branch_name)
     return (
         f"https://github.com/{self._parsed_url.group('org')}/"
@@ -85,19 +100,23 @@ class GithubRepository:
         f"/archive/refs/heads/{branch_name}.zip"
     )
 
-  def get_zip_bundle_root_folder(self, branch_name: Union[str, None]) -> str:
-    """Return the name of the top level folder inside a repo's zip bundle."""
+  def get_zip_bundle_root_folder(self, branch_name: Optional[str]) -> str:
+    """Return the name of the top level folder inside a repo's zip bundle.
 
+    :param branch_name: The branch of the repository to use.
+    :return: the name of the top level folder inside a repo's zip bundle.
+    """
     branch_name = self.get_branch_name(branch_name)
     return f"{self._parsed_url.group('repo')}-{branch_name}"
 
   def download_zip_bundle_files(
-      self, branch_name: Union[str, None], file_names: Dict[str, str]
+      self, branch_name: Optional[str], file_names: Dict[str, str]
   ) -> Dict[str, str]:
     """Download a zip bundle for the branch, then unzip the given files.
 
     :param branch_name: The branch of the repository to use.
     :param file_names: A dictionary of filenames that will be read.
+    :returns: A hash of filenames, with the content of each file.
     """
 
     results = {}
@@ -114,7 +133,7 @@ class GithubRepository:
     return results
 
   def download_zip_bundle_profile(
-      self, file_system_target: str, branch_name: Union[str, None]
+      self, file_system_target: Union[Path, str], branch_name: Optional[str]
   ) -> None:
     """Download a zip bundle for the branch, then unzip everything.
 

@@ -15,7 +15,7 @@ PROCESS_MODULE = process.__name__
 class TestAnsibleProcessClass(TestCase):
   """Test instantiating the AnsibleProcess class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.mock_folder = "/mock/dir1"
     self.mock_module = "ansible.module.mocked"
     self.mock_class = "MockClass"
@@ -27,7 +27,7 @@ class TestAnsibleProcessClass(TestCase):
         self.state.state_generate(self.filesystem)
     )
 
-  def test_init(self):
+  def test_init(self) -> None:
 
     self.assertIsInstance(
         self.process.log,
@@ -46,7 +46,7 @@ class TestAnsibleProcessClass(TestCase):
 class TestAnsibleProcessSpawn(TestCase):
   """Test starting the AnsibleRunner class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.mock_folder = "/mock/dir1"
     self.mock_module = "ansible.module.mocked"
     self.mock_class = "MockClass"
@@ -59,7 +59,9 @@ class TestAnsibleProcessSpawn(TestCase):
 
     self.command = "ansible-galaxy install requirements -r requirements.yml"
 
-  def test_spawn_forked_process(self, m_import, m_os):
+  def test_spawn_forked_process(
+      self, m_import: mock.Mock, m_os: mock.Mock
+  ) -> None:
     split_command = shlex.split(self.command)
 
     mock_display = mock.Mock()
@@ -83,7 +85,9 @@ class TestAnsibleProcessSpawn(TestCase):
           'https://github.com/osx-provisioner/profile-example.git',
       ]
   )
-  def test_spawn_forked_process_without_shell(self, m_import, m_os):
+  def test_spawn_forked_process_without_shell(
+      self, m_import: mock.Mock, m_os: mock.Mock
+  ) -> None:
     split_command = shlex.split(self.command)
 
     mock_display = mock.Mock()
@@ -100,7 +104,9 @@ class TestAnsibleProcessSpawn(TestCase):
     mock_cli_class.assert_called_once_with(split_command)
     mock_cli_class.return_value.run.assert_called_once_with()
 
-  def test_spawn_forked_process_dynamic_imports(self, m_import, m_os):
+  def test_spawn_forked_process_dynamic_imports(
+      self, m_import: mock.Mock, m_os: mock.Mock
+  ) -> None:
 
     mock_display = mock.Mock()
     mock_cli_module = mock.Mock()
@@ -119,7 +125,9 @@ class TestAnsibleProcessSpawn(TestCase):
     )
 
   @mock.patch(PROCESS_MODULE + ".environment.Environment.setup")
-  def test_spawn_forked_process_environment(self, m_env, m_import, m_os):
+  def test_spawn_forked_process_environment(
+      self, m_env: mock.Mock, m_import: mock.Mock, m_os: mock.Mock
+  ) -> None:
     m_os.fork.return_value = 0
 
     mock_display = mock.Mock()
@@ -133,14 +141,18 @@ class TestAnsibleProcessSpawn(TestCase):
     mock_display.initialize_locale.assert_called_once_with()
     m_env.assert_called_once_with()
 
-  def test_spawn_forked_process_interrupt(self, _, m_os):
+  def test_spawn_forked_process_interrupt(
+      self, _: mock.Mock, m_os: mock.Mock
+  ) -> None:
     m_os.fork.return_value = 0
     m_os.chdir.side_effect = KeyboardInterrupt("Boom!")
 
     with self.assertRaises(ClickShellUncleanExit):
       self.process.spawn(self.command)
 
-  def test_spawn_forked_process_exception(self, m_import, m_os):
+  def test_spawn_forked_process_exception(
+      self, m_import: mock.Mock, m_os: mock.Mock
+  ) -> None:
     m_os.fork.return_value = 0
 
     mock_display = mock.Mock()
@@ -153,7 +165,7 @@ class TestAnsibleProcessSpawn(TestCase):
     with self.assertRaises(ClickShellUncleanExit):
       self.process.spawn(self.command)
 
-  def test_spawn_main_process(self, _, m_os):
+  def test_spawn_main_process(self, _: mock.Mock, m_os: mock.Mock) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.return_value = (0, 0)
     m_os.WEXITSTATUS.return_value = 0
@@ -163,7 +175,9 @@ class TestAnsibleProcessSpawn(TestCase):
     m_os.fork.assert_called_once()
     m_os.waitpid.assert_called_once_with(1, 0)
 
-  def test_spawn_main_process_child_error(self, _, m_os):
+  def test_spawn_main_process_child_error(
+      self, _: mock.Mock, m_os: mock.Mock
+  ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.return_value = (0, 256)
     m_os.WEXITSTATUS.return_value = 1
@@ -174,7 +188,9 @@ class TestAnsibleProcessSpawn(TestCase):
     m_os.fork.assert_called_once()
     m_os.waitpid.assert_called_once_with(1, 0)
 
-  def test_spawn_main_process_interrupt(self, _, m_os):
+  def test_spawn_main_process_interrupt(
+      self, _: mock.Mock, m_os: mock.Mock
+  ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.side_effect = KeyboardInterrupt("Boom!")
 

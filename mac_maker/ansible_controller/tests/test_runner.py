@@ -1,6 +1,8 @@
 """Test the AnsibleRunner class."""
 
 from logging import Logger
+from pathlib import Path
+from typing import cast
 from unittest import TestCase, mock
 
 from ... import config
@@ -13,7 +15,7 @@ RUNNER_MODULE = runner.__name__
 class TestAnsibleRunnerClass(TestCase):
   """Test instantiating the AnsibleRunner class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.mock_folder = "/mock/dir1"
     self.filesystem = filesystem.FileSystem(self.mock_folder)
     self.state = state.State()
@@ -21,7 +23,7 @@ class TestAnsibleRunnerClass(TestCase):
         self.state.state_generate(self.filesystem)
     )
 
-  def test_init(self):
+  def test_init(self) -> None:
 
     self.assertIsInstance(
         self.ansible.log,
@@ -39,7 +41,7 @@ class TestAnsibleRunnerClass(TestCase):
 class TestAnsibleRunnerSequence(TestCase):
   """Test starting the AnsibleRunner class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.mock_folder = "/mock/dir1"
     self.mock_state = {
         "one": "two"
@@ -50,7 +52,7 @@ class TestAnsibleRunnerSequence(TestCase):
         self.state.state_generate(self.filesystem)
     )
 
-  def test_spawn(self, m_process, _):
+  def test_spawn(self, m_process: mock.Mock, _: mock.Mock) -> None:
     galaxy_mock_roles = mock.Mock()
     galaxy_mock_collections = mock.Mock()
     playbook_mock = mock.Mock()
@@ -82,28 +84,37 @@ class TestAnsibleRunnerSequence(TestCase):
         ]
     )
 
+    requirements_file_path = cast(
+        Path, self.filesystem.get_galaxy_requirements_file()
+    ).resolve()
+    roles_file_path = cast(Path, self.filesystem.get_roles_path()).resolve()
+    collections_file_path = cast(Path, self.filesystem.get_collections_path()
+                                ).resolve()
+
     galaxy_mock_roles.spawn.assert_called_once_with(
         "ansible-galaxy role install -r"
-        f" {self.filesystem.get_galaxy_requirements_file().resolve()}"
-        f" -p {self.filesystem.get_roles_path().resolve()}"
+        f" {requirements_file_path}"
+        f" -p {roles_file_path}"
     )
 
     galaxy_mock_collections.spawn.assert_called_once_with(
         "ansible-galaxy collection install -r"
-        f" {self.filesystem.get_galaxy_requirements_file().resolve()}"
-        f" -p {self.filesystem.get_collections_path().resolve()}"
+        f" {requirements_file_path}"
+        f" -p {collections_file_path}"
     )
 
     playbook_mock.spawn.assert_called_once_with(
         "ansible-playbook"
-        f" {self.filesystem.get_playbook_file().resolve()}"
+        f" {cast(Path, self.filesystem.get_playbook_file()).resolve()}"
         f" -i {self.filesystem.get_inventory_file()}"
         " -e "
         "\"ansible_become_password="
         "'{{ lookup('env', 'ANSIBLE_BECOME_PASSWORD') }}'\""
     )
 
-  def test_ansible_command_debug(self, m_process, _):
+  def test_ansible_command_debug(
+      self, m_process: mock.Mock, _: mock.Mock
+  ) -> None:
     galaxy_mock_roles = mock.Mock()
     galaxy_mock_collections = mock.Mock()
     playbook_mock = mock.Mock()
@@ -118,7 +129,7 @@ class TestAnsibleRunnerSequence(TestCase):
 
     playbook_mock.spawn.assert_called_once_with(
         "ansible-playbook"
-        f" {self.filesystem.get_playbook_file().resolve()}"
+        f" {cast(Path,self.filesystem.get_playbook_file()).resolve()}"
         f" -i {self.filesystem.get_inventory_file()}"
         " -e "
         "\"ansible_become_password="

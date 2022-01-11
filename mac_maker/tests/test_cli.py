@@ -1,5 +1,6 @@
 """Test the OSX-Provisioner CLI."""
 
+from typing import Optional
 from unittest import mock
 
 from click.testing import CliRunner
@@ -14,12 +15,11 @@ CLI_MODULE = cli_module.__name__
 class CLITestHarness(fixtures_git.GitTestHarness):
   """Test Harness for CLI Commands."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     super().setUp()
     self.runner = CliRunner()
 
 
-# pylint: disable=no-member
 @parameterized_class(
     [
         {
@@ -35,7 +35,10 @@ class CLITestHarness(fixtures_git.GitTestHarness):
 class TestPrecheckGithub(CLITestHarness):
   """Test the `precheck` CLI command with github repositories."""
 
-  def test_precheck_get(self, m_jobs):
+  args: str
+  branch: Optional[str]
+
+  def test_precheck_get(self, m_jobs: mock.Mock) -> None:
 
     instance = m_jobs.return_value
 
@@ -47,7 +50,7 @@ class TestPrecheckGithub(CLITestHarness):
         self.repository_http_url, self.branch
     )
 
-  def test_precheck_call(self, m_jobs):
+  def test_precheck_call(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
     mock_data = "data"
 
@@ -65,7 +68,7 @@ class TestPrecheckGithub(CLITestHarness):
 class TestPrecheckSpec(CLITestHarness):
   """Test the `precheck` CLI command with spec files."""
 
-  def test_precheck_get(self, m_jobs):
+  def test_precheck_get(self, m_jobs: mock.Mock) -> None:
 
     instance = m_jobs.return_value
     mock_spec_file = "/non-existent/path"
@@ -78,7 +81,7 @@ class TestPrecheckSpec(CLITestHarness):
         mock_spec_file
     )
 
-  def test_precheck_call(self, m_jobs):
+  def test_precheck_call(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
     mock_precheck_data = "data"
     mock_spec_file = "/non-existent/path"
@@ -108,22 +111,25 @@ class TestPrecheckSpec(CLITestHarness):
 class TestApplyGithub(CLITestHarness):
   """Test the `apply` CLI command with GitHub repositories."""
 
-  def test_apply_create(self, m_jobs):
+  args: str
+  branch: Optional[str]
+
+  def test_apply_create(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
 
     self.runner.invoke(
         cli,
         args=f"apply github {self.repository_http_url}{self.args}",
     )
-    instance.create_spec_from_github.assert_called_once_with(
+    instance.create_state_from_github_spec.assert_called_once_with(
         self.repository_http_url, self.branch
     )
 
-  def test_provision_call(self, m_jobs):
+  def test_provision_call(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
     mock_data = "data"
 
-    instance.create_spec_from_github.return_value = mock_data
+    instance.create_state_from_github_spec.return_value = mock_data
 
     self.runner.invoke(
         cli,
@@ -137,7 +143,7 @@ class TestApplyGithub(CLITestHarness):
 class TestApplySpec(CLITestHarness):
   """Test the `apply` CLI command with spec files."""
 
-  def test_apply_create(self, m_jobs):
+  def test_apply_create(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
     mock_spec_file = "/non-existent/path"
 
@@ -145,14 +151,16 @@ class TestApplySpec(CLITestHarness):
         cli,
         args=f"apply spec {mock_spec_file}",
     )
-    instance.create_spec_from_spec_file.assert_called_once_with(mock_spec_file)
+    instance.create_state_from_local_spec_file.assert_called_once_with(
+        mock_spec_file
+    )
 
-  def test_provision_call(self, m_jobs):
+  def test_provision_call(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
     mock_precheck_data = "data"
     mock_spec_file = "/non-existent/path"
 
-    instance.create_spec_from_spec_file.return_value = mock_precheck_data
+    instance.create_state_from_local_spec_file.return_value = mock_precheck_data
 
     self.runner.invoke(
         cli,
@@ -166,7 +174,7 @@ class TestApplySpec(CLITestHarness):
 class TestVersion(CLITestHarness):
   """Test the `version` CLI command."""
 
-  def test_precheck_call(self, m_jobs):
+  def test_precheck_call(self, m_jobs: mock.Mock) -> None:
     instance = m_jobs.return_value
 
     self.runner.invoke(
@@ -182,7 +190,7 @@ class TestVersion(CLITestHarness):
 class TestLoggerIsInitializedWithDebug(CLITestHarness):
   """Test the logger is initialized with debug."""
 
-  def test_precheck_call(self, _, m_log):
+  def test_precheck_call(self, _: mock.Mock, m_log: mock.Mock) -> None:
     instance = m_log.return_value
 
     self.runner.invoke(
@@ -199,7 +207,7 @@ class TestLoggerIsInitializedWithDebug(CLITestHarness):
 class TestLoggerIsInitializedWithoutDebug(CLITestHarness):
   """Test the logger is initialized without debug."""
 
-  def test_precheck_call(self, _, m_log):
+  def test_precheck_call(self, _: mock.Mock, m_log: mock.Mock) -> None:
     instance = m_log.return_value
 
     self.runner.invoke(

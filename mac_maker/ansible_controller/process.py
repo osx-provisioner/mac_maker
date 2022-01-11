@@ -10,19 +10,27 @@ import traceback
 import click
 from click_shell.exceptions import ClickShellCleanExit, ClickShellUncleanExit
 from .. import cli, config
+from ..utilities.state import TypeState
 from . import environment
 
 
 class AnsibleProcess:
-  """Process management for Ansible commands."""
+  """Process management for Ansible commands.
 
-  def __init__(self, ansible_module: str, ansible_class: str, state: dict):
+  :param ansible_module: Dot path of the ansible module to load.
+  :param ansible_class: The ansible class to import from the module.
+  :param state: The loaded run time state.
+  """
+
+  def __init__(
+      self, ansible_module: str, ansible_class: str, state: TypeState
+  ) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.state = state
     self.ansible_class = ansible_class
     self.ansible_module = ansible_module
 
-  def spawn(self, command: str):
+  def spawn(self, command: str) -> None:
     """Spawns an Ansible CLI Command in it's own process.
 
     :param command: The Ansible CLI Command to spawn.
@@ -35,7 +43,7 @@ class AnsibleProcess:
     else:
       self._main_process(command, pid)
 
-  def _forked_process(self, command: str):
+  def _forked_process(self, command: str) -> None:
     try:
       self.log.debug(
           "AnsibleProcess: Forked process is now executing: %s",
@@ -60,16 +68,16 @@ class AnsibleProcess:
       self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
-  def _environment(self):
+  def _environment(self) -> None:
     display = importlib.import_module(config.ANSIBLE_LIBRARY_LOCALE_MODULE)
-    display.initialize_locale()
+    display.initialize_locale()  # type: ignore[attr-defined]
     env = environment.Environment(self.state)
     env.setup()
 
-  def _execution_location(self):
+  def _execution_location(self) -> None:
     os.chdir(self.state['profile_data_path'])
 
-  def _main_process(self, command: str, pid: int):
+  def _main_process(self, command: str, pid: int) -> None:
     try:
       _, exit_status = os.waitpid(pid, 0)
       if os.WEXITSTATUS(exit_status):
@@ -82,12 +90,12 @@ class AnsibleProcess:
       self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
-  def _perform_clean_exit(self):
+  def _perform_clean_exit(self) -> None:
     if self._was_started_without_shell():
       sys.exit(0)
     raise ClickShellCleanExit()
 
-  def _was_started_without_shell(self):
+  def _was_started_without_shell(self) -> bool:
     for command in cli.cli.commands.keys():
       if command in sys.argv:
         return True

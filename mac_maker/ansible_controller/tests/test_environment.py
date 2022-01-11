@@ -7,23 +7,24 @@ from ...utilities import filesystem, state
 from .. import environment
 
 ENV_MODULE = environment.__name__
+TypeMockDict = mock._patch_dict  # pylint: disable=protected-access
 
 
-def mock_environment(**environment_variables):
+def mock_environment(**environment_variables: str) -> TypeMockDict:
   return mock.patch.dict(os.environ, environment_variables)
 
 
 class TestEnvironmentClass(TestCase):
   """Test the Environment class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.mock_root = ""
     self.filesystem = filesystem.FileSystem(self.mock_root)
     self.state = state.State()
     self.mock_state = self.state.state_generate(self.filesystem)
     self.environment = environment.Environment(self.mock_state)
 
-  def test_init(self):
+  def test_init(self) -> None:
 
     self.assertIsInstance(
         self.environment.log,
@@ -39,7 +40,7 @@ class TestEnvironmentClass(TestCase):
     )
 
   @mock_environment()
-  def test_setup_clean_environment(self):
+  def test_setup_clean_environment(self) -> None:
 
     self.environment.setup()
 
@@ -54,7 +55,7 @@ class TestEnvironmentClass(TestCase):
       self.assertEqual(os.environ[key], value)
 
   @mock_environment()
-  def test_setup_clean_environment_multiple(self):
+  def test_setup_clean_environment_multiple(self) -> None:
     self.mock_state['roles_path'].append('/non/existent/1')
     self.mock_state['collections_path'].append('/non/existent/2')
 
@@ -76,7 +77,7 @@ class TestEnvironmentClass(TestCase):
       ANSIBLE_ROLES_PATH='/non/existent/01:/non/existent/02',
       ANSIBLE_COLLECTIONS_PATH='/non/existent/03:/non/existent/04',
   )
-  def test_setup_clean_environment_existing(self):
+  def test_setup_clean_environment_existing(self) -> None:
     self.environment.setup()
 
     self.assertDictEqual(

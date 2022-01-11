@@ -4,6 +4,7 @@ import json
 import os
 from logging import Logger
 from pathlib import Path
+from typing import cast
 from unittest import TestCase, mock
 
 from .. import spec, state
@@ -14,7 +15,7 @@ SPEC_MODULE = spec.__name__
 class TestSpecClass(TestCase):
   """Test the JobSpec class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.mock_spec_file_location = Path("spec.json")
     self.mock_workspace = mock.Mock()
@@ -23,7 +24,7 @@ class TestSpecClass(TestCase):
         'spec_file_location': "some location"
     }
 
-  def test_init_settings(self):
+  def test_init_settings(self) -> None:
     self.assertIsInstance(
         self.spec.log,
         Logger,
@@ -37,7 +38,7 @@ class TestSpecClass(TestCase):
 class TestSpecValidity(TestCase):
   """Test the JobSpec class validation methods."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.mock_spec_file_location = Path("spec.json")
     self.mock_workspace = mock.Mock()
@@ -47,11 +48,11 @@ class TestSpecValidity(TestCase):
     }
     self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
 
-  def test_v1_spec(self):
+  def test_v1_spec(self) -> None:
     v1_mock_spec = self.fixtures_folder / "mock_v1_job_spec.json"
     self.spec.create_job_spec_from_filesystem(v1_mock_spec)
 
-  def test_v1_spec_invalid(self):
+  def test_v1_spec_invalid(self) -> None:
     v1_mock_spec = self.fixtures_folder / "mock_v1_invalid_job_spec.json"
 
     with self.assertRaises(spec.JobSpecFileException) as exc:
@@ -69,7 +70,7 @@ class TestSpecValidity(TestCase):
 class TestSpecCreateSpecFromGithub(TestCase):
   """Test the JobSpec class create_job_spec_from_github method."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.mock_spec_file_location = Path("spec.json")
     self.mock_workspace = mock.Mock()
@@ -77,7 +78,7 @@ class TestSpecCreateSpecFromGithub(TestCase):
 
     self.spec.state_manager = self.mock_state
 
-  def test_create_job_spec_from_github_results(self, m_fs):
+  def test_create_job_spec_from_github_results(self, m_fs: mock.Mock) -> None:
 
     results = self.spec.create_job_spec_from_github(self.mock_workspace)
     self.assertEqual(
@@ -91,11 +92,11 @@ class TestSpecCreateSpecFromGithub(TestCase):
 class TestSpecCreateSpecFromFileSystem(TestCase):
   """Test the JobSpec class create_job_spec_from_filesystem method."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
 
-  def test_create_job_spec_from_filesystem(self):
+  def test_create_job_spec_from_filesystem(self) -> None:
 
     spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
 
@@ -116,7 +117,7 @@ class TestSpecCreateSpecFromFileSystem(TestCase):
 class TestSpecExtractPreCheckFromJobSpec(TestCase):
   """Test the JobSpec class extract_precheck_from_job_spec method."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.mock_spec_file_location = "/root/dir1/spec.json"
     self.mock_state = mock.Mock()
@@ -131,7 +132,9 @@ class TestSpecExtractPreCheckFromJobSpec(TestCase):
     self.mock_context = mock.Mock()
     self.mock_context.read.side_effect = [self.mock_notes, self.mock_env]
 
-  def test_extract_precheck_from_job_spec_rehydrate(self, m_open):
+  def test_extract_precheck_from_job_spec_rehydrate(
+      self, m_open: mock.Mock
+  ) -> None:
 
     m_open.return_value.__enter__.return_value = self.mock_context
 
@@ -139,11 +142,13 @@ class TestSpecExtractPreCheckFromJobSpec(TestCase):
 
     self.spec.extract_precheck_from_job_spec(self.mock_spec_file_location)
 
-    self.spec.state_manager.state_rehydrate.assert_called_with(
+    cast(mock.Mock, self.spec.state_manager.state_rehydrate).assert_called_with(
         Path(self.mock_spec_file_location)
     )
 
-  def test_extract_precheck_from_job_spec_results(self, m_open):
+  def test_extract_precheck_from_job_spec_results(
+      self, m_open: mock.Mock
+  ) -> None:
 
     m_open.return_value.__enter__.return_value = self.mock_context
 

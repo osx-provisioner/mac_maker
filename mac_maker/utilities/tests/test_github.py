@@ -13,28 +13,28 @@ GITHUB_MODULE = github_module.__name__
 class TestGithubRepositoryInitialize(fixtures_git.GitTestHarness):
   """Test the initialization of the GithubRepository class."""
 
-  def test_initialize_with_illegal_url(self):
+  def test_initialize_with_illegal_url(self) -> None:
     with self.assertRaises(InvalidGithubRepository):
       GithubRepository("not a valid url")
 
-  def test_initialize_with_http(self):
+  def test_initialize_with_http(self) -> None:
     repo = GithubRepository(self.repository_http_url)
     self.assertEqual(repo.get_http_url(), self.repository_http_url)
     self.assertEqual(repo.get_ssh_url(), self.repository_ssh_url)
 
-  def test_initialize_with_http_truncated(self):
+  def test_initialize_with_http_truncated(self) -> None:
     url = f"https://github.com/{self.org_name}/" f"{self.repo_name}"
 
     repo = GithubRepository(url)
     self.assertEqual(repo.get_http_url(), self.repository_http_url)
     self.assertEqual(repo.get_ssh_url(), self.repository_ssh_url)
 
-  def test_initialize_with_ssh(self):
+  def test_initialize_with_ssh(self) -> None:
     repo = GithubRepository(self.repository_ssh_url)
     self.assertEqual(repo.get_http_url(), self.repository_http_url)
     self.assertEqual(repo.get_ssh_url(), self.repository_ssh_url)
 
-  def test_initialize_with_ssh_truncated(self):
+  def test_initialize_with_ssh_truncated(self) -> None:
     url = f"git@github.com:{self.org_name}/{self.repo_name}"
 
     repo = GithubRepository(url)
@@ -45,35 +45,35 @@ class TestGithubRepositoryInitialize(fixtures_git.GitTestHarness):
 class TestGithubRepositoryGetMethods(fixtures_git.GitTestHarness):
   """Test the get methods of the GithubRepository class."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     super().setUp()
     self.repo = GithubRepository(self.repository_http_url)
 
-  def test_zip_archive_url_specific_branch(self):
+  def test_zip_archive_url_specific_branch(self) -> None:
     self.assertEqual(
         self.repo.get_zip_bundle_url("develop"),
         "https://github.com/grocerypanic/panic/archive/refs/heads/develop.zip"
     )
 
-  def test_get_branch_name(self):
+  def test_get_branch_name(self) -> None:
     self.assertEqual(self.repo.get_branch_name(None), self.repo.default_branch)
 
-  def test_get_branch_name_specific(self):
+  def test_get_branch_name_specific(self) -> None:
     self.assertEqual(self.repo.get_branch_name("development"), "development")
 
-  def test_get_repo_name(self):
+  def test_get_repo_name(self) -> None:
     self.assertEqual(self.repo.get_repo_name(), self.repo_name)
 
-  def test_get_org_name(self):
+  def test_get_org_name(self) -> None:
     self.assertEqual(self.repo.get_org_name(), self.org_name)
 
-  def test_get_zip_bundle_root_folder(self):
+  def test_get_zip_bundle_root_folder(self) -> None:
     self.assertEqual(
         self.repo.get_zip_bundle_root_folder(None),
         f"{self.repo_name}-{self.repo.default_branch}",
     )
 
-  def test_get_zip_bundle_root_specific(self):
+  def test_get_zip_bundle_root_specific(self) -> None:
     branch = "develop"
     self.assertEqual(
         self.repo.get_zip_bundle_root_folder(branch),
@@ -87,7 +87,7 @@ class TestGithubRepositoryGetMethods(fixtures_git.GitTestHarness):
 class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
   """Test the GithubRepository classes network bound methods."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     super().setUp()
     self.mock_zip_context = mock.Mock()
     self.mock_data = b"Random String"
@@ -97,15 +97,17 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     }
     self.mock_branch = "develop"
 
-  def create_mock_context(self, mock_zipfile, mock_bytes):
+  def create_mock_context(
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock
+  ) -> None:
     context = mock_zipfile.return_value.__enter__
     context.return_value = self.mock_zip_context
     context.return_value.read.return_value = self.mock_data
     mock_bytes.return_value = BytesIO(self.mock_data)
 
   def test_download_zip_bundle_files_request(
-      self, mock_zipfile, mock_bytes, mock_get
-  ):
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, mock_get: mock.Mock
+  ) -> None:
     self.create_mock_context(mock_zipfile, mock_bytes)
 
     repo = GithubRepository(self.repository_http_url)
@@ -114,8 +116,8 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     mock_get.assert_called_once_with(repo.get_zip_bundle_url(self.mock_branch))
 
   def test_download_zip_bundle_files_zipfile_context(
-      self, mock_zipfile, mock_bytes, _
-  ):
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, _: mock.Mock
+  ) -> None:
     self.create_mock_context(mock_zipfile, mock_bytes)
 
     repo = GithubRepository(self.repository_http_url)
@@ -131,7 +133,9 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     )
     self.assertEqual(2, self.mock_zip_context.read.call_count)
 
-  def test_download_zip_bundle_files_results(self, mock_zipfile, mock_bytes, _):
+  def test_download_zip_bundle_files_results(
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, _: mock.Mock
+  ) -> None:
     self.create_mock_context(mock_zipfile, mock_bytes)
 
     repo = GithubRepository(self.repository_http_url)
@@ -145,8 +149,8 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     )
 
   def test_download_zip_bundle_request(
-      self, mock_zipfile, mock_bytes, mock_get
-  ):
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, mock_get: mock.Mock
+  ) -> None:
     self.create_mock_context(mock_zipfile, mock_bytes)
     mock_folder = "/some_folder"
     mock_branch = "develop"
@@ -157,8 +161,8 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     mock_get.assert_called_once_with(repo.get_zip_bundle_url(mock_branch))
 
   def test_download_zip_bundle_zipfile_context(
-      self, mock_zipfile, mock_bytes, _
-  ):
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, _: mock.Mock
+  ) -> None:
     self.create_mock_context(mock_zipfile, mock_bytes)
     mock_folder = "/some_folder"
     mock_branch = "develop"

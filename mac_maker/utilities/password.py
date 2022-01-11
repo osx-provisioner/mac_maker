@@ -6,17 +6,15 @@ import shlex
 import subprocess
 
 from .. import config
-from .filesystem import FileSystem
 
 
 class SUDO:
   """SUDO password representation."""
 
-  def __init__(self, filesystem: FileSystem):
-    self.filesystem = filesystem
+  def __init__(self) -> None:
     self.sudo_password = os.getenv(config.ENV_ANSIBLE_BECOME_PASSWORD, None)
 
-  def prompt_for_sudo(self):
+  def prompt_for_sudo(self) -> None:
     """Prompt the user to enter the system's SUDO password."""
 
     if not self.sudo_password:

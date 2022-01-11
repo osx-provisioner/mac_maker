@@ -8,7 +8,7 @@ from ...cli import Jobs
 class GitTestHarness(unittest.TestCase):
   """Test fixtures for the click CLI."""
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.repo_name = "panic"
     self.org_name = "grocerypanic"
     self.repository_http_url = (

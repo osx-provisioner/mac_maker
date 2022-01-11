@@ -32,6 +32,10 @@
   [tool.mypy]
     ignore_missing_imports = false
 
+    [[tool.mypy.overrides]]
+      ignore_missing_imports = true
+      module = ["click_shell.*", "jsonschema.*", "parameterized"]
+
   [tool.poetry]
     authors = ["Niall Byrne <niall@niallbyrne.ca>"]
     description = "Ansible based provisioner for OSX machines."
@@ -64,9 +68,9 @@
         optional = true
         version = "0.1.4"
 
-      [tool.poetry.dependencies.sphinx-autodoc-annotation]
+      [tool.poetry.dependencies.sphinx-autodoc-typehints]
         optional = true
-        version = "^1.0"
+        version = "^1.15.2"
 
       [tool.poetry.dependencies.sphinx-autopackagesummary]
         optional = true
@@ -89,7 +93,7 @@
       types-requests = "^2.26.3"
 
     [tool.poetry.extras]
-      docs = ["pib_cli", "sphinx-jsonschema", "sphinx-click"]
+      docs = ["pib_cli", "sphinx-jsonschema", "sphinx-click", "sphinx-autodoc-typehints"]
 
     [[tool.poetry.packages]]
       include = "mac_maker"

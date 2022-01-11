@@ -1,6 +1,7 @@
 """Test precheck YAML configuration validator."""
 
 from pathlib import Path
+from typing import Any
 from unittest import TestCase, mock
 
 from .. import precheck
@@ -12,7 +13,7 @@ PRECHECK_MODULE = precheck.__name__
 class TestValidator(TestCase):
   """Test the precheck YAML configuration validator."""
 
-  def test_invalid_env_file(self):
+  def test_invalid_env_file(self) -> None:
     yaml_data = "not a list"
     validator = PrecheckConfig(yaml_data)
 
@@ -21,7 +22,7 @@ class TestValidator(TestCase):
 
     self.assertEqual(str(exc.exception), PrecheckConfig.syntax_error)
 
-  def test_correct(self):
+  def test_correct(self) -> None:
     yaml_data = '[{"name" : "name", "description": "description"}]'
     validator = PrecheckConfig(yaml_data)
     validator.is_valid_env_file()
@@ -33,7 +34,7 @@ class TestValidator(TestCase):
         }]
     )
 
-  def test_invalid_yaml(self):
+  def test_invalid_yaml(self) -> None:
     with self.assertRaises(PrecheckConfigException):
       PrecheckConfig('- dsfsdfs }: - dsfdsf')
 
@@ -41,18 +42,20 @@ class TestValidator(TestCase):
 class TestValidateEnv(TestCase):
   """Test the precheck environment validation method."""
 
+  mock_yaml_data: Any
+
   @classmethod
-  def setUpClass(cls):
+  def setUpClass(cls) -> None:
     super().setUpClass()
     yaml_env_fixture = Path(__file__).parent / "fixtures" / "mock_env.yml"
     with open(yaml_env_fixture, encoding="utf-8") as fhandle:
       cls.mock_yaml_data = fhandle.read()
 
-  def setUp(self):
+  def setUp(self) -> None:
     self.validator = PrecheckConfig(self.mock_yaml_data)
 
   @mock.patch(PRECHECK_MODULE + ".os.environ", {})
-  def test_validate_empty_environment(self):
+  def test_validate_empty_environment(self) -> None:
 
     results = self.validator.validate_environment()
 
@@ -76,7 +79,7 @@ class TestValidateEnv(TestCase):
     )
 
   @mock.patch(PRECHECK_MODULE + ".os.environ", {"USER": "niall"})
-  def test_validate_user_defined(self):
+  def test_validate_user_defined(self) -> None:
     results = self.validator.validate_environment()
 
     self.assertFalse(results['is_valid'])
@@ -98,7 +101,7 @@ class TestValidateEnv(TestCase):
           "JUMPCLOUD_CONNECT_KEY": "11"
       }
   )
-  def test_validate_all_defined(self):
+  def test_validate_all_defined(self) -> None:
     results = self.validator.validate_environment()
 
     self.assertTrue(results['is_valid'])

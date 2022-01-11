@@ -70,6 +70,6 @@
 - name: "types"
   path_method: "project_root"
   commands:
-    - 'mypy ${PROJECT_NAME}'
+    - 'mypy --strict --show-error-codes --implicit-reexport ${PROJECT_NAME}'
   success: "Type Check Passed!"
   failure: "Type Check Failed!"
