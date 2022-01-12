@@ -17,7 +17,7 @@ env:
 
 jobs:
   apply:
-    needs: [osx_build]
+    needs: [container_build, osx_build]
 
     # Only on tags, master and production branches.
 
