@@ -48,7 +48,7 @@ class State:
 
   def state_dehydrate(
       self, state_data: TypeState, state_filename: Union[Path, str]
-  ) -> TypeState:
+  ) -> None:
     """Write a state object to disk.
 
     :param state_data: The Python dictionary that represents the state.
@@ -59,7 +59,6 @@ class State:
     self.log.debug("State: saving State as Spec File")
     with open(state_filename, "w", encoding="utf-8") as file_handle:
       json.dump(state_data, file_handle)
-    return state_data
 
   def state_rehydrate(self, state_filename: Path) -> TypeState:
     """Read a state object from disk.

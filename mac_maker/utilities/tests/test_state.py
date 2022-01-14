@@ -48,7 +48,7 @@ class TestStateClass(TestCase):
 
     mock_file = StringIO()
     m_open.return_value.__enter__.return_value = mock_file
-    result = self.state.state_dehydrate(
+    self.state.state_dehydrate(
         cast(state.TypeState, self.mock_state_data),
         self.mock_state_file_name,
     )
@@ -60,8 +60,6 @@ class TestStateClass(TestCase):
         self.mock_state_data,
         json.loads(mock_file.getvalue()),
     )
-
-    self.assertDictEqual(result, self.mock_state_data)
 
   @mock.patch('builtins.open')
   def test_state_rehydrate(self, m_open: mock.Mock) -> None:
