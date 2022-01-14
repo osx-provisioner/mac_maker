@@ -35,21 +35,15 @@ class State:
     """
     self.log.debug("State: Generating New Ansible State Content")
     return TypeState(
-        workspace_root_path=cast(
-            str, filesystem.get_work_space_root(string=True)
+        workspace_root_path=str(filesystem.get_work_space_root().resolve()),
+        profile_data_path=str(filesystem.get_profile_data_path().resolve()),
+        galaxy_requirements_file=str(
+            filesystem.get_galaxy_requirements_file().resolve()
         ),
-        profile_data_path=cast(
-            str, filesystem.get_profile_data_path(string=True)
-        ),
-        galaxy_requirements_file=cast(
-            str, filesystem.get_galaxy_requirements_file(string=True)
-        ),
-        playbook=cast(str, filesystem.get_playbook_file(string=True)),
-        roles_path=[cast(str, filesystem.get_roles_path(string=True))],
-        collections_path=[
-            cast(str, filesystem.get_collections_path(string=True))
-        ],
-        inventory=cast(str, filesystem.get_inventory_file(string=True)),
+        playbook=str(filesystem.get_playbook_file().resolve()),
+        roles_path=[str(filesystem.get_roles_path().resolve())],
+        collections_path=[str(filesystem.get_collections_path().resolve())],
+        inventory=str(filesystem.get_inventory_file().resolve()),
     )
 
   def state_dehydrate(

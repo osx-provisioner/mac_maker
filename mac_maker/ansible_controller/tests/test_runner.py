@@ -1,8 +1,6 @@
 """Test the AnsibleRunner class."""
 
 from logging import Logger
-from pathlib import Path
-from typing import cast
 from unittest import TestCase, mock
 
 from ... import config
@@ -84,12 +82,10 @@ class TestAnsibleRunnerSequence(TestCase):
         ]
     )
 
-    requirements_file_path = cast(
-        Path, self.filesystem.get_galaxy_requirements_file()
+    requirements_file_path = self.filesystem.get_galaxy_requirements_file(
     ).resolve()
-    roles_file_path = cast(Path, self.filesystem.get_roles_path()).resolve()
-    collections_file_path = cast(Path, self.filesystem.get_collections_path()
-                                ).resolve()
+    roles_file_path = self.filesystem.get_roles_path().resolve()
+    collections_file_path = self.filesystem.get_collections_path().resolve()
 
     galaxy_mock_roles.spawn.assert_called_once_with(
         "ansible-galaxy role install -r"
@@ -105,7 +101,7 @@ class TestAnsibleRunnerSequence(TestCase):
 
     playbook_mock.spawn.assert_called_once_with(
         "ansible-playbook"
-        f" {cast(Path, self.filesystem.get_playbook_file()).resolve()}"
+        f" {self.filesystem.get_playbook_file().resolve()}"
         f" -i {self.filesystem.get_inventory_file()}"
         " -e "
         "\"ansible_become_password="
@@ -129,7 +125,7 @@ class TestAnsibleRunnerSequence(TestCase):
 
     playbook_mock.spawn.assert_called_once_with(
         "ansible-playbook"
-        f" {cast(Path,self.filesystem.get_playbook_file()).resolve()}"
+        f" {self.filesystem.get_playbook_file().resolve()}"
         f" -i {self.filesystem.get_inventory_file()}"
         " -e "
         "\"ansible_become_password="
