@@ -9,7 +9,8 @@ import traceback
 
 import click
 from click_shell.exceptions import ClickShellCleanExit, ClickShellUncleanExit
-from .. import cli, config
+from .. import config
+from ..utilities.cli import was_started_without_shell
 from ..utilities.state import TypeState
 from . import environment
 
@@ -91,13 +92,6 @@ class AnsibleProcess:
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
   def _perform_clean_exit(self) -> None:
-    if self._was_started_without_shell():
+    if was_started_without_shell():
       sys.exit(0)
     raise ClickShellCleanExit()
-
-  # TODO: Move into CLI module?
-  def _was_started_without_shell(self) -> bool:
-    for command in cli.cli.commands.keys():
-      if command in sys.argv:
-        return True
-    return False

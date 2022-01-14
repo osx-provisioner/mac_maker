@@ -1,4 +1,5 @@
 """The Mac Maker CLI."""
+
 from typing import Optional
 
 import click
