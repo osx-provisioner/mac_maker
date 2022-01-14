@@ -31,12 +31,7 @@ binary() {
 
 python() {
 
-  if [[ -z "${TRAVIS_BRANCH}" ]]; then
-    brew install pyenv coreutils openssl readline sqlite3 xz zlib
-  else
-    brew update
-    brew upgrade pyenv coreutils openssl readline sqlite3 xz zlib
-  fi
+  brew install pyenv coreutils openssl readline sqlite3 xz zlib
 
   env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install "${2}"
   pyenv local "${2}"

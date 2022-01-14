@@ -15,14 +15,10 @@ A portable single binary configuration tool for OSX machines.
 ### Master Branch Builds
 - GitHub:
   - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=master)](https://github.com/osx-provisioner/mac_maker/actions)
-- TravisCI: 
-  - ![TravisCI](https://travis-ci.com/osx-provisioner/mac_maker.svg?branch=master)
 
 ### Production Branch Builds
 - GitHub:
   - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
-- TravisCI:
-  - ![TravisCI](https://travis-ci.com/osx-provisioner/mac_maker.svg?branch=production)
 
 ## Quick Start
 
