@@ -170,19 +170,19 @@ class TestApplySpec(CLITestHarness):
     instance.provision.assert_called_once_with(mock_precheck_data)
 
 
-@mock.patch(CLI_MODULE + ".Jobs")
+@mock.patch(CLI_MODULE + ".VersionCommand")
 class TestVersion(CLITestHarness):
   """Test the `version` CLI command."""
 
-  def test_precheck_call(self, m_jobs: mock.Mock) -> None:
-    instance = m_jobs.return_value
+  def test_precheck_call(self, m_command: mock.Mock) -> None:
+    instance = m_command.return_value
 
     self.runner.invoke(
         cli,
         args="version",
     )
 
-    instance.version.assert_called_once_with()
+    instance.get_version.assert_called_once_with()
 
 
 @mock.patch(CLI_MODULE + ".Logger")

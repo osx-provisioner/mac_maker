@@ -50,6 +50,7 @@ autosummary_generate = True
 autosummary_mock_imports = [
     "mac_maker.tests",
     "mac_maker.ansible_controller.tests",
+    "mac_maker.commands.tests",
     "mac_maker.utilities.tests",
 ]
 

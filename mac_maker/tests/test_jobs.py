@@ -3,7 +3,6 @@
 from typing import cast
 from unittest import TestCase, mock
 
-import pkg_resources
 from .. import config
 from .. import jobs as jobs_module
 from ..utilities import precheck, spec, state
@@ -278,19 +277,3 @@ class TestJobsProvision(TestCase):
     self.jobs.provision(self.mock_spec_file_content)
 
     m_ansible.assert_called_once_with(self.mock_spec_file_content,)
-
-
-@mock.patch(JOBS_MODULE + ".click.echo")
-class TestJobsVersion(TestCase):
-  """Test the Jobs class version method."""
-
-  def setUp(self) -> None:
-    self.jobs = jobs_module.Jobs()
-
-  def test_provision_echo(self, m_echo: mock.Mock) -> None:
-    self.jobs.version()
-
-    m_echo.assert_called_once_with(
-        "Mac Maker Version: "
-        f"{pkg_resources.get_distribution('mac_maker').version}",
-    )

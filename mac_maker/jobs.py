@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Union, cast
 
 import click
-import pkg_resources
 from . import config
 from .ansible_controller.inventory import InventoryFile
 from .ansible_controller.runner import AnsibleRunner
@@ -124,12 +123,3 @@ class Jobs:
 
     ansible_job = AnsibleRunner(loaded_state)
     ansible_job.start()
-
-  @staticmethod
-  def version() -> None:
-    """Report the Mac Maker version."""
-
-    click.echo(
-        "Mac Maker Version: "
-        f"{pkg_resources.get_distribution('mac_maker').version}",
-    )

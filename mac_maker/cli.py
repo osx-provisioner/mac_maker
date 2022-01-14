@@ -3,6 +3,7 @@ from typing import Optional
 
 import click
 from click_shell import shell
+from .commands.version import VersionCommand
 from .jobs import Jobs
 from .utilities.logger import Logger
 
@@ -93,5 +94,5 @@ def apply_from_spec(spec_file: str) -> None:
 @cli.command("version")  # type: ignore[misc]
 def version() -> None:
   """Report the Mac Maker version."""
-  job = Jobs()
-  job.version()
+  command = VersionCommand()
+  command.get_version()
