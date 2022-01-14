@@ -95,6 +95,7 @@ class AnsibleProcess:
       sys.exit(0)
     raise ClickShellCleanExit()
 
+  # TODO: Move into CLI module?
   def _was_started_without_shell(self) -> bool:
     for command in cli.cli.commands.keys():
       if command in sys.argv:

@@ -4,7 +4,7 @@ from typing import Optional
 import click
 from click_shell import shell
 from .commands.version import VersionCommand
-from .jobs import Jobs
+from .jobs import filesystem_job, github_job
 from .utilities.logger import Logger
 
 
@@ -44,9 +44,8 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
 
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
-  job = Jobs()
-  precheck_data = job.get_precheck_content_from_github(github_url, branch)
-  job.precheck(precheck_data)
+  job = github_job.GitHubJob(github_url, branch)
+  job.precheck()
 
 
 @precheck.command("spec")  # type: ignore[misc]
@@ -56,9 +55,8 @@ def check_from_spec(spec_file: str) -> None:
 
   SPEC_FILE: The location of a spec.json file referencing a profile.
   """
-  job = Jobs()
-  precheck_data = job.get_precheck_content_from_spec(spec_file)
-  job.precheck(precheck_data)
+  job = filesystem_job.FileSystemJob(spec_file)
+  job.precheck()
 
 
 @apply.command("github")  # type: ignore[misc]
@@ -74,9 +72,9 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
 
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
-  job = Jobs()
-  job_spec = job.create_state_from_github_spec(github_url, branch)
-  job.provision(job_spec)
+  job = github_job.GitHubJob(github_url, branch)
+  job.precheck()
+  job.provision()
 
 
 @apply.command("spec")  # type: ignore[misc]
@@ -86,9 +84,9 @@ def apply_from_spec(spec_file: str) -> None:
 
   SPEC_FILE: The location of a spec.json file.
   """
-  job = Jobs()
-  job_spec = job.create_state_from_local_spec_file(spec_file)
-  job.provision(job_spec)
+  job = filesystem_job.FileSystemJob(spec_file)
+  job.precheck()
+  job.provision()
 
 
 @cli.command("version")  # type: ignore[misc]

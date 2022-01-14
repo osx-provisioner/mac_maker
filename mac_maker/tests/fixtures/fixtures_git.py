@@ -2,8 +2,6 @@
 
 import unittest
 
-from ...cli import Jobs
-
 
 class GitTestHarness(unittest.TestCase):
   """Test fixtures for the click CLI."""
@@ -18,4 +16,3 @@ class GitTestHarness(unittest.TestCase):
     self.repository_ssh_url = (
         f"git@github.com:{self.org_name}/{self.repo_name}.git"
     )
-    self.jobs = Jobs()
