@@ -4,7 +4,7 @@ from unittest import mock
 
 from ... import config
 from ...jobs import bases as jobs_bases
-from ...jobs import github_job as jobs_module
+from ...jobs import github as jobs_module
 from ...tests.fixtures import fixtures_git
 from ...utilities import spec
 

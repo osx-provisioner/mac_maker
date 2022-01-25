@@ -12,7 +12,16 @@ from ..utilities.spec import JobSpec
 from ..utilities.state import TypeState
 
 
-class JobBase(abc.ABC):
+class SimpleJobBase(abc.ABC):
+  """Job base class for the Mac Maker, that doesn't require provisioning."""
+
+  @abc.abstractmethod
+  def invoke(self) -> None:
+    """Invoke a simple Job that doesn't require provisioning."""
+    raise NotImplementedError  # nocover
+
+
+class ProvisionerJobBase(abc.ABC):
   """Job base class for the Mac Maker."""
 
   def __init__(self) -> None:

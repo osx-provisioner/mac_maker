@@ -4,8 +4,7 @@ from typing import Optional
 
 import click
 from click_shell import shell
-from .commands.version import VersionCommand
-from .jobs import filesystem_job, github_job
+from . import jobs
 from .utilities.logger import Logger
 
 
@@ -45,7 +44,7 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
 
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
-  job = github_job.GitHubJob(github_url, branch)
+  job = jobs.GitHubJob(github_url, branch)
   job.precheck()
 
 
@@ -56,7 +55,7 @@ def check_from_spec(spec_file: str) -> None:
 
   SPEC_FILE: The location of a spec.json file referencing a profile.
   """
-  job = filesystem_job.FileSystemJob(spec_file)
+  job = jobs.FileSystemJob(spec_file)
   job.precheck()
 
 
@@ -73,7 +72,7 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
 
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
-  job = github_job.GitHubJob(github_url, branch)
+  job = jobs.GitHubJob(github_url, branch)
   job.precheck()
   job.provision()
 
@@ -85,7 +84,7 @@ def apply_from_spec(spec_file: str) -> None:
 
   SPEC_FILE: The location of a spec.json file.
   """
-  job = filesystem_job.FileSystemJob(spec_file)
+  job = jobs.FileSystemJob(spec_file)
   job.precheck()
   job.provision()
 
@@ -93,5 +92,5 @@ def apply_from_spec(spec_file: str) -> None:
 @cli.command("version")  # type: ignore[misc]
 def version() -> None:
   """Report the Mac Maker version."""
-  command = VersionCommand()
-  command.get_version()
+  job = jobs.VersionJob()
+  job.invoke()

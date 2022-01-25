@@ -7,7 +7,7 @@ from ..utilities.state import TypeState
 from . import bases
 
 
-class FileSystemJob(bases.JobBase):
+class FileSystemJob(bases.ProvisionerJobBase):
   """A provisioning job for a spec file and profile on the local file system.
 
   :param spec_file_location: The path to the spec file.

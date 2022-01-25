@@ -1,13 +1,14 @@
-"""Version command for the Mac Maker cli."""
+"""A simple job to report the version of the Mac Maker cli."""
 
 import click
 import pkg_resources
+from . import bases
 
 
-class VersionCommand:
+class VersionJob(bases.SimpleJobBase):
   """Version command for the Mac Maker cli."""
 
-  def get_version(self) -> None:
+  def invoke(self) -> None:
     """Report the Mac Maker version."""
 
     click.echo(

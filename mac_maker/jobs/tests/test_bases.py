@@ -9,8 +9,8 @@ from .. import bases as bases_module
 BASES_MODULE = bases_module.__name__
 
 
-class MockConcreteJob(bases_module.JobBase):
-  """Concrete test implementation of the JobBase class."""
+class MockConcreteJob(bases_module.ProvisionerJobBase):
+  """Concrete test implementation of the ProvisionerJobBase class."""
 
   def __init__(self) -> None:
     super().__init__()
@@ -25,7 +25,7 @@ class MockConcreteJob(bases_module.JobBase):
 
 
 class TestJobsBase(TestCase):
-  """Test the JobBase class."""
+  """Test the ProvisionerJobBase class."""
 
   def setUp(self) -> None:
     self.concrete_job = MockConcreteJob()
@@ -40,7 +40,7 @@ class TestJobsBase(TestCase):
 @mock.patch(BASES_MODULE + ".PrecheckConfig")
 @mock.patch(BASES_MODULE + ".click.echo")
 class TestJobsPrecheck(TestCase):
-  """Test the JobBase class precheck method."""
+  """Test the ProvisionerJobBase class precheck method."""
 
   def setUp(self) -> None:
     super().setUp()
@@ -96,7 +96,7 @@ class TestJobsPrecheck(TestCase):
 @mock.patch(BASES_MODULE + ".InventoryFile")
 @mock.patch(BASES_MODULE + ".AnsibleRunner")
 class TestJobsProvision(TestCase):
-  """Test the JobBase class provision method."""
+  """Test the ProvisionerJobBase class provision method."""
 
   def setUp(self) -> None:
     self.concrete_job = MockConcreteJob()

@@ -31,7 +31,7 @@ class CLITestHarness(fixtures_git.GitTestHarness):
         }
     ]
 )
-@mock.patch(CLI_MODULE + ".github_job.GitHubJob")
+@mock.patch(CLI_MODULE + ".jobs.GitHubJob")
 class TestPrecheckGithub(CLITestHarness):
   """Test the `precheck` CLI command with github repositories."""
 
@@ -50,7 +50,7 @@ class TestPrecheckGithub(CLITestHarness):
     instance.precheck.assert_called_once_with()
 
 
-@mock.patch(CLI_MODULE + ".filesystem_job.FileSystemJob")
+@mock.patch(CLI_MODULE + ".jobs.FileSystemJob")
 class TestPrecheckSpec(CLITestHarness):
   """Test the `precheck` CLI command with spec files."""
 
@@ -78,7 +78,7 @@ class TestPrecheckSpec(CLITestHarness):
         }
     ]
 )
-@mock.patch(CLI_MODULE + ".github_job.GitHubJob")
+@mock.patch(CLI_MODULE + ".jobs.GitHubJob")
 class TestApplyGithub(CLITestHarness):
   """Test the `apply` CLI command with GitHub repositories."""
 
@@ -98,7 +98,7 @@ class TestApplyGithub(CLITestHarness):
     instance.provision.assert_called_once_with()
 
 
-@mock.patch(CLI_MODULE + ".filesystem_job.FileSystemJob")
+@mock.patch(CLI_MODULE + ".jobs.FileSystemJob")
 class TestApplySpec(CLITestHarness):
   """Test the `apply` CLI command with spec files."""
 
@@ -115,7 +115,7 @@ class TestApplySpec(CLITestHarness):
     instance.provision.assert_called_once_with()
 
 
-@mock.patch(CLI_MODULE + ".VersionCommand")
+@mock.patch(CLI_MODULE + ".jobs.VersionJob")
 class TestVersion(CLITestHarness):
   """Test the `version` CLI command."""
 
@@ -127,7 +127,7 @@ class TestVersion(CLITestHarness):
         args="version",
     )
 
-    instance.get_version.assert_called_once_with()
+    instance.invoke.assert_called_once_with()
 
 
 @mock.patch(CLI_MODULE + ".Logger")

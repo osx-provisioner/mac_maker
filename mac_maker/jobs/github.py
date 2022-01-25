@@ -11,7 +11,7 @@ from ..utilities.workspace import WorkSpace
 from . import bases
 
 
-class GitHubJob(bases.JobBase):
+class GitHubJob(bases.ProvisionerJobBase):
   """A provisioning job for a profile in a Github repository.
 
   :param repository_url: The GitHub Repository URL.

@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 
 from ... import config
 from ...jobs import bases as jobs_bases
-from ...jobs import filesystem_job as jobs_module
+from ...jobs import filesystem as jobs_module
 from ...utilities import spec
 
 JOBS_MODULE = jobs_module.__name__
