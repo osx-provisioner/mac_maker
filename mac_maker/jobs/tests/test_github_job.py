@@ -30,7 +30,7 @@ class TestGitHubJob(fixtures_git.GitTestHarness):
 
 @mock.patch(JOBS_MODULE + ".WorkSpace")
 @mock.patch(JOBS_MODULE + ".GithubRepository.download_zip_bundle_profile")
-@mock.patch(JOBS_BASES + ".JobSpec.create_job_spec_from_github")
+@mock.patch(JOBS_BASES + ".JobSpec.read_job_spec_from_workspace")
 @mock.patch(JOBS_BASES + ".JobSpec.extract_precheck_from_job_spec")
 class TestGitHubJobJobGetPrecheck(fixtures_git.GitTestHarness):
   """Test the GitHubJob class get_precheck_content method."""
@@ -85,7 +85,7 @@ class TestGitHubJobJobGetPrecheck(fixtures_git.GitTestHarness):
 @mock.patch(JOBS_MODULE + ".click.echo")
 @mock.patch(JOBS_MODULE + ".WorkSpace")
 @mock.patch(JOBS_MODULE + ".GithubRepository.download_zip_bundle_profile")
-@mock.patch(JOBS_BASES + ".JobSpec.create_job_spec_from_github")
+@mock.patch(JOBS_BASES + ".JobSpec.read_job_spec_from_workspace")
 class TestJGitHubJobGetState(fixtures_git.GitTestHarness):
   """Test the GitHubJob class get_state method."""
 

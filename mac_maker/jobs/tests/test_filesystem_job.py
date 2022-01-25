@@ -56,7 +56,7 @@ class TestFileSystemJobGetPrecheck(TestCase):
 
 
 @mock.patch(JOBS_MODULE + ".click.echo")
-@mock.patch(JOBS_BASES + ".JobSpec.create_job_spec_from_filesystem")
+@mock.patch(JOBS_BASES + ".JobSpec.read_job_spec_from_filesystem")
 class TestFileSystemJobGetStateCase(TestCase):
   """Test the FileSystemJob class get_state method."""
 

@@ -42,7 +42,7 @@ class GitHubJob(bases.ProvisionerJobBase):
     self.workspace = WorkSpace()
     self.workspace.add_repository(repo, self.branch_name)
     repo.download_zip_bundle_profile(self.workspace.root, self.branch_name)
-    self.loaded_spec_file_data = self.jobspec.create_job_spec_from_github(
+    self.loaded_spec_file_data = self.jobspec.read_job_spec_from_workspace(
         self.workspace
     )
 

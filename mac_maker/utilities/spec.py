@@ -43,10 +43,10 @@ class JobSpec:
       json_file_content = json.load(fhandle)
     return json_file_content
 
-  def create_job_spec_from_github(
+  def read_job_spec_from_workspace(
       self, workspace: WorkSpace
   ) -> TypeSpecFileData:
-    """Create a job spec file from a downloaded GitHub hosted profile.
+    """Read a job spec file from a created workspace.
 
     :param workspace: The current WorkSpace object in use.
     :returns: The spec file content, and it's location on the filesystem.
@@ -55,32 +55,32 @@ class JobSpec:
     self.log.debug('JobSpec: Building state from downloaded Git bundle.')
     filesystem = FileSystem(cast(str, workspace.repository_root))
     spec_file_content = self.state_manager.state_generate(filesystem)
-
     self.state_manager.state_dehydrate(
         spec_file_content, filesystem.get_spec_file()
     )
+    self._validate_spec_file(spec_file_content)
     self.log.debug('JobSpec: State has been built.')
 
     return TypeSpecFileData(
         spec_file_content=spec_file_content,
-        spec_file_location=filesystem.get_spec_file()
+        spec_file_location=str(filesystem.get_spec_file())
     )
 
-  def create_job_spec_from_filesystem(
+  def read_job_spec_from_filesystem(
       self,
       spec_file_location: Union[Path, str],
   ) -> TypeSpecFileData:
-    """Create (read) a job spec file from the file system.
+    """Read a job spec file from a arbitrary file system location.
 
     :param spec_file_location: The path to the spec file that will be read.
     :returns: The spec file content, and it's location on the filesystem.
     """
     spec_file_content = self._load_json_file(spec_file_location)
     self._validate_spec_file(spec_file_content)
-    return {
-        'spec_file_content': spec_file_content,
-        'spec_file_location': spec_file_location
-    }
+    return TypeSpecFileData(
+        spec_file_content=spec_file_content,
+        spec_file_location=spec_file_location
+    )
 
   def _validate_with_schema(self, spec_file_content: TypeState,
                             schema: Any) -> List[str]:

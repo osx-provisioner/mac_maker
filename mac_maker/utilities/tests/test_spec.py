@@ -50,13 +50,13 @@ class TestSpecValidity(TestCase):
 
   def test_v1_spec(self) -> None:
     v1_mock_spec = self.fixtures_folder / "mock_v1_job_spec.json"
-    self.spec.create_job_spec_from_filesystem(v1_mock_spec)
+    self.spec.read_job_spec_from_filesystem(v1_mock_spec)
 
   def test_v1_spec_invalid(self) -> None:
     v1_mock_spec = self.fixtures_folder / "mock_v1_invalid_job_spec.json"
 
     with self.assertRaises(spec.JobSpecFileException) as exc:
-      self.spec.create_job_spec_from_filesystem(v1_mock_spec)
+      self.spec.read_job_spec_from_filesystem(v1_mock_spec)
 
     self.assertListEqual(
         json.loads(exc.exception.args[0]), [
@@ -66,51 +66,71 @@ class TestSpecValidity(TestCase):
     )
 
 
-@mock.patch(SPEC_MODULE + '.FileSystem')
-class TestSpecCreateSpecFromGithub(TestCase):
-  """Test the JobSpec class create_job_spec_from_github method."""
+class TestSpecCreateSpecFromWorkspace(TestCase):
+  """Test the JobSpec class read_job_spec_from_workspace method."""
 
   def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.mock_spec_file_location = Path("spec.json")
     self.mock_workspace = mock.Mock()
+    self.mock_workspace.repository_root = "root"
     self.mock_state = mock.Mock()
+    self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
 
+    self.spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
+    with open(self.spec_fixture, encoding="utf-8") as fhandle:
+      self.loaded_spec_fixture = json.load(fhandle)
+
+    self.mock_state.state_generate.side_effect = [
+        self.loaded_spec_fixture, self.spec_fixture
+    ]
     self.spec.state_manager = self.mock_state
 
-  def test_create_job_spec_from_github_results(self, m_fs: mock.Mock) -> None:
+  def test_read_job_spec_from_workspace_results(self) -> None:
 
-    results = self.spec.create_job_spec_from_github(self.mock_workspace)
-    self.assertEqual(
+    results = self.spec.read_job_spec_from_workspace(self.mock_workspace)
+    self.assertDictEqual(
         results, {
-            'spec_file_content': self.mock_state.state_generate.return_value,
-            'spec_file_location': m_fs.return_value.get_spec_file.return_value
+            'spec_file_content': self.loaded_spec_fixture,
+            'spec_file_location': 'root/spec.json',
         }
     )
 
+  def test_read_job_spec_from_workspace_validation(self) -> None:
+    self.mock_state.state_generate.side_effect = [
+        "Invalid Spec", self.spec_fixture
+    ]
+    with self.assertRaises(spec.JobSpecFileException):
+      self.spec.read_job_spec_from_workspace(self.mock_workspace)
+
 
 class TestSpecCreateSpecFromFileSystem(TestCase):
-  """Test the JobSpec class create_job_spec_from_filesystem method."""
+  """Test the JobSpec class read_job_spec_from_filesystem method."""
 
   def setUp(self) -> None:
     self.spec = spec.JobSpec()
     self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
+    self.spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
+    with open(self.spec_fixture, encoding="utf-8") as fhandle:
+      self.loaded_spec_fixture = json.load(fhandle)
 
-  def test_create_job_spec_from_filesystem(self) -> None:
+  def test_read_job_spec_from_filesystem(self) -> None:
 
-    spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
-
-    results = self.spec.create_job_spec_from_filesystem(spec_fixture)
-
-    with open(spec_fixture, encoding="utf-8") as fhandle:
-      expected_result = json.load(fhandle)
-
+    results = self.spec.read_job_spec_from_filesystem(self.spec_fixture)
     self.assertDictEqual(
         results, {
-            'spec_file_content': expected_result,
-            'spec_file_location': spec_fixture,
+            'spec_file_content': self.loaded_spec_fixture,
+            'spec_file_location': self.spec_fixture,
         }
     )
+
+  @mock.patch(SPEC_MODULE + ".json.load")
+  def test_read_job_spec_from_filesystem_validation(
+      self, m_load: mock.Mock
+  ) -> None:
+    m_load.return_value = "Invalid Spec"
+    with self.assertRaises(spec.JobSpecFileException):
+      self.spec.read_job_spec_from_filesystem(self.spec_fixture)
 
 
 @mock.patch('builtins.open')

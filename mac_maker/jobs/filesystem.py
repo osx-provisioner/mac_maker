@@ -36,7 +36,7 @@ class FileSystemJob(bases.ProvisionerJobBase):
     :returns: The created state object.
     """
 
-    job_spec = self.jobspec.create_job_spec_from_filesystem(
+    job_spec = self.jobspec.read_job_spec_from_filesystem(
         self.spec_file_location
     )
     click.echo(config.ANSIBLE_JOB_SPEC_READ_MESSAGE)
