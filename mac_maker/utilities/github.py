@@ -4,7 +4,7 @@ import logging
 import re
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, Match, Optional, Union
+from typing import Match, Optional, Union
 from zipfile import ZipFile
 
 import requests
@@ -108,29 +108,6 @@ class GithubRepository:
     """
     branch_name = self.get_branch_name(branch_name)
     return f"{self._parsed_url.group('repo')}-{branch_name}"
-
-  def download_zip_bundle_files(
-      self, branch_name: Optional[str], file_names: Dict[str, str]
-  ) -> Dict[str, str]:
-    """Download a zip bundle for the branch, then unzip the given files.
-
-    :param branch_name: The branch of the repository to use.
-    :param file_names: A dictionary of filenames that will be read.
-    :returns: A hash of filenames, with the content of each file.
-    """
-
-    results = {}
-    branch_name = self.get_branch_name(branch_name)
-    http_response = self._download_zipfile(branch_name)
-    with ZipFile(BytesIO(http_response.content)) as zipfile:
-      for key, file_name in file_names.items():
-        results[key] = (
-            zipfile.read(
-                f"{self._parsed_url.group('repo')}-{branch_name}/"
-                f"{file_name}"
-            ).decode('utf-8')
-        )
-    return results
 
   def download_zip_bundle_profile(
       self, file_system_target: Union[Path, str], branch_name: Optional[str]

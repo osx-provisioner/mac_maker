@@ -105,49 +105,6 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     context.return_value.read.return_value = self.mock_data
     mock_bytes.return_value = BytesIO(self.mock_data)
 
-  def test_download_zip_bundle_files_request(
-      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, mock_get: mock.Mock
-  ) -> None:
-    self.create_mock_context(mock_zipfile, mock_bytes)
-
-    repo = GithubRepository(self.repository_http_url)
-    repo.download_zip_bundle_files(self.mock_branch, {})
-
-    mock_get.assert_called_once_with(repo.get_zip_bundle_url(self.mock_branch))
-
-  def test_download_zip_bundle_files_zipfile_context(
-      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, _: mock.Mock
-  ) -> None:
-    self.create_mock_context(mock_zipfile, mock_bytes)
-
-    repo = GithubRepository(self.repository_http_url)
-    repo.download_zip_bundle_files(self.mock_branch, self.mock_files)
-
-    mock_zipfile.assert_called_once_with(mock_bytes.return_value)
-
-    self.mock_zip_context.read.asset_any_call(
-        f"{self.repo_name}-{self.mock_branch}/{self.mock_files['a']}"
-    )
-    self.mock_zip_context.read.asset_any_call(
-        f"{self.repo_name}-{self.mock_branch}/{self.mock_files['b']}"
-    )
-    self.assertEqual(2, self.mock_zip_context.read.call_count)
-
-  def test_download_zip_bundle_files_results(
-      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, _: mock.Mock
-  ) -> None:
-    self.create_mock_context(mock_zipfile, mock_bytes)
-
-    repo = GithubRepository(self.repository_http_url)
-    results = repo.download_zip_bundle_files(self.mock_branch, self.mock_files)
-
-    self.assertDictEqual(
-        results, {
-            "a": self.mock_data.decode('utf-8'),
-            "b": self.mock_data.decode('utf-8'),
-        }
-    )
-
   def test_download_zip_bundle_request(
       self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, mock_get: mock.Mock
   ) -> None:
