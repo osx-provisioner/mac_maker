@@ -2,8 +2,8 @@
 
 import click
 from .. import config
-from ..utilities.precheck import TypePrecheckFileData
 from ..utilities.state import TypeState
+from ..utilities.validation.precheck import TypePrecheckFileData
 from . import bases
 
 

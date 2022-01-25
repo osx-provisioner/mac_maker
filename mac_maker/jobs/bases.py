@@ -7,9 +7,12 @@ import click
 from ..ansible_controller.inventory import InventoryFile
 from ..ansible_controller.runner import AnsibleRunner
 from ..utilities.password import SUDO
-from ..utilities.precheck import PrecheckConfig, TypePrecheckFileData
 from ..utilities.spec import JobSpec
 from ..utilities.state import TypeState
+from ..utilities.validation.precheck import (
+  PrecheckConfigValidator,
+  TypePrecheckFileData,
+)
 
 
 class SimpleJobBase(abc.ABC):
@@ -42,8 +45,8 @@ class ProvisionerJobBase(abc.ABC):
 
     precheck_data = self.get_precheck_content()
 
-    validator = PrecheckConfig(precheck_data['env'])
-    validator.is_valid_env_file()
+    validator = PrecheckConfigValidator(precheck_data['env'])
+    validator.validate_config()
     results = validator.validate_environment()
     if not results['is_valid']:
       for violation in results['violations']:

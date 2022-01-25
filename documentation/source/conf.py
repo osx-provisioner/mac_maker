@@ -52,6 +52,8 @@ autosummary_mock_imports = [
     "mac_maker.ansible_controller.tests",
     "mac_maker.jobs.tests",
     "mac_maker.utilities.tests",
+    "mac_maker.utilities.mixins.tests",
+    "mac_maker.utilities.validation.tests",
 ]
 
 source_suffix = {

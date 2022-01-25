@@ -3,7 +3,8 @@
 from typing import cast
 from unittest import TestCase, mock
 
-from ...utilities import precheck, spec, state
+from ...utilities import spec, state
+from ...utilities.validation import precheck
 from .. import bases as bases_module
 
 BASES_MODULE = bases_module.__name__
@@ -37,7 +38,7 @@ class TestJobsBase(TestCase):
     )
 
 
-@mock.patch(BASES_MODULE + ".PrecheckConfig")
+@mock.patch(BASES_MODULE + ".PrecheckConfigValidator")
 @mock.patch(BASES_MODULE + ".click.echo")
 class TestJobsPrecheck(TestCase):
   """Test the ProvisionerJobBase class precheck method."""
@@ -63,6 +64,17 @@ class TestJobsPrecheck(TestCase):
     m_echo.assert_called_once_with(
         self.concrete_job.mock_precheck_content['notes']
     )
+
+  def test_precheck_config_invalid(
+      self,
+      _: mock.Mock,
+      m_env: mock.Mock,
+  ) -> None:
+    instance = m_env.return_value
+    instance.validate_config.side_effect = precheck.ValidationError("Boom!")
+
+    with self.assertRaises(precheck.ValidationError):
+      self.concrete_job.precheck()
 
   def test_precheck_environment(self, _: mock.Mock, m_env: mock.Mock) -> None:
 

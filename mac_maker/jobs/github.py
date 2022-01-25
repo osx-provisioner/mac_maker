@@ -5,9 +5,9 @@ from typing import Optional
 import click
 from .. import config
 from ..utilities.github import GithubRepository
-from ..utilities.precheck import TypePrecheckFileData
 from ..utilities.spec import TypeSpecFileData
 from ..utilities.state import TypeState
+from ..utilities.validation.precheck import TypePrecheckFileData
 from ..utilities.workspace import WorkSpace
 from . import bases
 

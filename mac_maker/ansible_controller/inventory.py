@@ -4,10 +4,11 @@ import logging
 import os
 
 from .. import config
+from ..utilities.mixins.text_file import TextFileWriter
 from ..utilities.state import TypeState
 
 
-class InventoryFile:
+class InventoryFile(TextFileWriter):
   """Inventory file for Ansible.
 
   :param state: The loaded state content.
@@ -30,9 +31,9 @@ class InventoryFile:
       return
 
     self._ensure_path_exists()
-
-    with open(self.state['inventory'], "w", encoding="utf-8") as fhandle:
-      fhandle.write(config.ANSIBLE_INVENTORY_CONTENT)
+    self.write_text_file(
+        config.ANSIBLE_INVENTORY_CONTENT, self.state['inventory']
+    )
     self.log.debug(
         "InventoryFile: inventory has been written to %s",
         self.state['inventory'],

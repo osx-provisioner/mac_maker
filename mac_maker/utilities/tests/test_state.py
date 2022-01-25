@@ -2,7 +2,6 @@
 
 import json
 import os
-from io import StringIO
 from logging import Logger
 from pathlib import Path
 from typing import cast
@@ -29,7 +28,7 @@ class TestStateClass(TestCase):
         "job_v1.json"
     )
 
-  def test_init_settings(self) -> None:
+  def test_init(self) -> None:
     self.assertIsInstance(
         self.state.log,
         Logger,
@@ -43,31 +42,20 @@ class TestStateClass(TestCase):
     generated_state = self.state.state_generate(mock_fs)
     validate(generated_state, schema)
 
-  @mock.patch('builtins.open')
-  def test_state_dehydrate(self, m_open: mock.Mock) -> None:
-
-    mock_file = StringIO()
-    m_open.return_value.__enter__.return_value = mock_file
+  @mock.patch(STATE_MODULE + ".JSONFileWriter.write_json_file")
+  def test_state_dehydrate(self, m_write: mock.Mock) -> None:
     self.state.state_dehydrate(
         cast(state.TypeState, self.mock_state_data),
         self.mock_state_file_name,
     )
-    m_open.assert_called_once_with(
-        self.mock_state_file_name, "w", encoding="utf-8"
-    )
-
-    self.assertDictEqual(
+    m_write.assert_called_once_with(
         self.mock_state_data,
-        json.loads(mock_file.getvalue()),
+        self.mock_state_file_name,
     )
 
-  @mock.patch('builtins.open')
-  def test_state_rehydrate(self, m_open: mock.Mock) -> None:
-    mock_file = StringIO(json.dumps(self.mock_state_data))
-    m_open.return_value.__enter__.return_value = mock_file
-
+  @mock.patch(STATE_MODULE + ".JSONFileReader.load_json_file")
+  def test_state_rehydrate(self, m_read: mock.Mock) -> None:
+    m_read.return_value = self.mock_state_data
     result = self.state.state_rehydrate(self.mock_state_file_name)
-
-    m_open.assert_called_once_with(self.mock_state_file_name, encoding="utf-8")
-
+    m_read.assert_called_once_with(self.mock_state_file_name)
     self.assertDictEqual(result, self.mock_state_data)

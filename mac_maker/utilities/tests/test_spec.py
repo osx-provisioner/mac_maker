@@ -1,12 +1,12 @@
 """Test the JobSpec class."""
 
 import json
-import os
 from logging import Logger
 from pathlib import Path
 from typing import cast
 from unittest import TestCase, mock
 
+from ...tests import fixtures
 from .. import spec, state
 
 SPEC_MODULE = spec.__name__
@@ -46,7 +46,7 @@ class TestSpecValidity(TestCase):
         'spec_file_content': "some content",
         'spec_file_location': "some location"
     }
-    self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
+    self.fixtures_folder = Path(fixtures.__file__).parent
 
   def test_v1_spec(self) -> None:
     v1_mock_spec = self.fixtures_folder / "mock_v1_job_spec.json"
@@ -75,7 +75,7 @@ class TestSpecCreateSpecFromWorkspace(TestCase):
     self.mock_workspace = mock.Mock()
     self.mock_workspace.repository_root = "root"
     self.mock_state = mock.Mock()
-    self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
+    self.fixtures_folder = Path(fixtures.__file__).parent
 
     self.spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
     with open(self.spec_fixture, encoding="utf-8") as fhandle:
@@ -109,7 +109,7 @@ class TestSpecCreateSpecFromFileSystem(TestCase):
 
   def setUp(self) -> None:
     self.spec = spec.JobSpec()
-    self.fixtures_folder = Path(os.path.dirname(__file__)) / "fixtures"
+    self.fixtures_folder = Path(fixtures.__file__).parent
     self.spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
     with open(self.spec_fixture, encoding="utf-8") as fhandle:
       self.loaded_spec_fixture = json.load(fhandle)

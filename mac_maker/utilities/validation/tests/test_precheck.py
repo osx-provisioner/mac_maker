@@ -4,8 +4,12 @@ from pathlib import Path
 from typing import Any
 from unittest import TestCase, mock
 
+from ....tests import fixtures
 from .. import precheck
-from ..precheck import PrecheckConfig, PrecheckConfigException
+from ..precheck import (
+  PrecheckConfigValidationException,
+  PrecheckConfigValidator,
+)
 
 PRECHECK_MODULE = precheck.__name__
 
@@ -15,17 +19,17 @@ class TestValidator(TestCase):
 
   def test_invalid_env_file(self) -> None:
     yaml_data = "not a list"
-    validator = PrecheckConfig(yaml_data)
+    validator = PrecheckConfigValidator(yaml_data)
 
-    with self.assertRaises(PrecheckConfigException) as exc:
-      validator.is_valid_env_file()
+    with self.assertRaises(PrecheckConfigValidationException) as exc:
+      validator.validate_config()
 
-    self.assertEqual(str(exc.exception), PrecheckConfig.syntax_error)
+    self.assertEqual(str(exc.exception), PrecheckConfigValidator.syntax_error)
 
   def test_correct(self) -> None:
     yaml_data = '[{"name" : "name", "description": "description"}]'
-    validator = PrecheckConfig(yaml_data)
-    validator.is_valid_env_file()
+    validator = PrecheckConfigValidator(yaml_data)
+    validator.validate_config()
 
     self.assertListEqual(
         validator.parsed_yaml, [{
@@ -35,8 +39,8 @@ class TestValidator(TestCase):
     )
 
   def test_invalid_yaml(self) -> None:
-    with self.assertRaises(PrecheckConfigException):
-      PrecheckConfig('- dsfsdfs }: - dsfdsf')
+    with self.assertRaises(PrecheckConfigValidationException):
+      PrecheckConfigValidator('- dsfsdfs }: - dsfdsf')
 
 
 class TestValidateEnv(TestCase):
@@ -47,12 +51,13 @@ class TestValidateEnv(TestCase):
   @classmethod
   def setUpClass(cls) -> None:
     super().setUpClass()
-    yaml_env_fixture = Path(__file__).parent / "fixtures" / "mock_env.yml"
+    yaml_env_fixture = Path(fixtures.__file__).parent / "mock_env.yml"
     with open(yaml_env_fixture, encoding="utf-8") as fhandle:
       cls.mock_yaml_data = fhandle.read()
 
   def setUp(self) -> None:
-    self.validator = PrecheckConfig(self.mock_yaml_data)
+    super().setUp()
+    self.validator = PrecheckConfigValidator(self.mock_yaml_data)
 
   @mock.patch(PRECHECK_MODULE + ".os.environ", {})
   def test_validate_empty_environment(self) -> None:

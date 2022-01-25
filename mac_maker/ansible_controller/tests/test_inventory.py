@@ -29,9 +29,9 @@ class TestInventoryFile(TestCase):
     self.assertEqual(self.inventory.state, self.loaded_state)
 
   @mock.patch(INVENTORY_MODULE + ".os")
-  @mock.patch("builtins.open", new_callable=mock.mock_open)
+  @mock.patch(INVENTORY_MODULE + ".TextFileWriter.write_text_file")
   def test_write_inventory_file(
-      self, m_open: mock.Mock, m_os: mock.Mock
+      self, m_write: mock.Mock, m_os: mock.Mock
   ) -> None:
 
     m_os.path.exists.return_value = False
@@ -43,20 +43,18 @@ class TestInventoryFile(TestCase):
         exist_ok=True,
     )
 
-    m_open.assert_called_once_with(
-        self.loaded_state['inventory'], 'w', encoding="utf-8"
+    m_write.assert_called_once_with(
+        config.ANSIBLE_INVENTORY_CONTENT, self.loaded_state['inventory']
     )
-    handle = m_open()
-    handle.write.assert_called_once_with(config.ANSIBLE_INVENTORY_CONTENT)
 
   @mock.patch(INVENTORY_MODULE + ".os")
-  @mock.patch("builtins.open", new_callable=mock.mock_open)
+  @mock.patch(INVENTORY_MODULE + ".TextFileWriter.write_text_file")
   def test_write_inventory_file_already_exists(
-      self, m_open: mock.Mock, m_os: mock.Mock
+      self, m_write: mock.Mock, m_os: mock.Mock
   ) -> None:
     m_os.path.exists.return_value = True
 
     self.inventory.write_inventory_file()
 
     m_os.makedirs.assert_not_called()
-    m_open.assert_not_called()
+    m_write.assert_not_called()

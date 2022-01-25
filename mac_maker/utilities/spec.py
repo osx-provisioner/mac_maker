@@ -10,8 +10,8 @@ from typing import Any, List, TypedDict, Union, cast
 from jsonschema.validators import validator_for
 from .. import config
 from .filesystem import FileSystem
-from .precheck import TypePrecheckFileData
 from .state import State, TypeState
+from .validation.precheck import TypePrecheckFileData
 from .workspace import WorkSpace
 
 
