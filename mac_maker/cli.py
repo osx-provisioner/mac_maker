@@ -50,7 +50,7 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
 
 @precheck.command("spec")  # type: ignore[misc]
 @click.argument('spec_file', type=click.STRING)
-def check_from_spec(spec_file: str) -> None:
+def check_from_filesystem(spec_file: str) -> None:
   """Precheck a profile from a spec.json file.
 
   SPEC_FILE: The location of a spec.json file referencing a profile.
