@@ -9,7 +9,7 @@ from .. import config
 class FileSystem:
   """File system representation.
 
-  :param work_space_root: The path of the work space root location.
+  :param work_space_root: The path of the Workspace root location.
   """
 
   def __init__(
@@ -19,16 +19,16 @@ class FileSystem:
     self.work_space_root = Path(work_space_root)
 
   def get_work_space_root(self) -> Path:
-    """Return the work space's root folder location.
+    """Return the Workspace's root folder location.
 
-    :return: The work space's root folder location.
+    :return: The Workspace's root folder location.
     """
     return self.work_space_root
 
   def get_spec_file(self) -> Path:
-    """Return the current spec file's location.
+    """Return the current Job Spec file's location.
 
-    :return: The current spec file's location.
+    :return: The current Job Spec file's location.
     """
     return self.work_space_root / config.STATE_FILE_NAME
 
@@ -55,9 +55,9 @@ class FileSystem:
     return self.get_profile_data_path() / config.PROFILE_INSTALLER_FILE
 
   def get_profile_data_path(self) -> Path:
-    """Return the Mac Maker profile's root folder location.
+    """Return the Mac Maker Profile's root folder location.
 
-    :return: The Mac Maker profile's root folder location.
+    :return: The Mac Maker Profile's root folder location.
     """
     return self.work_space_root / config.PROFILE_FOLDER_PATH
 

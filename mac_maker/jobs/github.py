@@ -1,4 +1,4 @@
-"""A provisioning job for a profile in a Github repository."""
+"""A provisioning job for a Profile in a Github Repository."""
 
 from typing import Optional
 
@@ -13,7 +13,7 @@ from . import bases
 
 
 class GitHubJob(bases.ProvisionerJobBase):
-  """A provisioning job for a profile in a Github repository.
+  """A provisioning job for a Profile in a Github Repository.
 
   :param repository_url: The GitHub Repository URL.
   :param branch_name: The GitHub Repository branch name.
@@ -31,7 +31,7 @@ class GitHubJob(bases.ProvisionerJobBase):
     self.workspace = None
 
   def _download_repository(self) -> None:
-    """Download a Github repository, and setup a file system."""
+    """Download a Github Repository, and setup a Workspace."""
 
     if self.workspace:
       return
@@ -48,9 +48,9 @@ class GitHubJob(bases.ProvisionerJobBase):
     )
 
   def get_precheck_content(self) -> TypePrecheckFileData:
-    """Read the precheck data from a GitHub repository.
+    """Read the Precheck data from a GitHub Repository.
 
-    :returns: The precheck file data.
+    :returns: The Precheck file data.
     """
 
     self._download_repository()
@@ -60,9 +60,9 @@ class GitHubJob(bases.ProvisionerJobBase):
     return precheck_data
 
   def get_state(self) -> TypeState:
-    """Fetch a GitHub zip bundle, and build a state object.
+    """Fetch a GitHub zip bundle, and build a runtime state object.
 
-    :returns: The created state object.
+    :returns: The created runtime state object.
     """
 
     self._download_repository()

@@ -1,4 +1,4 @@
-"""GitHub code repository representation."""
+"""GitHub Repository representation."""
 
 import logging
 import re
@@ -16,9 +16,9 @@ class InvalidGithubRepository(BaseException):
 
 
 class GithubRepository:
-  """GitHub code repository representation.
+  """GitHub Repository representation.
 
-  :param repository: The http URL of the repository.
+  :param repository: The http or ssh URL of the repository.
   """
 
   match_http = re.compile(config.GITHUB_HTTP_REGEX, re.IGNORECASE)
@@ -35,7 +35,7 @@ class GithubRepository:
       parsed_url = re.match(self.match_ssh, repository)
     if not parsed_url:
       self.logger.error(
-          "GithubRepository: Cannot parse a github repository url from: %s",
+          "GithubRepository: Cannot parse a Github Repository URL from: %s",
           repository,
       )
       raise InvalidGithubRepository("Invalid GitHub Repository.")
@@ -53,7 +53,7 @@ class GithubRepository:
     return branch_name
 
   def get_repo_name(self) -> str:
-    """Return the repo name of the repository.
+    """Return Github's name for the repository.
 
     :return: The name of the repository.
     """
@@ -61,7 +61,7 @@ class GithubRepository:
     return f"{self._parsed_url.group('repo')}"
 
   def get_org_name(self) -> str:
-    """Return the org (or user) name of the repository.
+    """Return Github's org (or user) name for the repository.
 
     :return: The org (or user) name of the repository.
     """
@@ -101,10 +101,10 @@ class GithubRepository:
     )
 
   def get_zip_bundle_root_folder(self, branch_name: Optional[str]) -> str:
-    """Return the name of the top level folder inside a repo's zip bundle.
+    """Return the top level folder inside a repo's zip bundle.
 
     :param branch_name: The branch of the repository to use.
-    :return: the name of the top level folder inside a repo's zip bundle.
+    :return: The top level folder inside a repo's zip bundle.
     """
     branch_name = self.get_branch_name(branch_name)
     return f"{self._parsed_url.group('repo')}-{branch_name}"

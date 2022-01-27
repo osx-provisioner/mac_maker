@@ -12,7 +12,7 @@ PRECHECK_MODULE = precheck.__name__
 
 @mock.patch(PRECHECK_MODULE + '.TextFileReader.read_text_file')
 class TestSpecExtractPreCheckFromJobSpec(TestCase):
-  """Test the JobSpecExtractor class extract_precheck_from_job_spec method."""
+  """Test the JobSpecExtractor Class."""
 
   def setUp(self) -> None:
     self.spec = precheck.PrecheckExtractor()

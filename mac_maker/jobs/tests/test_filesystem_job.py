@@ -13,7 +13,7 @@ JOBS_BASES = jobs_bases.__name__
 
 
 class TestFileSystemJob(TestCase):
-  """Test the FileSystemJob class."""
+  """Test the FileSystemJob class instantiation."""
 
   def setUp(self) -> None:
     self.mock_path = "/mock/path"

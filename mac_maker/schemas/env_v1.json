@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "description": "Mac Maker v1 Profile Environment File Specification",
+    "description": "Mac Maker v1 OSX Profile Environment File Specification",
     "type": "array",
     "items":
         {

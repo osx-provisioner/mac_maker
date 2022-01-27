@@ -32,7 +32,7 @@ class JSONFileWriter:
   ) -> None:
     """Write a Python object to the filesystem as JSON.
 
-    :param python_object: The python object to write to file as JSON.
+    :param python_object: The Python object to write to file as JSON.
     :param json_file_location: The path to the destination file.
     """
     with open(json_file_location, "w", encoding=self.encoding) as file_handle:

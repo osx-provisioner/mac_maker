@@ -1,4 +1,4 @@
-"""Extractor for Precheck data specified in a Job Spec file."""
+"""Extractor for a Profile's Precheck data specified in a Job Spec file."""
 
 from pathlib import Path
 from typing import TypedDict
@@ -16,13 +16,13 @@ class TypePrecheckFileData(TypedDict):
 
 
 class PrecheckExtractor(TextFileReader):
-  """Extractor for Precheck data specified in a Job Spec file."""
+  """Extractor for a Profile's Precheck data specified in a Job Spec file."""
 
   def get_precheck_data(
       self,
       spec_file_data: TypeSpecFileData,
   ) -> TypePrecheckFileData:
-    """Locate the Precheck data from a Job Spec file, and return it.
+    """Read the a Profile's Precheck data from a Job Spec file, and return it.
 
     :param spec_file_data: A loaded Job Spec file, and it's location.
     :returns: The complete Precheck contents.

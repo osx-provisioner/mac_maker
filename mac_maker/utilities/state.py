@@ -1,4 +1,4 @@
-"""State for the Ansible Runner."""
+"""Runtime state for the Ansible Runner."""
 
 import logging
 from pathlib import Path
@@ -10,7 +10,7 @@ from .mixins.json_file import JSONFileReader, JSONFileWriter
 
 
 class TypeState(TypedDict):
-  """Typed representation of a state file."""
+  """Typed representation of the Ansible Runner's runtime state."""
 
   workspace_root_path: str
   profile_data_path: str
@@ -22,16 +22,16 @@ class TypeState(TypedDict):
 
 
 class State(JSONFileReader, JSONFileWriter):
-  """State persistence and generation for the Ansible Runner."""
+  """Runtime state persistence and generation for the Ansible Runner."""
 
   def __init__(self) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
 
   def state_generate(self, filesystem: FileSystem) -> TypeState:
-    """Generate a new state object from a FileSystem instance.
+    """Generate a new runtime state object from a FileSystem instance.
 
     :param filesystem: The FileSystem object you are using.
-    :returns: The generated state content.
+    :returns: The generated runtime state object.
     """
     self.log.debug("State: Generating New Ansible State Content")
     return TypeState(
@@ -49,20 +49,19 @@ class State(JSONFileReader, JSONFileWriter):
   def state_dehydrate(
       self, state_data: TypeState, spec_file_path: Union[Path, str]
   ) -> None:
-    """Write a state object to a spec file.
+    """Write a runtime state object to a Job Spec file.
 
-    :param state_data: The Python dictionary that represents the state.
-    :param spec_file_path: The path to the state file that will be written.
-    :returns: The state object.
+    :param state_data: The Python object that represents the runtime state.
+    :param spec_file_path: The path to the Job Spec file that will be written.
     """
     self.log.debug("State: saving State as Spec File")
     self.write_json_file(state_data, spec_file_path)
 
   def state_rehydrate(self, spec_file_path: Union[Path, str]) -> TypeState:
-    """Read a state object from a spec file.
+    """Read a runtime state object from a Job Spec file.
 
-    :param spec_file_path: The path to the state file that will be read.
-    :returns: The state object.
+    :param spec_file_path: The path to the Job Spec file that will be read.
+    :returns: The runtime state object.
     """
 
     self.log.debug("State: loading State from Spec File")

@@ -1,4 +1,4 @@
-"""A provisioning job for a spec file and profile on the local file system."""
+"""A provisioning job for a Job Spec file on the local file system."""
 
 from typing import Optional, cast
 
@@ -11,9 +11,9 @@ from . import bases
 
 
 class FileSystemJob(bases.ProvisionerJobBase):
-  """A provisioning job for a spec file and profile on the local file system.
+  """A provisioning job for a Job Spec file on the local file system.
 
-  :param spec_file_location: The path to the spec file.
+  :param spec_file_location: The path to the Job Spec file.
   """
 
   spec_file_location: str
@@ -32,9 +32,9 @@ class FileSystemJob(bases.ProvisionerJobBase):
       )
 
   def get_precheck_content(self) -> TypePrecheckFileData:
-    """Read the precheck data using a spec file.
+    """Read the Precheck data defined in a Job Spec file.
 
-    :returns: The precheck file data.
+    :returns: The Precheck file data.
     """
 
     self._extract_precheck_data()
@@ -45,9 +45,9 @@ class FileSystemJob(bases.ProvisionerJobBase):
     return precheck_data
 
   def get_state(self) -> TypeState:
-    """Read a spec file from the filesystem and build a state object.
+    """Read a Job Spec file and build a runtime state object.
 
-    :returns: The created state object.
+    :returns: The created runtime state object.
     """
 
     self._extract_precheck_data()

@@ -12,7 +12,7 @@ JOBS_BASES = jobs_bases.__name__
 
 
 class TestGitHubJob(fixtures_git.GitTestHarness):
-  """Test the GitHubJob class."""
+  """Test the GitHubJob class initialization."""
 
   def setUp(self) -> None:
     super().setUp()

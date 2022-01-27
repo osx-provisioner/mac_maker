@@ -4,7 +4,7 @@ import unittest
 
 
 class GitTestHarness(unittest.TestCase):
-  """Test fixtures for the click CLI."""
+  """Test harness with a mock Github Repository."""
 
   def setUp(self) -> None:
     self.repo_name = "panic"

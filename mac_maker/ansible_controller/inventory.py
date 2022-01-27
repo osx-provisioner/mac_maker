@@ -11,7 +11,7 @@ from ..utilities.state import TypeState
 class InventoryFile(TextFileWriter):
   """Inventory file for Ansible.
 
-  :param state: The loaded state content.
+  :param state: The loaded runtime state object.
   """
 
   def __init__(self, state: TypeState) -> None:

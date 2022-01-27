@@ -32,10 +32,10 @@ class JobSpecExtractor:
       self,
       spec_file_location: Union[Path, str],
   ) -> TypeSpecFileData:
-    """Read a Job Spec file from a arbitrary file system location.
+    """Read a Job Spec file from an arbitrary file system location.
 
     :param spec_file_location: The path to the Job Spec file that will be read.
-    :returns: The Job Spec file content, and it's location on the filesystem.
+    :returns: The Job Spec file contents, and it's location on the filesystem.
     """
     self.log.debug('JobSpecExtractor: Reading state from from file system.')
     spec_file_content = self.state_manager.state_rehydrate(spec_file_location)

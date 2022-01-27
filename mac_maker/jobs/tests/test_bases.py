@@ -26,7 +26,7 @@ class MockConcreteJob(bases_module.ProvisionerJobBase):
 
 
 class TestJobsBase(TestCase):
-  """Test the ProvisionerJobBase class."""
+  """Test the ProvisionerJobBase class instantiation."""
 
   def setUp(self) -> None:
     self.concrete_job = MockConcreteJob()

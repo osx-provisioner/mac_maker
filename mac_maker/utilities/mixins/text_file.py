@@ -32,7 +32,6 @@ class TextFileWriter:
 
     :param text_file_content: The content to write to the file.
     :param text_file_location: The path to the source file.
-    :returns: The loaded string object.
     """
     with open(text_file_location, "w", encoding=self.encoding) as file_handle:
       file_handle.write(text_file_content)

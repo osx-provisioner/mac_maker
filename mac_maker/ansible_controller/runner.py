@@ -11,8 +11,8 @@ from . import process
 class AnsibleRunner:
   """AnsibleRunner workflow class.
 
-  :param state: The loaded state object object.
-  :param debug: Activate or deactivate debug logs.
+  :param state: The loaded runtime state object object.
+  :param debug: Enable or disable logs.
   """
 
   def __init__(self, state: TypeState, debug: bool = False):

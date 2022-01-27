@@ -23,7 +23,7 @@ class SimpleJobBase(abc.ABC):
 
 
 class ProvisionerJobBase(abc.ABC):
-  """Job base class for the Mac Maker."""
+  """Job base class for the Mac Maker, with Ansible provisioning."""
 
   def __init__(self) -> None:
     self.jobspec_extractor = JobSpecExtractor()
@@ -31,16 +31,19 @@ class ProvisionerJobBase(abc.ABC):
 
   @abc.abstractmethod
   def get_precheck_content(self) -> TypePrecheckFileData:
-    """Extract the profile's precheck file contents."""
+    """Extract the Profile's Precheck file contents."""
     raise NotImplementedError  # nocover
 
   @abc.abstractmethod
   def get_state(self) -> TypeState:
-    """Assemble and return a state object."""
+    """Assemble and return a runtime state object."""
     raise NotImplementedError  # nocover
 
   def precheck(self, notes: bool = True) -> None:
-    """Precheck the profile for validity and environment variable content."""
+    """Precheck the Profile for validity and environment variable content.
+
+    :param notes: A boolean indicating whether to display the Precheck notes.
+    """
 
     precheck_data = self.get_precheck_content()
 
@@ -56,7 +59,7 @@ class ProvisionerJobBase(abc.ABC):
       click.echo(precheck_data['notes'])
 
   def provision(self) -> None:
-    """Begin provisioning the local machine."""
+    """Begin provisioning with Ansible."""
 
     loaded_state = self.get_state()
 

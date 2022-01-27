@@ -1,4 +1,4 @@
-"""Test the OSX-Provisioner CLI."""
+"""Test the Mac Maker CLI."""
 
 from typing import Optional
 from unittest import mock
@@ -33,7 +33,7 @@ class CLITestHarness(fixtures_git.GitTestHarness):
 )
 @mock.patch(CLI_MODULE + ".jobs.GitHubJob")
 class TestPrecheckGithub(CLITestHarness):
-  """Test the `precheck` CLI command with github repositories."""
+  """Test the `precheck` CLI command with Github Repositories."""
 
   args: str
   branch: Optional[str]
@@ -52,7 +52,7 @@ class TestPrecheckGithub(CLITestHarness):
 
 @mock.patch(CLI_MODULE + ".jobs.FileSystemJob")
 class TestPrecheckSpec(CLITestHarness):
-  """Test the `precheck` CLI command with spec files."""
+  """Test the `precheck` CLI command with Job Spec files."""
 
   def test_precheck(self, m_job: mock.Mock) -> None:
 
@@ -80,7 +80,7 @@ class TestPrecheckSpec(CLITestHarness):
 )
 @mock.patch(CLI_MODULE + ".jobs.GitHubJob")
 class TestApplyGithub(CLITestHarness):
-  """Test the `apply` CLI command with GitHub repositories."""
+  """Test the `apply` CLI command with GitHub Repositories."""
 
   args: str
   branch: Optional[str]
@@ -100,7 +100,7 @@ class TestApplyGithub(CLITestHarness):
 
 @mock.patch(CLI_MODULE + ".jobs.FileSystemJob")
 class TestApplySpec(CLITestHarness):
-  """Test the `apply` CLI command with spec files."""
+  """Test the `apply` CLI command with Job Spec files."""
 
   def test_apply(self, m_job: mock.Mock) -> None:
     instance = m_job.return_value

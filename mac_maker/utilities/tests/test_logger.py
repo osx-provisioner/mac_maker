@@ -1,4 +1,4 @@
-"""Test the Logging functions."""
+"""Test the Logger class."""
 
 import io
 import logging
@@ -24,7 +24,7 @@ LOGGING_MODULE = logger.__name__
     ]
 )
 class TestLoggerDebug(TestCase):
-  """Test the Logger class."""
+  """Test initializing Logging class."""
 
   log: logger.Logger
   level: bool
@@ -49,7 +49,7 @@ class TestLoggerDebug(TestCase):
 
 
 class TestLoggerMessage(TestCase):
-  """Test the writing a message with the logger class."""
+  """Test writing a message with the Logger class."""
 
   def setUp(self) -> None:
     self.stream = io.StringIO()

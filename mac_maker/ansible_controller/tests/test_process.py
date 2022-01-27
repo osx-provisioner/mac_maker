@@ -44,7 +44,7 @@ class TestAnsibleProcessClass(TestCase):
 @mock.patch(PROCESS_MODULE + ".os")
 @mock.patch(PROCESS_MODULE + ".importlib.import_module")
 class TestAnsibleProcessSpawn(TestCase):
-  """Test starting the AnsibleRunner class."""
+  """Test spawning an AnsibleProcess instance."""
 
   def setUp(self) -> None:
     self.mock_folder = "/mock/dir1"

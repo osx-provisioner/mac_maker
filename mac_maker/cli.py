@@ -23,12 +23,12 @@ def cli(debug: bool) -> None:
 
 @cli.group("apply")  # type: ignore[misc]
 def apply() -> None:
-  """Apply an OSX Machine profile to this system."""
+  """Apply an OSX Machine Profile to this system."""
 
 
 @cli.group("precheck")  # type: ignore[misc]
 def precheck() -> None:
-  """Ensure an OSX machine profile is ready to be applied."""
+  """Ensure an OSX Machine Profile is ready to be applied."""
 
 
 @precheck.command("github")  # type: ignore[misc]
@@ -40,7 +40,7 @@ def precheck() -> None:
     help="Specific branch (or tag) of the GitHub repo."
 )
 def check_from_github(github_url: str, branch: Optional[str]) -> None:
-  """Precheck a profile from a public GitHub Repository.
+  """Precheck an OSX Machine Profile from a public GitHub Repository.
 
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
@@ -51,7 +51,7 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
 @precheck.command("spec")  # type: ignore[misc]
 @click.argument('spec_file', type=click.STRING)
 def check_from_filesystem(spec_file: str) -> None:
-  """Precheck a profile from a spec.json file.
+  """Precheck an OSX Machine Profile from a spec.json file.
 
   SPEC_FILE: The location of a spec.json file referencing a profile.
   """
@@ -68,7 +68,7 @@ def check_from_filesystem(spec_file: str) -> None:
     help="Specific branch (or tag) of the GitHub repo."
 )
 def apply_from_github(github_url: str, branch: Optional[str]) -> None:
-  """Apply an OSX machine profile from a public GitHub Repository.
+  """Apply an OSX Machine Profile from a public GitHub Repository.
 
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
@@ -80,7 +80,7 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
 @apply.command("spec")  # type: ignore[misc]
 @click.argument('spec_file', type=click.STRING)
 def apply_from_spec(spec_file: str) -> None:
-  """Apply an OSX machine profile from a spec.json file.
+  """Apply an OSX Machine Profile from a spec.json file.
 
   SPEC_FILE: The location of a spec.json file.
   """
@@ -91,6 +91,6 @@ def apply_from_spec(spec_file: str) -> None:
 
 @cli.command("version")  # type: ignore[misc]
 def version() -> None:
-  """Report the Mac Maker version."""
+  """Report the current Mac Maker version."""
   job = jobs.VersionJob()
   job.invoke()

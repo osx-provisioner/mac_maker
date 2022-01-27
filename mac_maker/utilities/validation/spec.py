@@ -26,7 +26,7 @@ class SpecFileValidationException(BaseException):
 class SpecFileValidator(JSONFileReader):
   """Validator for a Job Spec file.
 
-  :spec_file_content: The loaded Job Spec file to validate.
+  :param spec_file_content: The loaded Job Spec file to validate.
   """
 
   schema_definition = (
@@ -50,7 +50,10 @@ class SpecFileValidator(JSONFileReader):
     return sorted(errors)
 
   def validate_spec_file(self) -> None:
-    """Validate the loaded Job Spec file."""
+    """Validate the loaded Job Spec file.
+
+    :raises: :class:`SpecFileValidationException`
+    """
 
     errors = self._validate_with_schema(self.schema)
     if errors:

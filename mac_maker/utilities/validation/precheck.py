@@ -31,6 +31,7 @@ class PrecheckConfigValidator(JSONFileReader):
   """Profile Precheck validator.
 
   :param precheck_env_file: The path to a Precheck environment config file.
+  :raises: :class:`PrecheckConfigValidationException`
   """
 
   syntax_error = "Invalid YAML syntax."

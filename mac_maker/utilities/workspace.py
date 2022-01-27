@@ -28,10 +28,10 @@ class WorkSpace:
       repo: GithubRepository,
       branch_name: Optional[str],
   ) -> None:
-    """Add a GitHub repository to the current workspace.
+    """Add a GitHub Repository to the current Workspace.
 
-    :param repo: The GitHub Repository object
-    :param branch_name: The GitHub Repository branch name
+    :param repo: The GitHub Repository object.
+    :param branch_name: The GitHub Repository branch name.
     """
 
     self.repository_root = (
@@ -43,9 +43,9 @@ class WorkSpace:
     )
 
   def add_spec_file(self) -> None:
-    """Generate and write a Job Spec file to this workspace.
+    """Generate and write a Job Spec file to this Workspace.
 
-    :returns: The path to the newly written Job Spec file.
+    :raises: :class:`InvalidWorkspace`
     """
 
     if not self.repository_root:

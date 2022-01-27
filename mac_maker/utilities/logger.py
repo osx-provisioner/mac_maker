@@ -9,7 +9,7 @@ from .. import config
 class Logger:
   """Mac Maker Logger.
 
-  :parameter debug: a boolean indicating if debug logging should be enabled.
+  :parameter debug: A boolean indicating if debug logging should be enabled.
   """
 
   def __init__(self, debug: bool = False) -> None:
@@ -27,7 +27,7 @@ class Logger:
     return logging.Formatter(config.LOGGER_FORMAT)
 
   def setup(self) -> None:
-    """Configure the project's logger."""
+    """Configure the Mac Maker logger."""
 
     self.logger.setLevel(self.level)
     self.handler.setFormatter(self._get_stdout_formatter())

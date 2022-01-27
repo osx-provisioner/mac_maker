@@ -19,8 +19,8 @@ class AnsibleProcess:
   """Process management for Ansible commands.
 
   :param ansible_module: Dot path of the ansible module to load.
-  :param ansible_class: The ansible class to import from the module.
-  :param state: The loaded run time state.
+  :param ansible_class: The Ansible class to import from this module.
+  :param state: The loaded runtime state object.
   """
 
   def __init__(

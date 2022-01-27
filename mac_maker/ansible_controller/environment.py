@@ -14,7 +14,7 @@ TypeStateAnsibleValues = Union[Literal["roles_path"],
 class Environment:
   """Ansible runtime environment.
 
-  :param state: The loaded runtime state.
+  :param state: The loaded runtime state object.
   """
 
   def __init__(self, state: TypeState) -> None:
