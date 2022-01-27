@@ -6,10 +6,10 @@ import sys
 import click
 from ..ansible_controller.inventory import InventoryFile
 from ..ansible_controller.runner import AnsibleRunner
-from ..utilities.password import SUDO
 from ..utilities.precheck import PrecheckExtractor, TypePrecheckFileData
 from ..utilities.spec import JobSpecExtractor
 from ..utilities.state import TypeState
+from ..utilities.sudo import SUDO
 from ..utilities.validation.precheck import PrecheckConfigValidator
 
 

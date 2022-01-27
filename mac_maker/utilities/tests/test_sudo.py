@@ -4,9 +4,9 @@ from unittest import mock
 
 from ... import config
 from ...tests.fixtures import fixtures_git
-from .. import password
+from .. import sudo
 
-PASSWORD_MODULE = password.__name__
+SUDO_MODULE = sudo.__name__
 
 
 class MockPopenResponse:
@@ -23,7 +23,7 @@ class TestSUDO(fixtures_git.GitTestHarness):
   def setUp(self) -> None:
     super().setUp()
     self.sudo_password = "secret123"
-    self.password_helper = password.SUDO()
+    self.password_helper = sudo.SUDO()
 
     self.successful_sudo = MockPopenResponse(0)
     self.unsuccessful_sudo = MockPopenResponse(1)
@@ -31,9 +31,9 @@ class TestSUDO(fixtures_git.GitTestHarness):
   def test_initialize(self) -> None:
     self.assertIsNone(self.password_helper.sudo_password)
 
-  @mock.patch(PASSWORD_MODULE + ".getpass.getpass")
-  @mock.patch(PASSWORD_MODULE + ".os")
-  @mock.patch(PASSWORD_MODULE + ".subprocess.Popen")
+  @mock.patch(SUDO_MODULE + ".getpass.getpass")
+  @mock.patch(SUDO_MODULE + ".os")
+  @mock.patch(SUDO_MODULE + ".subprocess.Popen")
   def test_prompt_for_sudo(
       self, m_p_open: mock.Mock, m_os: mock.Mock, m_prompt: mock.Mock
   ) -> None:
@@ -65,14 +65,14 @@ class TestSUDOEnv(fixtures_git.GitTestHarness):
   """Test the SUDO password class, with environment variables mocked."""
 
   @mock.patch(
-      PASSWORD_MODULE + ".os.environ",
+      SUDO_MODULE + ".os.environ",
       {config.ENV_ANSIBLE_BECOME_PASSWORD: "already_set"},
   )
   def setUp(self) -> None:
     super().setUp()
-    self.password_helper = password.SUDO()
+    self.password_helper = sudo.SUDO()
 
-  @mock.patch(PASSWORD_MODULE + ".getpass.getpass")
+  @mock.patch(SUDO_MODULE + ".getpass.getpass")
   def test_prompt_for_sudo_already_set(self, m_prompt: mock.Mock) -> None:
     self.password_helper.prompt_for_sudo()
     m_prompt.assert_not_called()
