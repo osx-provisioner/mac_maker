@@ -39,7 +39,7 @@ class ProvisionerJobBase(abc.ABC):
     """Assemble and return a state object."""
     raise NotImplementedError  # nocover
 
-  def precheck(self) -> None:
+  def precheck(self, notes: bool = True) -> None:
     """Precheck the profile for validity and environment variable content."""
 
     precheck_data = self.get_precheck_content()
@@ -52,7 +52,8 @@ class ProvisionerJobBase(abc.ABC):
         click.echo(violation)
       sys.exit(1)
 
-    click.echo(precheck_data['notes'])
+    if notes:
+      click.echo(precheck_data['notes'])
 
   def provision(self) -> None:
     """Begin provisioning the local machine."""

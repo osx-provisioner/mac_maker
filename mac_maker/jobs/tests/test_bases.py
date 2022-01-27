@@ -69,6 +69,20 @@ class TestJobsPrecheck(TestCase):
         self.concrete_job.mock_precheck_content['notes']
     )
 
+  def test_precheck_echo_no_notes(
+      self, m_echo: mock.Mock, m_env: mock.Mock
+  ) -> None:
+
+    instance = m_env.return_value
+    instance.validate_environment.return_value = {
+        'is_valid': True,
+        'violations': [],
+    }
+
+    self.concrete_job.precheck(notes=False)
+
+    m_echo.assert_not_called()
+
   def test_precheck_config_invalid(
       self,
       _: mock.Mock,

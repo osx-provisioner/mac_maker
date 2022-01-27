@@ -73,7 +73,7 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
   GITHUB_URL: URL of a GitHub repo containing a machine profile definition.
   """
   job = jobs.GitHubJob(github_url, branch)
-  job.precheck()
+  job.precheck(notes=False)
   job.provision()
 
 
@@ -85,7 +85,7 @@ def apply_from_spec(spec_file: str) -> None:
   SPEC_FILE: The location of a spec.json file.
   """
   job = jobs.FileSystemJob(spec_file)
-  job.precheck()
+  job.precheck(notes=False)
   job.provision()
 
 

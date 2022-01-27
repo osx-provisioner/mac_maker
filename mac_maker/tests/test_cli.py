@@ -94,7 +94,7 @@ class TestApplyGithub(CLITestHarness):
     )
 
     m_job.assert_called_once_with(self.repository_http_url, self.branch)
-    instance.precheck.assert_called_once_with()
+    instance.precheck.assert_called_once_with(notes=False)
     instance.provision.assert_called_once_with()
 
 
@@ -111,7 +111,7 @@ class TestApplySpec(CLITestHarness):
         args=f"apply spec {mock_spec_file}",
     )
     m_job.assert_called_once_with(mock_spec_file)
-    instance.precheck.assert_called_once_with()
+    instance.precheck.assert_called_once_with(notes=False)
     instance.provision.assert_called_once_with()
 
 
