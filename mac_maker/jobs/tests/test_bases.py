@@ -3,8 +3,8 @@
 from typing import cast
 from unittest import TestCase, mock
 
-from ...utilities import spec, state
-from ...utilities.validation import precheck
+from ...utilities import precheck, spec, state
+from ...utilities.validation import precheck as precheck_validation
 from .. import bases as bases_module
 
 BASES_MODULE = bases_module.__name__
@@ -15,10 +15,10 @@ class MockConcreteJob(bases_module.ProvisionerJobBase):
 
   def __init__(self) -> None:
     super().__init__()
-    self.mock_precheck_content = cast(spec.TypePrecheckFileData, {})
+    self.mock_precheck_content = cast(precheck.TypePrecheckFileData, {})
     self.mock_state = cast(state.TypeState, {})
 
-  def get_precheck_content(self) -> spec.TypePrecheckFileData:
+  def get_precheck_content(self) -> precheck.TypePrecheckFileData:
     return self.mock_precheck_content
 
   def get_state(self) -> state.TypeState:
@@ -33,8 +33,12 @@ class TestJobsBase(TestCase):
 
   def test_init(self) -> None:
     self.assertIsInstance(
-        self.concrete_job.jobspec,
-        spec.JobSpec,
+        self.concrete_job.jobspec_extractor,
+        spec.JobSpecExtractor,
+    )
+    self.assertIsInstance(
+        self.concrete_job.precheck_extractor,
+        precheck.PrecheckExtractor,
     )
 
 
@@ -71,9 +75,11 @@ class TestJobsPrecheck(TestCase):
       m_env: mock.Mock,
   ) -> None:
     instance = m_env.return_value
-    instance.validate_config.side_effect = precheck.ValidationError("Boom!")
+    instance.validate_config.side_effect = precheck_validation.ValidationError(
+        "Boom!"
+    )
 
-    with self.assertRaises(precheck.ValidationError):
+    with self.assertRaises(precheck_validation.ValidationError):
       self.concrete_job.precheck()
 
   def test_precheck_environment(self, _: mock.Mock, m_env: mock.Mock) -> None:

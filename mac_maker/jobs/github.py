@@ -5,9 +5,9 @@ from typing import Optional
 import click
 from .. import config
 from ..utilities.github import GithubRepository
+from ..utilities.precheck import TypePrecheckFileData
 from ..utilities.spec import TypeSpecFileData
 from ..utilities.state import TypeState
-from ..utilities.validation.precheck import TypePrecheckFileData
 from ..utilities.workspace import WorkSpace
 from . import bases
 
@@ -42,8 +42,9 @@ class GitHubJob(bases.ProvisionerJobBase):
     self.workspace = WorkSpace()
     self.workspace.add_repository(repo, self.branch_name)
     repo.download_zip_bundle_profile(self.workspace.root, self.branch_name)
-    self.loaded_spec_file_data = self.jobspec.read_job_spec_from_workspace(
-        self.workspace
+    self.workspace.add_spec_file()
+    self.loaded_spec_file_data = self.jobspec_extractor.get_job_spec_data(
+        str(self.workspace.spec_file)
     )
 
   def get_precheck_content(self) -> TypePrecheckFileData:
@@ -53,8 +54,8 @@ class GitHubJob(bases.ProvisionerJobBase):
     """
 
     self._download_repository()
-    precheck_data = self.jobspec.extract_precheck_from_job_spec(
-        str(self.loaded_spec_file_data['spec_file_location'])
+    precheck_data = self.precheck_extractor.get_precheck_data(
+        self.loaded_spec_file_data
     )
     return precheck_data
 

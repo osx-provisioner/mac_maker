@@ -1,22 +1,27 @@
 """Workspace representation."""
 
 import logging
-import tempfile
 from pathlib import Path
 from typing import Optional
 
 from .. import config
+from .filesystem import FileSystem
 from .github import GithubRepository
+from .state import State
+
+
+class InvalidWorkspace(Exception):
+  """Raised when an improperly configured Workspace is used."""
 
 
 class WorkSpace:
   """Workspace representation."""
 
   def __init__(self) -> None:
-    self.tmp = tempfile.gettempdir()
+    self.log = logging.getLogger(config.LOGGER_NAME)
     self.root = Path(config.WORKSPACE).resolve()
     self.repository_root: Optional[Path] = None
-    self.log = logging.getLogger(config.LOGGER_NAME)
+    self.spec_file: Optional[Path] = None
 
   def add_repository(
       self,
@@ -35,4 +40,23 @@ class WorkSpace:
     self.log.debug(
         "WorkSpace: Attached GitHub repository to workspace: %s",
         self.repository_root,
+    )
+
+  def add_spec_file(self) -> None:
+    """Generate and write a Job Spec file to this workspace.
+
+    :returns: The path to the newly written Job Spec file.
+    """
+
+    if not self.repository_root:
+      raise InvalidWorkspace("No GitHub Repository has been added.")
+
+    state_manager = State()
+    filesystem = FileSystem(str(self.repository_root))
+    spec_file_content = state_manager.state_generate(filesystem)
+    state_manager.state_dehydrate(spec_file_content, filesystem.get_spec_file())
+    self.spec_file = filesystem.get_spec_file()
+    self.log.debug(
+        "WorkSpace: Wrote Job Spec file to workspace: %s",
+        filesystem.get_spec_file(),
     )

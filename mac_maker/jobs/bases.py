@@ -7,12 +7,10 @@ import click
 from ..ansible_controller.inventory import InventoryFile
 from ..ansible_controller.runner import AnsibleRunner
 from ..utilities.password import SUDO
-from ..utilities.spec import JobSpec
+from ..utilities.precheck import PrecheckExtractor, TypePrecheckFileData
+from ..utilities.spec import JobSpecExtractor
 from ..utilities.state import TypeState
-from ..utilities.validation.precheck import (
-  PrecheckConfigValidator,
-  TypePrecheckFileData,
-)
+from ..utilities.validation.precheck import PrecheckConfigValidator
 
 
 class SimpleJobBase(abc.ABC):
@@ -28,7 +26,8 @@ class ProvisionerJobBase(abc.ABC):
   """Job base class for the Mac Maker."""
 
   def __init__(self) -> None:
-    self.jobspec = JobSpec()
+    self.jobspec_extractor = JobSpecExtractor()
+    self.precheck_extractor = PrecheckExtractor()
 
   @abc.abstractmethod
   def get_precheck_content(self) -> TypePrecheckFileData:
@@ -52,6 +51,7 @@ class ProvisionerJobBase(abc.ABC):
       for violation in results['violations']:
         click.echo(violation)
       sys.exit(1)
+
     click.echo(precheck_data['notes'])
 
   def provision(self) -> None:

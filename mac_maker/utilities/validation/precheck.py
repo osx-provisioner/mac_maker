@@ -9,13 +9,6 @@ from jsonschema import ValidationError, validate
 from ..mixins.json_file import JSONFileReader
 
 
-class TypePrecheckFileData(TypedDict):
-  """Typed representation of a complete Precheck's contents."""
-
-  notes: str
-  env: str
-
-
 class TypePrecheckEnvironmentValidationResult(TypedDict):
   """Typed representation of an Precheck environment validation result."""
 
