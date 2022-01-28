@@ -7,8 +7,8 @@ from unittest import TestCase, mock
 from ....tests import fixtures
 from .. import precheck
 from ..precheck import (
-  PrecheckConfigValidationException,
-  PrecheckConfigValidator,
+    PrecheckConfigValidationException,
+    PrecheckConfigValidator,
 )
 
 PRECHECK_MODULE = precheck.__name__
