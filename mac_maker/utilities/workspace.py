@@ -34,11 +34,12 @@ class WorkSpace:
     :param branch_name: The GitHub Repository branch name.
     """
 
+    repo.download_zip_bundle_profile(self.root, branch_name)
     self.repository_root = (
         self.root / repo.get_zip_bundle_root_folder(branch_name)
     )
     self.log.debug(
-        "WorkSpace: Attached GitHub repository to workspace: %s",
+        "WorkSpace: Attached GitHub repository to workspace: %s.",
         self.repository_root,
     )
 
@@ -53,10 +54,10 @@ class WorkSpace:
 
     state_manager = State()
     filesystem = FileSystem(str(self.repository_root))
-    spec_file_content = state_manager.state_generate(filesystem)
-    state_manager.state_dehydrate(spec_file_content, filesystem.get_spec_file())
     self.spec_file = filesystem.get_spec_file()
+    spec_file_content = state_manager.state_generate(filesystem)
+    state_manager.state_dehydrate(spec_file_content, self.spec_file)
     self.log.debug(
-        "WorkSpace: Wrote Job Spec file to workspace: %s",
-        filesystem.get_spec_file(),
+        "WorkSpace: Wrote Job Spec file to workspace: %s.",
+        self.spec_file,
     )

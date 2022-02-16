@@ -6,6 +6,7 @@ from ... import config
 from ...jobs import bases as jobs_bases
 from ...jobs import github as jobs_module
 from ...tests.fixtures import fixtures_git
+from ...utilities import github
 
 JOBS_MODULE = jobs_module.__name__
 JOBS_BASES = jobs_bases.__name__
@@ -22,11 +23,10 @@ class TestGitHubJob(fixtures_git.GitTestHarness):
   def test_init(self) -> None:
     self.assertEqual(self.job.branch_name, self.mock_branch)
     self.assertIsNone(self.job.workspace)
-    self.assertEqual(self.job.repository_url, self.repository_http_url)
+    self.assertIsInstance(self.job.repository, github.GithubRepository)
 
 
 @mock.patch(JOBS_MODULE + ".WorkSpace")
-@mock.patch(JOBS_MODULE + ".GithubRepository.download_zip_bundle_profile")
 @mock.patch(JOBS_BASES + ".JobSpecExtractor.get_job_spec_data")
 @mock.patch(JOBS_BASES + ".PrecheckExtractor.get_precheck_data")
 class TestGitHubJobGetPrecheck(fixtures_git.GitTestHarness):
@@ -51,7 +51,6 @@ class TestGitHubJobGetPrecheck(fixtures_git.GitTestHarness):
       m_precheck: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
-      ___: mock.Mock,
   ) -> None:
     m_precheck.return_value = self.mock_precheck_data
 
@@ -62,7 +61,6 @@ class TestGitHubJobGetPrecheck(fixtures_git.GitTestHarness):
       self,
       m_precheck: mock.Mock,
       m_spec: mock.Mock,
-      m_download: mock.Mock,
       m_workspace: mock.Mock,
   ) -> None:
     m_precheck.return_value = self.mock_precheck_data
@@ -71,26 +69,29 @@ class TestGitHubJobGetPrecheck(fixtures_git.GitTestHarness):
 
     self.job.get_precheck_content()
 
+    m_workspace.return_value.add_repository.assert_called_once_with(
+        self.job.repository, self.job.branch_name
+    )
     m_workspace.return_value.add_spec_file.assert_called_once_with()
     m_spec.assert_called_once_with(m_workspace.return_value.spec_file)
-    m_download.assert_called_once_with(m_workspace.return_value.root, None)
     m_precheck.assert_called_once_with(self.mock_spec_data)
 
-  def download_not_called_twice(
+  def test_repo_not_installed_twice(
       self,
       _: mock.Mock,
       __: mock.Mock,
-      m_download: mock.Mock,
       m_workspace: mock.Mock,
   ) -> None:
     self.job.get_precheck_content()
     self.job.get_precheck_content()
-    m_download.assert_called_once_with(m_workspace.return_value.root, None)
+    m_workspace.return_value.add_repository.assert_called_once_with(
+        self.job.repository, self.job.branch_name
+    )
+    m_workspace.return_value.add_spec_file.assert_called_once_with()
 
 
 @mock.patch(JOBS_MODULE + ".click.echo")
 @mock.patch(JOBS_MODULE + ".WorkSpace")
-@mock.patch(JOBS_MODULE + ".GithubRepository.download_zip_bundle_profile")
 @mock.patch(JOBS_BASES + ".JobSpecExtractor.get_job_spec_data")
 class TestGitHubJobGetState(fixtures_git.GitTestHarness):
   """Test the GitHubJob class get_state method."""
@@ -109,7 +110,6 @@ class TestGitHubJobGetState(fixtures_git.GitTestHarness):
       m_job: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
-      ___: mock.Mock,
   ) -> None:
     m_job.return_value = self.mock_spec_content
 
@@ -117,24 +117,10 @@ class TestGitHubJobGetState(fixtures_git.GitTestHarness):
 
     self.assertEqual(results, self.mock_spec_content['spec_file_content'])
 
-  def test_get_state_download(
-      self,
-      m_job: mock.Mock,
-      m_download: mock.Mock,
-      m_workspace: mock.Mock,
-      _: mock.Mock,
-  ) -> None:
-    m_job.return_value = self.mock_spec_content
-
-    self.job.get_state()
-
-    m_download.assert_called_once_with(m_workspace.return_value.root, None)
-
   def test_get_state_echo(
       self,
       m_job: mock.Mock,
       _: mock.Mock,
-      __: mock.Mock,
       m_echo: mock.Mock,
   ) -> None:
     m_job.return_value = self.mock_spec_content
@@ -147,25 +133,29 @@ class TestGitHubJobGetState(fixtures_git.GitTestHarness):
   def test_get_job_spec_call(
       self,
       m_job: mock.Mock,
-      _: mock.Mock,
       m_workspace: mock.Mock,
-      __: mock.Mock,
+      _: mock.Mock,
   ) -> None:
     m_job.return_value = self.mock_spec_content
     m_workspace.return_value.spec_file = self.mock_spec_file_location
 
     self.job.get_state()
 
+    m_workspace.return_value.add_repository.assert_called_once_with(
+        self.job.repository, self.job.branch_name
+    )
     m_workspace.return_value.add_spec_file.assert_called_once_with()
     m_job.assert_called_once_with(self.mock_spec_file_location)
 
-  def test_download_not_called_twice(
+  def test_repo_not_installed_twice(
       self,
       _: mock.Mock,
-      m_download: mock.Mock,
       m_workspace: mock.Mock,
       __: mock.Mock,
   ) -> None:
     self.job.get_state()
     self.job.get_state()
-    m_download.assert_called_once_with(m_workspace.return_value.root, None)
+    m_workspace.return_value.add_repository.assert_called_once_with(
+        self.job.repository, self.job.branch_name
+    )
+    m_workspace.return_value.add_spec_file.assert_called_once_with()

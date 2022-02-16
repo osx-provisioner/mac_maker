@@ -26,22 +26,18 @@ class GitHubJob(bases.ProvisionerJobBase):
 
   def __init__(self, repository_url: str, branch_name: Optional[str]):
     super().__init__()
-    self.repository_url = repository_url
     self.branch_name = branch_name
+    self.repository = GithubRepository(repository_url)
     self.workspace = None
 
-  def _download_repository(self) -> None:
-    """Download a Github Repository, and setup a Workspace."""
-
+  def _initialize_workspace(self) -> None:
     if self.workspace:
       return
 
     click.echo(config.ANSIBLE_RETRIEVE_MESSAGE)
 
-    repo = GithubRepository(self.repository_url)
     self.workspace = WorkSpace()
-    self.workspace.add_repository(repo, self.branch_name)
-    repo.download_zip_bundle_profile(self.workspace.root, self.branch_name)
+    self.workspace.add_repository(self.repository, self.branch_name)
     self.workspace.add_spec_file()
     self.loaded_spec_file_data = self.jobspec_extractor.get_job_spec_data(
         str(self.workspace.spec_file)
@@ -53,7 +49,7 @@ class GitHubJob(bases.ProvisionerJobBase):
     :returns: The Precheck file data.
     """
 
-    self._download_repository()
+    self._initialize_workspace()
     precheck_data = self.precheck_extractor.get_precheck_data(
         self.loaded_spec_file_data
     )
@@ -65,7 +61,7 @@ class GitHubJob(bases.ProvisionerJobBase):
     :returns: The created runtime state object.
     """
 
-    self._download_repository()
+    self._initialize_workspace()
     click.echo(config.ANSIBLE_JOB_SPEC_MESSAGE)
     click.echo(self.loaded_spec_file_data['spec_file_location'])
     return self.loaded_spec_file_data['spec_file_content']

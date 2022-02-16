@@ -31,23 +31,33 @@ class TestWorkSpace(fixtures_git.GitTestHarness):
     self.assertIsNone(self.workspace.repository_root,)
     self.assertIsNone(self.workspace.spec_file,)
 
-  def test_add_repository_default(self) -> None:
+  @mock.patch(
+      WORKSPACE_MODULE + ".GithubRepository.download_zip_bundle_profile"
+  )
+  def test_add_repository_default(self, m_download: mock.Mock) -> None:
+    branch_name = None
     repo = github.GithubRepository(self.repository_http_url)
-    self.workspace.add_repository(repo, None)
+    self.workspace.add_repository(repo, branch_name)
 
     self.assertEqual(
         self.workspace.repository_root,
-        self.workspace.root / repo.get_zip_bundle_root_folder(None)
+        self.workspace.root / repo.get_zip_bundle_root_folder(branch_name)
     )
+    m_download.assert_called_once_with(self.workspace.root, branch_name)
 
-  def test_add_repository_with_name(self) -> None:
+  @mock.patch(
+      WORKSPACE_MODULE + ".GithubRepository.download_zip_bundle_profile"
+  )
+  def test_add_repository_with_name(self, m_download: mock.Mock) -> None:
+    branch_name = "mock_branch_name"
     repo = github.GithubRepository(self.repository_http_url)
-    self.workspace.add_repository(repo, "branch_name")
+    self.workspace.add_repository(repo, branch_name)
 
     self.assertEqual(
         self.workspace.repository_root,
-        self.workspace.root / repo.get_zip_bundle_root_folder("branch_name")
+        self.workspace.root / repo.get_zip_bundle_root_folder(branch_name)
     )
+    m_download.assert_called_once_with(self.workspace.root, branch_name)
 
   def test_add_spec_file_no_repo(self) -> None:
     with self.assertRaises(workspace.InvalidWorkspace):
@@ -65,8 +75,7 @@ class TestWorkSpace(fixtures_git.GitTestHarness):
     m_fs.return_value.get_spec_file.return_value = mock_spec_file_path
     m_state.return_value.state_generate.return_value = mock_spec_file_content
 
-    repo = github.GithubRepository(self.repository_http_url)
-    self.workspace.add_repository(repo, "branch_name")
+    self.workspace.repository_root = Path("/mock_root_path")
     self.workspace.add_spec_file()
 
     m_state.return_value.state_dehydrate.assert_called_once_with(
