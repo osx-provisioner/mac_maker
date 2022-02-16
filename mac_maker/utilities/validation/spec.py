@@ -57,6 +57,6 @@ class SpecFileValidator(JSONFileReader):
 
     errors = self._validate_with_schema(self.schema)
     if errors:
-      self.log.error('JobSpecValidator: The loaded job spec file is invalid!')
+      self.log.error('JobSpecValidator: The loaded Job Spec file is invalid!')
       formatted_errors = pprint.pformat(errors)
       raise SpecFileValidationException(formatted_errors)

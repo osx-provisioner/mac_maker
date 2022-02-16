@@ -26,7 +26,7 @@ class Environment:
     """Configure the environment for the current Ansible job."""
 
     self.log.debug(
-        "Environment: configuring Ansible runtime environment variables..."
+        "Environment: Configuring Ansible runtime environment variables."
     )
 
     self._combine_env_with_state(config.ENV_ANSIBLE_ROLES_PATH, 'roles_path')

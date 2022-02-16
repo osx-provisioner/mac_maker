@@ -23,7 +23,7 @@ ANSIBLE_JOB_SPEC_MESSAGE = "--- Job Spec Created ---"
 ANSIBLE_JOB_SPEC_READ_MESSAGE = "--- Job Spec Loaded ---"
 ANSIBLE_RETRIEVE_MESSAGE = "--- Retrieving Remote Profile ---"
 ANSIBLE_ROLES_MESSAGE = "--- Installing Profile Roles ---"
-ANSIBLE_COLLECTIONS_MESSAGE = "--- Installing Collection Roles ---"
+ANSIBLE_COLLECTIONS_MESSAGE = "--- Installing Profile Collections ---"
 
 GITHUB_HTTP_REGEX = r'http[s]?://github.com/(?P<org>.+)/(?P<repo>[^.]+)(\.git)?'
 GITHUB_SSH_REGEX = r'git@github.com:(?P<org>.+)/(?P<repo>[^.]+)(\.git)?'

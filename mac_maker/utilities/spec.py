@@ -37,11 +37,13 @@ class JobSpecExtractor:
     :param spec_file_location: The path to the Job Spec file that will be read.
     :returns: The Job Spec file contents, and it's location on the filesystem.
     """
-    self.log.debug('JobSpecExtractor: Reading state from from file system.')
+    self.log.debug(
+        'JobSpecExtractor: Reading runtime state from a Job Spec file.'
+    )
     spec_file_content = self.state_manager.state_rehydrate(spec_file_location)
     validator = SpecFileValidator(spec_file_content)
     validator.validate_spec_file()
-    self.log.debug('JobSpecExtractor: State has been built.')
+    self.log.debug('JobSpecExtractor: Runtime state has been built.')
     return TypeSpecFileData(
         spec_file_content=spec_file_content,
         spec_file_location=spec_file_location

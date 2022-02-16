@@ -36,7 +36,7 @@ class AnsibleRunner:
     requirements_file = self.state['galaxy_requirements_file']
     role_path = self.state['roles_path'][0]
     self.log.debug(
-        "AnsibleRunner: Reading Profile Requirements from: %s",
+        "AnsibleRunner: Reading Profile requirements from: %s.",
         requirements_file,
     )
     command = (
@@ -50,7 +50,7 @@ class AnsibleRunner:
     requirements_file = self.state['galaxy_requirements_file']
     col_path = self.state['collections_path'][0]
     self.log.debug(
-        "AnsibleRunner: Reading Profile Requirements from: %s",
+        "AnsibleRunner: Reading Profile requirements from: %s.",
         requirements_file,
     )
     command = (
@@ -61,7 +61,7 @@ class AnsibleRunner:
 
   def _construct_ansible_playbook_command(self) -> str:
 
-    self.log.debug("AnsibleRunner: Invoking Ansible")
+    self.log.debug("AnsibleRunner: Invoking Ansible.")
     command = (
         f"ansible-playbook {self.state['playbook']}"
         f" -i {self.state['inventory']}"
@@ -83,7 +83,8 @@ class AnsibleRunner:
     click.echo(config.ANSIBLE_ROLES_MESSAGE)
     controller.spawn(galaxy_command)
     self.log.debug(
-        "AnsibleRunner: Profile Galaxy Roles have been installed to: %s",
+        "AnsibleRunner: Profile Ansible Galaxy roles have been "
+        "installed to: %s.",
         self.state['roles_path'][0],
     )
 
@@ -97,7 +98,8 @@ class AnsibleRunner:
     click.echo(config.ANSIBLE_COLLECTIONS_MESSAGE)
     controller.spawn(galaxy_command)
     self.log.debug(
-        "AnsibleRunner: Profile Galaxy Collections have been installed to: %s",
+        "AnsibleRunner: Profile Ansible Galaxy collections have been "
+        "installed to: %s.",
         self.state['collections_path'][0],
     )
 

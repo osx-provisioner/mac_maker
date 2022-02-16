@@ -37,7 +37,7 @@ class AnsibleProcess:
     :param command: The Ansible CLI Command to spawn.
     """
 
-    self.log.debug("AnsibleProcess: Preparing to Fork for Ansible Process")
+    self.log.debug("AnsibleProcess: Preparing to Fork for Ansible Process.")
     pid = os.fork()
     if pid == 0:
       self._forked_process(command)
@@ -47,7 +47,7 @@ class AnsibleProcess:
   def _forked_process(self, command: str) -> None:
     try:
       self.log.debug(
-          "AnsibleProcess: Forked process is now executing: %s",
+          "AnsibleProcess: Forked process is now executing: %s.",
           command,
       )
 
@@ -66,7 +66,6 @@ class AnsibleProcess:
         raise ClickShellUncleanExit()  # pylint: disable=raise-missing-from
       self._perform_clean_exit()
     except KeyboardInterrupt:
-      self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
   def _environment(self) -> None:

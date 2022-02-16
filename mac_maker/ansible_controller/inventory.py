@@ -35,6 +35,6 @@ class InventoryFile(TextFileWriter):
         config.ANSIBLE_INVENTORY_CONTENT, self.state['inventory']
     )
     self.log.debug(
-        "InventoryFile: inventory has been written to %s",
+        "InventoryFile: Inventory has been written to %s.",
         self.state['inventory'],
     )
