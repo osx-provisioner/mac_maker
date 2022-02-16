@@ -51,8 +51,8 @@
     version = "0.0.3"
 
     [tool.poetry.dependencies]
-      PyYAML = "^5.4.1"
-      ansible = "^5.1.0"
+      PyYAML = "^6.0.0"
+      ansible = "^5.2.0"
       click = ">=8.0.0,<9.0.0"
       jsonschema = "^4.3.3"
       pyinstaller = "^4.3"
