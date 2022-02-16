@@ -158,4 +158,5 @@ spec.json
 # Sphinx
 documentation/source/codebase/mac_maker/_autosummary
 
-
+# ASDF
+.tool-versions
