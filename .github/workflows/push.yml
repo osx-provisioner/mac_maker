@@ -34,22 +34,30 @@ jobs:
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         uses: actions/checkout@v2
 
+      - name: Apply Test -- Setup Environment
+        if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+
       - name: Apply Test -- Download Built Binary
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         uses: actions/download-artifact@v2
         with:
-          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}
+          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}
 
       - name: Apply Test -- Clear Quarantine Attribute
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         run: |
-          tar xvzf mac_maker_${{ matrix.os }}_${{ matrix.platform }}.tar.gz
-          xattr -d -r com.apple.quarantine mac_maker_${{ matrix.os }}_${{ matrix.platform }}
+          tar xvzf mac_maker_${{ matrix.os }}_${{ matrix.platform }}_${BRANCH_OR_TAG}.tar.gz
+          xattr -d -r com.apple.quarantine mac_maker_${{ matrix.os }}_${{ matrix.platform }}_${BRANCH_OR_TAG}
 
       - name: Apply Test -- Apply a Profile
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         run: |
-          cd mac_maker_${{ matrix.os }}_${{ matrix.platform }}
+          cd mac_maker_${{ matrix.os }}_${{ matrix.platform }}_${BRANCH_OR_TAG}
           export ANSIBLE_BECOME_PASSWORD="skip the prompt"
           ./mac_maker apply github https://github.com/osx-provisioner/profile-example.git
 
@@ -108,7 +116,7 @@ jobs:
         shell: bash -l {0}
         run: |
           eval $(pyenv init --path)
-          ./scripts/build.sh binary "${OS_VERSION}"
+          ./scripts/build.sh binary "${OS_VERSION}" "${BRANCH_OR_TAG}"
         env:
           PYENV_VERSION: ${{ matrix.python-version }}
           OS_VERSION: ${{ matrix.os }}
@@ -127,9 +135,10 @@ jobs:
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         uses: actions/upload-artifact@v2
         with:
-          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}
-          path: ./dist/mac_maker_${{ matrix.os }}_${{ matrix.platform }}.tar.gz
+          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}
+          path: ./dist/mac_maker_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}.tar.gz
           retention-days: 1
+          if-no-files-found: error
 
       - name: OSX Build -- Report Job Status (Success)
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
@@ -286,11 +295,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Built Binary
+      - name: Create Release Binaries -- Setup Environment
+        if: contains(github.ref, '/tags/v')
+        run: |
+          source .github/scripts/setup.sh
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
+
+      - name: Create Release Binaries -- Download Built Binary
         if: contains(github.ref, '/tags/v')
         uses: actions/download-artifact@v2
         with:
-          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}
+          name: built_binary_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}
 
       - name: Create Release Binaries -- Build Wheel
         if: contains(github.ref, '/tags/v')
@@ -311,9 +328,9 @@ jobs:
           asset_content_type: application/gzip
 
       - name: Create Release Binaries -- Report Success
-        if: contains(github.ref, '/tags/v')
+        if: contains(github.ref, '/tags/v') && env.VERBOSE_NOTIFICATIONS  == '1'
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: automated release has been created:\nhttps://github.com/${USERNAME}/${PROJECT_NAME}/releases"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: compiled binary has been attached to release: ${BINARY_NAME}"
 
       - name: Create Release Binaries -- Report Failure
         if: failure() && contains(github.ref, '/tags/v')
@@ -431,7 +448,7 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: error reporting job status!"
 
   success_notification:
-    needs: [create_release]
+    needs: [create_release_binaries]
 
     runs-on: ubuntu-latest
 

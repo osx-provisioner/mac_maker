@@ -22,10 +22,12 @@ binary() {
 
   pushd dist || exit 127
     VERSION_NAME="${2}_$(uname -m)"
-    mkdir "mac_maker_${VERSION_NAME}"
-    cp mac_maker "mac_maker_${VERSION_NAME}"
-    tar cvzf "mac_maker_${VERSION_NAME}.tar.gz" "mac_maker_${VERSION_NAME}"
-    rm -rf "mac_maker_${VERSION_NAME}"
+    VERSION_TAG=${3-unknown}
+    BASE_NAME="mac_maker_${VERSION_NAME}_${VERSION_TAG}"
+    mkdir "${BASE_NAME}"
+    cp mac_maker "${BASE_NAME}"
+    tar cvzf "${BASE_NAME}.tar.gz" "${BASE_NAME}"
+    rm -rf "${BASE_NAME}"
   popd || true
 }
 
