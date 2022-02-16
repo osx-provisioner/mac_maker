@@ -61,7 +61,7 @@ To find out more:
 
 ## License
 
-As this project effectively bundles Ansible, it must comply with the [GNU GPL](./LICENSE).
+As this project effectively bundles Ansible, it must comply with the [GNU GPL](https://mac-maker.readthedocs.io/en/latest/project/6.license.html).
 You are however free to use and modify this source, as long as the license's terms are respected.
 
 (Pull requests are most welcome, as I sincerely hope this project can be of use to others.)
