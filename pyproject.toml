@@ -38,12 +38,13 @@
 
   [tool.poetry]
     authors = ["Niall Byrne <niall@niallbyrne.ca>"]
+    classifiers = ["Environment :: MacOS X", "Intended Audience :: End Users/Desktop", "Topic :: System :: Installation/Setup", "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)", "Environment :: MacOS X", "Programming Language :: Python :: 3.8"]
     description = "Ansible based provisioner for OSX machines."
     documentation = "https://github.com/osx-provisioner/mac_maker/README.md"
     exclude = ["**/tests/*", "**/*.sh"]
     homepage = "https://github.com/osx-provisioner/mac_maker"
     include = ["mac_maker/data/*"]
-    keywords = []
+    keywords = ["osx", "mac"]
     license = "MPL-2.0"
     name = "mac_maker"
     readme = "README.md"
@@ -56,7 +57,7 @@
       click = ">=8.0.0,<9.0.0"
       jsonschema = "^4.3.3"
       pyinstaller = "^4.3"
-      python = ">=3.8.0,<3.10.0"
+      python = ">=3.8.0,<3.9.0"
       requests = "^2.25.1"
 
       [tool.poetry.dependencies.click-shell]
