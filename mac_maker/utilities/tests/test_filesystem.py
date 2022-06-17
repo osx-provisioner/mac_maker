@@ -14,7 +14,6 @@ class TestFileSystem(TestCase):
   """Test the FileSystem class."""
 
   def setUp(self) -> None:
-    super().setUp()
     self.mock_root = Path("/root/dir1")
     self.filesystem = filesystem.FileSystem(str(self.mock_root))
 

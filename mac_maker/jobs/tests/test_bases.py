@@ -48,7 +48,6 @@ class TestJobsPrecheck(TestCase):
   """Test the ProvisionerJobBase class precheck method."""
 
   def setUp(self) -> None:
-    super().setUp()
     self.concrete_job = MockConcreteJob()
     self.concrete_job.mock_precheck_content = precheck.TypePrecheckFileData(
         notes='some notes',

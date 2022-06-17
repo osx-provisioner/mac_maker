@@ -50,13 +50,11 @@ class TestValidateEnv(TestCase):
 
   @classmethod
   def setUpClass(cls) -> None:
-    super().setUpClass()
     yaml_env_fixture = Path(fixtures.__file__).parent / "mock_env.yml"
     with open(yaml_env_fixture, encoding="utf-8") as fhandle:
       cls.mock_yaml_data = fhandle.read()
 
   def setUp(self) -> None:
-    super().setUp()
     self.validator = PrecheckConfigValidator(self.mock_yaml_data)
 
   @mock.patch(PRECHECK_MODULE + ".os.environ", {})
