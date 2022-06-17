@@ -23,7 +23,7 @@ class TypePrecheckVariableDefinition(TypedDict):
   description: str
 
 
-class PrecheckConfigValidationException(BaseException):
+class PrecheckConfigValidationException(Exception):
   """Raised when reading an invalid Precheck environment configuration file."""
 
 

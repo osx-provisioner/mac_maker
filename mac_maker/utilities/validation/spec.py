@@ -19,7 +19,7 @@ class TypeSpecFileData(TypedDict):
   spec_file_location: Union[Path, str]
 
 
-class SpecFileValidationException(BaseException):
+class SpecFileValidationException(Exception):
   """Raised when reading an invalid Job Spec file."""
 
 

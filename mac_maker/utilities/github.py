@@ -11,7 +11,7 @@ import requests
 from .. import config
 
 
-class InvalidGithubRepository(BaseException):
+class InvalidGithubRepository(Exception):
   """Raised when a Github repository URL cannot be parsed."""
 
 
