@@ -5,7 +5,16 @@ import ansible
 import site
 import pkg_resources
 
+from PyInstaller.utils.hooks import exec_statement
+
 block_cipher = None
+
+certificates = exec_statement("""
+    import ssl
+    print(ssl.get_default_verify_paths().cafile)
+""").strip().split()
+
+cert_datas = [(f, 'lib') for f in certificates]
 
 a = Analysis(
     ["entrypoint.py"],
@@ -31,12 +40,13 @@ a = Analysis(
             "mac_maker",
             "mac_maker",
         ),
-    ],
+    ] + cert_datas,
     hiddenimports=[
         "ansible.cli.galaxy",
         "ansible.cli.playbook",
         "ansible.utils.display",
         "configparser",
+        "dataclasses",
         "distutils.version",
         "logging.handlers" "jinja2",
         "pty",

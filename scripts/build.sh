@@ -14,11 +14,11 @@ wrong_args(){
   exit 127
 }
 
-binary() {
+build_binary() {
 
   poetry build
   poetry run pip install ./dist/mac_maker-*-py3-none-any.whl
-  poetry run pyinstaller --onefile build.spec
+  poetry run pyinstaller build.spec
 
   pushd dist || exit 127
     VERSION_NAME="${2}_$(uname -m)"
@@ -31,7 +31,7 @@ binary() {
   popd || true
 }
 
-python() {
+build_python() {
 
   brew install pyenv coreutils openssl readline sqlite3 xz zlib
 
@@ -49,10 +49,10 @@ main() {
   case ${1} in
 
     pyenv)
-      python "$@"
+      build_python "$@"
       ;;
     binary)
-      binary "$@"
+      build_binary "$@"
       ;;
     *)
       wrong_args

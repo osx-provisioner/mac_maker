@@ -17,7 +17,6 @@ ANSIBLE_INVENTORY_CONTENT = (
     '[all]\n'
     'localhost\t'
     'ansible_connection=local\t'
-    'ansible_python_interpreter=/usr/bin/python\n'
 )
 ANSIBLE_JOB_SPEC_MESSAGE = "--- Job Spec Created ---"
 ANSIBLE_JOB_SPEC_READ_MESSAGE = "--- Job Spec Loaded ---"

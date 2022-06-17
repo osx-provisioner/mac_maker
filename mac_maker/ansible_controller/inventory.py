@@ -6,6 +6,7 @@ import os
 from .. import config
 from ..utilities.mixins.text_file import TextFileWriter
 from ..utilities.state import TypeState
+from .interpreter import Interpreter
 
 
 class InventoryFile(TextFileWriter):
@@ -17,6 +18,7 @@ class InventoryFile(TextFileWriter):
   def __init__(self, state: TypeState) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.state = state
+    self.interpreter = Interpreter()
 
   def _is_already_present(self) -> bool:
     return os.path.exists(self.state['inventory'])
@@ -30,10 +32,14 @@ class InventoryFile(TextFileWriter):
     if self._is_already_present():
       return
 
-    self._ensure_path_exists()
-    self.write_text_file(
-        config.ANSIBLE_INVENTORY_CONTENT, self.state['inventory']
+    content = config.ANSIBLE_INVENTORY_CONTENT
+    content += (
+        "ansible_python_interpreter=" +
+        str(self.interpreter.get_interpreter_path()) + "\n"
     )
+
+    self._ensure_path_exists()
+    self.write_text_file(content, self.state['inventory'])
     self.log.debug(
         "InventoryFile: Inventory has been written to %s.",
         self.state['inventory'],
