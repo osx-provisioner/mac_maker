@@ -245,10 +245,8 @@ jobs:
 
       - name: Create Release -- Generate Changelog
         if: contains(github.ref, '/tags/v')
-        uses: scottbrenner/generate-changelog-action@v1.3.1
-        id: Changelog
-        env:
-          REPO: ${{ github.repository }}
+        run:
+          source ./.github/scripts/changelog.sh
 
       - name: Create Release -- Create GitHub Release
         if: contains(github.ref, '/tags/v')
@@ -260,7 +258,7 @@ jobs:
           tag_name: ${{ env.BRANCH_OR_TAG }}
           release_name: Release ${{ env.BRANCH_OR_TAG }}
           body: |
-            ${{ steps.Changelog.outputs.changelog }}
+            ${{ env.CHANGE_LOG_CONTENT }}
             ## Deployment Checklist
             - [] Ensure documentation is accurate
             - [] Ensure readthedocs integration is working
