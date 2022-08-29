@@ -15,6 +15,10 @@ class InvalidGithubRepository(Exception):
   """Raised when a Github repository URL cannot be parsed."""
 
 
+class GithubCommunicationError(Exception):
+  """Raised when a remote Github repository cannot be accessed."""
+
+
 class GithubRepository:
   """GitHub Repository representation.
 
@@ -24,6 +28,7 @@ class GithubRepository:
   match_http = re.compile(config.GITHUB_HTTP_REGEX, re.IGNORECASE)
   match_ssh = re.compile(config.GITHUB_SSH_REGEX, re.IGNORECASE)
   default_branch = config.GITHUB_DEFAULT_BRANCH
+  timeout = 10
 
   def __init__(self, repository: str) -> None:
     self.logger = logging.getLogger(config.LOGGER_NAME)
@@ -125,7 +130,16 @@ class GithubRepository:
 
   def _download_zipfile(self, branch_name: str) -> requests.Response:
     remote_url = self.get_zip_bundle_url(branch_name)
-    http_response = requests.get(remote_url)
+    try:
+      http_response = requests.get(remote_url, timeout=self.timeout)
+    except requests.exceptions.RequestException as exc:
+      self.logger.error(
+          "GithubRepository: cannot download '%s'",
+          remote_url,
+      )
+      raise GithubCommunicationError(
+          "Communication error with Github."
+      ) from exc
     self.logger.info(
         "GithubRepository: Retrieved zip content from: %s",
         remote_url,

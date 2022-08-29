@@ -3,9 +3,14 @@
 from io import BytesIO
 from unittest import mock
 
+import requests.exceptions
 from ...tests.fixtures import fixtures_git
 from .. import github as github_module
-from ..github import GithubRepository, InvalidGithubRepository
+from ..github import (
+    GithubCommunicationError,
+    GithubRepository,
+    InvalidGithubRepository,
+)
 
 GITHUB_MODULE = github_module.__name__
 
@@ -115,7 +120,28 @@ class TestGithubRepositoryNetwork(fixtures_git.GitTestHarness):
     repo = GithubRepository(self.repository_http_url)
     repo.download_zip_bundle_profile(mock_folder, mock_branch)
 
-    mock_get.assert_called_once_with(repo.get_zip_bundle_url(mock_branch))
+    mock_get.assert_called_once_with(
+        repo.get_zip_bundle_url(mock_branch),
+        timeout=repo.timeout,
+    )
+
+  def test_download_zip_bundle_request_fails(
+      self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, mock_get: mock.Mock
+  ) -> None:
+    self.create_mock_context(mock_zipfile, mock_bytes)
+    mock_folder = "/some_folder"
+    mock_branch = "develop"
+    mock_get.side_effect = requests.exceptions.RequestException
+
+    repo = GithubRepository(self.repository_http_url)
+
+    with self.assertRaises(GithubCommunicationError):
+      repo.download_zip_bundle_profile(mock_folder, mock_branch)
+
+    mock_get.assert_called_once_with(
+        repo.get_zip_bundle_url(mock_branch),
+        timeout=repo.timeout,
+    )
 
   def test_download_zip_bundle_zipfile_context(
       self, mock_zipfile: mock.Mock, mock_bytes: mock.Mock, _: mock.Mock

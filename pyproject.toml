@@ -185,7 +185,6 @@
 
     [tool.pylint.typecheck]
       generated-members = "REQUEST,acl_users,aq_parent"
-      ignore-mixin-members = "yes"
       ignored-classes = "SQLObject"
       zope = "no"
 
