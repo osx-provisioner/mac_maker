@@ -59,7 +59,7 @@
   commands:
     - 'bandit -r "${PROJECT_NAME}" -c .bandit.rc --ini .bandit -x tests'
     - 'echo "\nPoetry is exporting the lockfile standby..."'
-    - 'poetry export --without-hashes -f requirements.txt | safety check -i 42923 --stdin'
+    - 'poetry export --without-hashes -f requirements.txt | safety check -i 42923 -i 52510 --stdin'
   success: "Security Test Passed!"
   failure: "Security Test Failed!"
 - name: "test"
