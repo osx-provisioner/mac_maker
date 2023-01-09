@@ -10,7 +10,7 @@ ENV PROJECT_NAME "mac_maker"
 ENV PIB_CONFIG_FILE_LOCATION "/app/assets/cli.yml"
 
 ENV VERSION_GITLEAKS "v7.2.0"
-ENV VERSION_POETRY "poetry>=1.1.12,<1.2.0"
+ENV VERSION_POETRY "poetry<1.4.0"
 
 # Mark Container
 RUN echo "mac_maker" > /etc/container_release
@@ -90,7 +90,7 @@ RUN poetry install --no-root -E docs
 COPY . /app
 
 # Install the Application
-RUN poetry install
+RUN poetry install -E docs
 
 # Create A Symlink For the Bash Customizations
 RUN ln -sf /app/assets/.bash_customize /home/user/.bash_customize
