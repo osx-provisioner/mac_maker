@@ -2,6 +2,8 @@
 
 set -e
 
+PYENV_VERSION_TAG="v2.3.10"
+
 wrong_platform(){
   echo "This script needs to be run on an OSX machine."
   exit 127
@@ -9,15 +11,14 @@ wrong_platform(){
 
 wrong_args(){
   echo "Usages: "
-  echo "./scripts/build pyenv [version (3.8.10)]"
-  echo "./scripts/build binary [version (10.14)]"
+  echo "./scripts/build pyenv [Python Version (3.8.10)]"
+  echo "./scripts/build binary [OS Version (10.14)] [Mac Maker Version (0.0.5)]"
   exit 127
 }
 
 build_binary() {
 
-  poetry build
-  poetry run pip install ./dist/mac_maker-*-py3-none-any.whl
+  poetry install --only=main
   poetry run pyinstaller build.spec
 
   pushd dist || exit 127
@@ -29,14 +30,21 @@ build_binary() {
     tar cvzf "${BASE_NAME}.tar.gz" "${BASE_NAME}"
     rm -rf "${BASE_NAME}"
   popd || true
+
 }
 
 build_python() {
 
-  brew install pyenv coreutils openssl readline sqlite3 xz zlib
+  env HOMEBREW_NO_AUTO_UPDATE=1 brew install coreutils openssl readline sqlite3 xz zlib
+  git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+  pushd ~/.pyenv
+    git checkout "${PYENV_VERSION_TAG}"
+    src/configure
+    make -C src
+  popd
 
-  env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install "${2}"
-  pyenv local "${2}"
+  env PYTHON_CONFIGURE_OPTS="--enable-framework" ~/.pyenv/bin/pyenv install "${2}"
+  ~/.pyenv/bin/pyenv local "${2}"
 
 }
 

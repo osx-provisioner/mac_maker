@@ -105,9 +105,8 @@ jobs:
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         shell: bash -l {0}
         run: |
-          eval $(pyenv init --path)
+          eval $(~/.pyenv/bin/pyenv init --path)
           pip install poetry wheel
-          poetry install
         env:
           PYENV_VERSION: ${{ matrix.python-version }}
 
@@ -115,7 +114,7 @@ jobs:
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         shell: bash -l {0}
         run: |
-          eval $(pyenv init --path)
+          eval $(~/.pyenv/bin/pyenv init --path)
           ./scripts/build.sh binary "${OS_VERSION}" "${BRANCH_OR_TAG}"
         env:
           PYENV_VERSION: ${{ matrix.python-version }}
@@ -126,7 +125,6 @@ jobs:
         if: contains(github.ref, '/tags/v') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
         shell: bash -l {0}
         run: |
-          eval $(pyenv init --path)
           ./dist/mac_maker version
         env:
           PYENV_VERSION: ${{ matrix.python-version }}
