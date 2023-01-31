@@ -10,7 +10,7 @@ import traceback
 import click
 from click_shell.exceptions import ClickShellCleanExit, ClickShellUncleanExit
 from .. import config
-from ..utilities.cli import was_started_without_shell
+from ..utilities import cli as cli_utilities
 from ..utilities.state import TypeState
 from . import environment
 
@@ -40,14 +40,15 @@ class AnsibleProcess:
     self.log.debug("AnsibleProcess: Preparing to Fork for Ansible Process.")
     pid = os.fork()
     if pid == 0:
-      self._forked_process(command)
+      self._forked_process(command, pid)
     else:
       self._main_process(command, pid)
 
-  def _forked_process(self, command: str) -> None:
+  def _forked_process(self, command: str, pid: int) -> None:
     try:
       self.log.debug(
-          "AnsibleProcess: Forked process is now executing: %s.",
+          "AnsibleProcess - PID: %s: Forked process is now executing: %s.",
+          pid,
           command,
       )
 
@@ -59,12 +60,32 @@ class AnsibleProcess:
 
       instance = ansible_cli_class(shlex.split(command))
 
+      self.log.debug(
+          (
+              "AnsibleProcess - PID: %s: Forked process Ansible CLI Class "
+              "instance has been created: %s."
+          ),
+          pid,
+          str(instance),
+      )
+
       try:
+        self.log.debug(
+            (
+                "AnsibleProcess - PID: %s: Forked process Ansible CLI Class "
+                "instance is calling run."
+            ),
+            pid,
+        )
         instance.run()
+        self.log.debug(
+            "AnsibleProcess - PID: %s: Forked process has finished.",
+            pid,
+        )
       except Exception:
         traceback.print_exc()
         raise ClickShellUncleanExit()  # pylint: disable=raise-missing-from
-      self._perform_clean_exit()
+      self._perform_clean_exit(pid)
     except KeyboardInterrupt:
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
@@ -78,17 +99,42 @@ class AnsibleProcess:
   def _main_process(self, command: str, pid: int) -> None:
     try:
       _, exit_status = os.waitpid(pid, 0)
-      if os.WEXITSTATUS(exit_status):
+      status_code = os.WEXITSTATUS(exit_status)
+      self.log.debug(
+          "AnsibleProcess - PID: %s: Waited, and received exit code: %s.",
+          pid,
+          status_code,
+      )
+      if status_code:
         click.echo("ANSIBLE ERROR: Non zero exit code.")
         click.echo(f"COMMAND: {command}")
-        self.log.error("AnsibleProcess: Forked process reports error.")
+        self.log.error(
+            (
+                "AnsibleProcess - PID: %s: Forked process has reported an "
+                "error state."
+            ),
+            pid,
+        )
         raise ClickShellUncleanExit()
-      self.log.debug("AnsibleProcess: Forked process has completed.")
+      self.log.debug(
+          (
+              "AnsibleProcess - PID: %s: Forked process has reported no "
+              "error state."
+          ),
+          pid,
+      )
     except KeyboardInterrupt:
-      self.log.error("AnsibleProcess: Keyboard Interrupt Intercepted.")
+      self.log.error(
+          "AnsibleProcess - PID: %s: Keyboard Interrupt Intercepted.",
+          pid,
+      )
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
-  def _perform_clean_exit(self) -> None:
-    if was_started_without_shell():
+  def _perform_clean_exit(self, pid: int) -> None:
+    if cli_utilities.was_started_without_shell():
+      self.log.warning(
+          "AnsibleProcess - PID: %s: Terminating process.",
+          pid,
+      )
       sys.exit(0)
     raise ClickShellCleanExit()

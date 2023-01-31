@@ -1,0 +1,23 @@
+Ensure Python is Installed
+==========================
+
+==================
+Monterey and Later
+==================
+
+Apple has removed Python from the newest stock system installs.
+
+Since `Ansible <https://www.ansible.com/>`_ uses a `Python <https://www.python.org/>`_ interpreter to do the heavy lifting, we'll need to perform a manual validation step prior to getting started on a new OS install:
+
+Open the `Terminal <https://wikipedia.org/wiki/Terminal_(macOS)>`_ app:
+
+.. code-block:: console
+
+    python3
+
+Once you hit ENTER, one of two things will happen:
+  1. Python will start.  Great don't sweat it!  You're good to go.
+  2. A popup to install the `X-Code Cli Tools <https://developer.apple.com/xcode/>`_ will appear.  This also isn't so bad, you'll need them to use `homebrew <https://brew.sh/>`_ on your Mac.  It will also install `Python <https://www.python.org/>`_, so click **Install** and once it's finished you can begin using this tool.
+
+For users of Catalina, or Big Sur: don't worry about this.
+
