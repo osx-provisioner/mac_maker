@@ -174,13 +174,13 @@ jobs:
           touch ${HOME}/.gitconfig
           touch ${HOME}/.gitconfig_global
 
-      - name: Container Build -- Ensure File System is Writable by the Container
-        run: |
-          sudo chmod -R o+w .
-
       - name: Container Build -- Build Container
         run: |
           source .github/scripts/build_container.sh
+
+      - name: Container Build -- Ensure GIT is working
+        run: |
+          docker-compose exec -T "${PROJECT_NAME}" git status
 
       - name: Container Build -- Run TOML Linter
         run: |
