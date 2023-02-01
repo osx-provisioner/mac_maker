@@ -37,14 +37,14 @@ class TestGitHubJobGetPrecheck(fixtures_git.GitTestHarness):
     self.job = jobs_module.GitHubJob(self.repository_http_url, None)
     self.mock_spec_contents = "mock spec contents"
     self.mock_spec_file_location = "/mock/path"
-    self.mock_spec_data = dict(
-        spec_file_content=self.mock_spec_contents,
-        spec_file_location=self.mock_spec_file_location,
-    )
-    self.mock_precheck_data = dict(
-        notes="None.",
-        env=[],
-    )
+    self.mock_spec_data = {
+        "spec_file_content": self.mock_spec_contents,
+        "spec_file_location": self.mock_spec_file_location,
+    }
+    self.mock_precheck_data = {
+        "notes": "None.",
+        "env": [],
+    }
 
   def test_get_precheck_content_return_value(
       self,
