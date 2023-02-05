@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Start -- Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Start -- Setup Environment
         run: |
@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Success -- Checkout Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Success -- Setup Environment
         run: |
@@ -87,7 +87,7 @@ jobs:
 
       - name: Apply Test -- Checkout
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Apply Test -- Setup Environment
         if: steps.branch_filter.outputs.match == 'TRUE'
@@ -99,7 +99,7 @@ jobs:
 
       - name: Apply Test -- Download Built Binary
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: built_binary_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}
 
@@ -147,7 +147,7 @@ jobs:
 
       - name: Attach Release Binaries -- Checkout
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -161,27 +161,25 @@ jobs:
 
       - name: Attach Release Binaries -- Download Built Binary
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: built_binary_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}
 
-      - name: Attach Release Binaries -- Build Wheel
+      - name: Attach Release Binaries -- Identify Binary
         if: steps.branch_filter.outputs.match == 'TRUE'
         run: |
+          ls -la
           BINARY_NAME=$(ls *.tar.gz)
           echo "BINARY_NAME=${BINARY_NAME}" >> $GITHUB_ENV
 
       - name: Attach Release Binaries -- Upload Release Asset
         if: steps.branch_filter.outputs.match == 'TRUE'
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+        run: |
+          source ./.github/scripts/upload_asset.sh
         env:
+          FILE_PATH: ${{ env.BINARY_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ${{ env.BINARY_NAME }}
-          asset_name: ${{ env.BINARY_NAME }}
-          asset_content_type: application/gzip
+          UPLOAD_URL: ${{ needs.create_release.outputs.upload_url }}
 
       - name: Attach Release Binaries -- Report Success
         if: steps.branch_filter.outputs.match == 'TRUE' && env.VERBOSE_NOTIFICATIONS == '1'
@@ -204,7 +202,7 @@ jobs:
 
     steps:
       - name: Container Build -- Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Container Build -- Setup Environment
         run: |
@@ -265,7 +263,7 @@ jobs:
     needs: [_start_notification, apply, container_build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      upload_url: ${{ fromJSON(steps.create_release.outputs.result).data.upload_url }}
 
     steps:
       - name: Create Release -- Branch Filter
@@ -277,7 +275,7 @@ jobs:
 
       - name: Create Release -- Checkout
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -298,22 +296,31 @@ jobs:
         run:
           source ./.github/scripts/changelog.sh
 
-      - name: Create Release -- Create GitHub Release
-        if: steps.branch_filter.outputs.match == 'TRUE'
+      - name: Create Release -- Generate Github Release Draft
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@v6
         with:
-          tag_name: ${{ env.BRANCH_OR_TAG }}
-          release_name: Release ${{ env.BRANCH_OR_TAG }}
-          body: |
-            ${{ env.CHANGE_LOG_CONTENT }}
-            ## Deployment Checklist
-            - [] Ensure documentation is accurate
-            - [] Ensure readthedocs integration is working
-          draft: false
-          prerelease: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              if (process.env.RELEASE_BRANCH !== 'TRUE') {
+                  return { data: { upload_url: null }}
+              }
+              const result = await github.rest.repos.createRelease({
+                body: process.env.CHANGE_LOG_CONTENT,
+                draft: true,
+                name: "Release " + process.env.BRANCH_OR_TAG,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+                tag_name: process.env.BRANCH_OR_TAG,
+              });
+              return result
+            } catch (error) {
+              core.setFailed(error.message);
+            }
+        env:
+          RELEASE_BRANCH: ${{ steps.branch_filter.outputs.match }}
 
       - name: Create Release -- Report Success
         if: steps.branch_filter.outputs.match == 'TRUE' && env.VERBOSE_NOTIFICATIONS == '1'
@@ -331,7 +338,7 @@ jobs:
 
     steps:
       - name: Documentation Test -- Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Documentation Test -- Setup Environment
         run: |
@@ -340,7 +347,7 @@ jobs:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Documentation Test -- Documentation Validation
-        uses: gaurav-nelson/github-action-markdown-link-check@1.0.11
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
           use-quiet-mode: 'no'
           use-verbose-mode: 'yes'
@@ -362,18 +369,24 @@ jobs:
     steps:
 
       - name: Security Test -- Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Documentation Test -- Setup Environment
+      - name: Security Test -- Setup Environment
         run: |
           source .github/scripts/setup.sh
+          source .github/scripts/pushed_commit_range.sh
         env:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
 
-      - name: Security Test -- Run Gitleaks
-        uses: zricethezav/gitleaks-action@v1.6.0
+      - name: Security Test -- Run Trufflehog
+        uses: trufflesecurity/trufflehog@v3.20.0
+        with:
+          path: .
+          base: ${{ env.PUSHED_COMMIT_RANGE }}
+          head: ${{ env.BRANCH_OR_TAG }}
 
       - name: Security Test -- Report Success
         if: env.VERBOSE_NOTIFICATIONS == '1'
@@ -391,7 +404,7 @@ jobs:
 
     steps:
       - name: Shellcheck -- Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Shellcheck -- Setup Environment
         run: |
@@ -423,12 +436,12 @@ jobs:
 
     steps:
       - name: Workflow Lint -- Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Workflow Lint -- Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Workflow Lint -- Setup Environment
         run: |
@@ -475,7 +488,7 @@ jobs:
 
       - name: OSX Build -- Checkout
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: OSX Build -- Setup Environment
         if: steps.branch_filter.outputs.match == 'TRUE'
@@ -520,7 +533,7 @@ jobs:
 
       - name: OSX Build -- Upload Build Artifact
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: built_binary_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}
           path: ./dist/mac_maker_${{ matrix.os }}_${{ matrix.platform }}_${{ env.BRANCH_OR_TAG }}.tar.gz
