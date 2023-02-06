@@ -5,7 +5,6 @@ from logging import Logger
 from unittest import TestCase, mock
 
 from click_shell.exceptions import ClickShellCleanExit, ClickShellUncleanExit
-from ... import config
 from ...utilities import filesystem, state
 from .. import process
 
@@ -64,10 +63,9 @@ class TestAnsibleProcessSpawn(TestCase):
   ) -> None:
     split_command = shlex.split(self.command)
 
-    mock_display = mock.Mock()
     mock_cli_module = mock.Mock()
     mock_cli_class = getattr(mock_cli_module, self.mock_class)
-    m_import.side_effect = [mock_display, mock_cli_module]
+    m_import.side_effect = [mock_cli_module]
 
     m_os.fork.return_value = 0
 
@@ -90,10 +88,9 @@ class TestAnsibleProcessSpawn(TestCase):
   ) -> None:
     split_command = shlex.split(self.command)
 
-    mock_display = mock.Mock()
     mock_cli_module = mock.Mock()
     mock_cli_class = getattr(mock_cli_module, self.mock_class)
-    m_import.side_effect = [mock_display, mock_cli_module]
+    m_import.side_effect = [mock_cli_module]
 
     m_os.fork.return_value = 0
 
@@ -108,21 +105,15 @@ class TestAnsibleProcessSpawn(TestCase):
       self, m_import: mock.Mock, m_os: mock.Mock
   ) -> None:
 
-    mock_display = mock.Mock()
     mock_cli_module = mock.Mock()
-    m_import.side_effect = [mock_display, mock_cli_module]
+    m_import.side_effect = [mock_cli_module]
 
     m_os.fork.return_value = 0
 
     with self.assertRaises(ClickShellCleanExit):
       self.process.spawn(self.command)
 
-    self.assertEqual(
-        m_import.call_args_list, [
-            mock.call(config.ANSIBLE_LIBRARY_LOCALE_MODULE),
-            mock.call(self.mock_module)
-        ]
-    )
+    self.assertEqual(m_import.call_args_list, [mock.call(self.mock_module)])
 
   @mock.patch(PROCESS_MODULE + ".environment.Environment.setup")
   def test_spawn_forked_process_environment(
@@ -130,15 +121,13 @@ class TestAnsibleProcessSpawn(TestCase):
   ) -> None:
     m_os.fork.return_value = 0
 
-    mock_display = mock.Mock()
     mock_cli_module = mock.Mock()
-    m_import.side_effect = [mock_display, mock_cli_module]
+    m_import.side_effect = [mock_cli_module]
 
     with self.assertRaises(ClickShellCleanExit):
       self.process.spawn(self.command)
 
     m_os.chdir.assert_called_once_with(self.process.state['profile_data_path'])
-    mock_display.initialize_locale.assert_called_once_with()
     m_env.assert_called_once_with()
 
   def test_spawn_forked_process_interrupt(
@@ -155,10 +144,9 @@ class TestAnsibleProcessSpawn(TestCase):
   ) -> None:
     m_os.fork.return_value = 0
 
-    mock_display = mock.Mock()
     mock_cli_module = mock.Mock()
     mock_cli_class = getattr(mock_cli_module, self.mock_class)
-    m_import.side_effect = [mock_display, mock_cli_module]
+    m_import.side_effect = [mock_cli_module]
 
     mock_cli_class.return_value.run.side_effect = Exception("Boom!")
 

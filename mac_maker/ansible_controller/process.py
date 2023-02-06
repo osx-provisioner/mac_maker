@@ -69,8 +69,6 @@ class AnsibleProcess:
       raise ClickShellUncleanExit() from KeyboardInterrupt
 
   def _environment(self) -> None:
-    display = importlib.import_module(config.ANSIBLE_LIBRARY_LOCALE_MODULE)
-    display.initialize_locale()  # type: ignore[attr-defined]
     env = environment.Environment(self.state)
     env.setup()
 
