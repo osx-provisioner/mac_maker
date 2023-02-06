@@ -11,7 +11,7 @@ wrong_platform(){
 
 wrong_args(){
   echo "Usages: "
-  echo "./scripts/build pyenv [Python Version (3.8.10)]"
+  echo "./scripts/build pyenv [Python Version (3.8.16)]"
   echo "./scripts/build binary [OS Version (10.14)] [Mac Maker Version (0.0.5)]"
   exit 127
 }
