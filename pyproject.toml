@@ -55,14 +55,11 @@
       PyYAML = "^6.0.0"
       ansible = "^7.0.0"
       click = ">=8.0.0,<9.0.0"
+      click_shell = "^2.1.0"
       jsonschema = "^4.3.3"
       pyinstaller = "^5.1"
       python = ">=3.9.0,<3.10.0"
       requests = "^2.25.1"
-
-      [tool.poetry.dependencies.click-shell]
-        branch = "feature_custom_exceptions"
-        git = "https://github.com/niall-byrne/click-shell.git"
 
       [tool.poetry.dependencies.pib_cli]
         extras = ["docs", "types"]

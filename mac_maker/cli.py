@@ -6,6 +6,7 @@ import click
 from click_shell import shell
 from . import jobs
 from .utilities.logger import Logger
+from .utilities.shell import cmd_loop
 
 
 @shell(  # type: ignore[misc]
@@ -17,6 +18,7 @@ from .utilities.logger import Logger
 )
 def cli(debug: bool) -> None:
   """Mac Maker CLI."""
+  cli.shell.postcmd = cmd_loop.patch_interrupt(cli.shell.postcmd)
   logger = Logger(debug=debug)
   logger.setup()
 
