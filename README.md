@@ -19,6 +19,8 @@ A portable single binary configuration tool for OSX machines.
 ### Production Branch Builds
 - GitHub:
   - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
+- Bitrise:
+  - [![bitrise M1 Binaries](https://app.bitrise.io/app/9a06da738bba2e7a/status.svg?token=fngmPo_dY5PcqQ-uCNRnaQ&branch=production)](https://app.bitrise.io/app/9a06da738bba2e7a)
 
 ## Quick Start
 
@@ -26,7 +28,23 @@ A portable single binary configuration tool for OSX machines.
 
 If you'd like to try it out, head over to the [Mac Maker Releases](https://github.com/osx-provisioner/mac_maker/releases) and download a pre-built binary.
 
-- Note that these binaries are only for Intel Macs. 
+- There are builds available for **Catalina**, **Big Sur** and **Monterey** for **Intel Macs**.
+- There are now builds for **Monterey** available for **Apple Silicon Macs**.  (Thanks to the folks at [bitrise](https://bitrise.io/))
+
+If you are unsure, use the tables below to help you find the right binary for your Mac:
+
+|Version Number|   OS Name    |
+|--------------|--------------|
+|12            | Monterey     |
+|11            | Big Sur      |
+|10            | Catalina     |
+
+|Architecture  |   CPU Type   |
+|--------------|--------------|
+|arm64         | Apple Silicon|
+|x86_64        | Intel        |
+
+**Please Note**:
 - They are unsigned, and not notarized by Apple.
 - As such, they will trigger a warning about software from an unidentified developer.
 

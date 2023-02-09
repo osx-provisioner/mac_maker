@@ -1,0 +1,49 @@
+---
+format_version: '11'
+default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"
+trigger_map:
+  - push_branch: "production"
+    workflow: build_binary
+project_type: macos
+workflows:
+  build_binary:
+    envs:
+      - BITRISE_DEPLOY_DIR: "/Users/vagrant/artifacts"
+      - OS_VERSION: "12"
+      - PYTHON_VERSION: "3.9.16"
+    steps:
+      - git-clone@7: {}
+      - script@1:
+          inputs:
+            - runner: bash
+            - content: |-
+                #!/bin/bash
+
+                set -eo pipefail
+
+                # Initialize Environment
+                rm -rf ~/.pyenv
+                mkdir "${BITRISE_DEPLOY_DIR}"
+
+                # Build Python Distribution
+                bash scripts/build.sh pyenv "${PYTHON_VERSION}"
+
+                # Build Mac Maker Binary
+                eval $(~/.pyenv/bin/pyenv init --path)
+                pip install poetry
+                BUILD_NAME="${BITRISE_GIT_TAG}"
+                if [[ -z "${BUILD_NAME}" ]]; then
+                  BUILD_NAME="${BITRISE_GIT_BRANCH}"
+                fi
+                bash scripts/build.sh binary "${OS_VERSION}" "${BUILD_NAME}"
+
+                # Move Built Binary to Artifacts Folder
+                mv ./dist/*.tar.gz "${BITRISE_DEPLOY_DIR}"
+
+      - deploy-to-bitrise-io@2:
+          inputs:
+            - notify_user_groups: none
+meta:
+  bitrise.io:
+    stack: osx-xcode-13.0.x  # Monterey
+    machine_type_id: g2-m1.8core  # g2.4core (intel) or g2-m1.8core (M1)
