@@ -82,6 +82,10 @@ To find out more:
 - Use [this template](https://github.com/osx-provisioner/profile-generator) to create your own custom profiles.
 - Read about the `spec.json` file, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/4.spec_files.html).
 
+**Please Note:**
+- We've had some user feedback that the `spec.json` files are a bit complicated to get started with.
+- Although we'll continue to support them, we'll soon introduce the ability to simply specify the path to a `Mac Maker Profile` folder on the local filesystem.
+
 ## License
 
 As this project effectively bundles Ansible, it must comply with the [GNU GPL](https://mac-maker.readthedocs.io/en/latest/project/6.license.html).
