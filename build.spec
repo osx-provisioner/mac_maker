@@ -18,8 +18,8 @@ cert_datas = [(f, 'lib') for f in certificates]
 
 a = Analysis(
     ["entrypoint.py"],
-    pathex=[],
     binaries=[],
+    cipher=block_cipher,
     datas=[
         (
             os.path.join(site.getsitepackages()[0], "ansible"),
@@ -41,6 +41,7 @@ a = Analysis(
             "mac_maker",
         ),
     ] + cert_datas,
+    excludes=[],
     hiddenimports=[
         "ansible.cli.galaxy",
         "ansible.cli.playbook",
@@ -57,27 +58,23 @@ a = Analysis(
         "xml.etree.ElementTree",
     ],
     hookspath=[],
+    pathex=[],
     runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
-    a.scripts,
     a.binaries,
-    a.zipfiles,
     a.datas,
-    [],
-    name="mac_maker",
+    a.scripts,
+    a.zipfiles,
     debug=False,
     bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
+    bundle_identifier='com.mac_maker',
     console=True,
+    info_plist={
+      'NSPrincipalClass': 'NSApplication',
+      'NSAppleScriptEnabled': False,
+    },
+    name="mac_maker",
 )
