@@ -3,7 +3,7 @@
 - name: "build-docs"
   path_method: "project_docs"
   commands:
-    - "make html"
+    - "make spelling html SPHINXOPTS='-W'"
   success: "Documentation Built"
   failure: "Error Building Documentation"
 - name: "build-wheel"

@@ -69,6 +69,7 @@ RUN apt-get update                      && \
     fish=3.1.*                             \
     golang-github-pelletier-go-toml=1.8.*  \
     jq=1.6*                                \
+    enchant-2=2.*                          \
     openssh-client=1:8.*                   \
     shellcheck=0.7.*                       \
     sudo=1.9.*                             \

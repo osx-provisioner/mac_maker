@@ -36,17 +36,25 @@ extensions = [
     'sphinx_click.ext',
     'sphinx-jsonschema',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.spelling',
 ]
 
+# sphinx.ext.autosummary
 autoclass_content = 'both'
 
-typehints_fully_qualified = False
+# sphinx_autodoc_typehints
 always_document_param_types = True
+typehints_fully_qualified = False
 typehints_defaults = "comma"
 typehints_document_rtype = True
 
-autosummary_generate = True
+# sphinxcontrib.spelling
+spelling_lang = 'en_US'
+tokenizer_lang = 'en_US'
+spelling_word_list_filename = 'spelling_wordlist.txt'
 
+# sphinx_autopackagesummary
+autosummary_generate = True
 autosummary_mock_imports = [
     "mac_maker.tests",
     "mac_maker.ansible_controller.tests",
@@ -78,7 +86,7 @@ html_theme = 'haiku'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 html_theme_options = {
     'body_max_width': '100%'
 }
