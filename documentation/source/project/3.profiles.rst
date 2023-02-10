@@ -11,18 +11,15 @@ The directory structure is defined as follows:
 
     root
     │
-    ├── profile
-    │   │
-    │   ├── __precheck__
-    │   │   │
-    │   │   ├── env.yml
-    │   │   └── notes.txt
-    │   │
-    │   ├── requirements.yml
-    │   └── install.yml
-    │
-    └── pyproject.toml
-
+    └── profile
+        │
+        ├── __precheck__
+        │   │
+        │   ├── env.yml
+        │   └── notes.txt
+        │
+        ├── requirements.yml
+        └── install.yml
 
 =================
 Precheck Metadata
@@ -52,6 +49,20 @@ The `install.yml` playbook is the Ansible `entrypoint` into the profile.  This p
 
 All roles and tasks should be defined in this file, and should be accessed from relative paths to this file.
 
-(Frequently it makes sense to created sub-folders under `profile` to nest `tasks`, `vars` and `handlers` files for larger, more organized set of Ansible tasks.).
+=======================
+Organizing Your Profile
+=======================
 
+Frequently it makes sense to create sub-folders under `profile` to nest your `tasks`, `vars` and `handlers` files for easier to manage Mac Maker profiles.
+
+This is all derived from the folder structure used by `Ansible Roles <https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html#role-directory-structure>`_, and it's recommended to use this type of structure as a guide.
+
+The following example profile may be helpful to review:
+
+- `Generic Profile Example <https://github.com/osx-provisioner/profile-example>`_
+
+It's also recommended to look at some Ansible Roles to see how they are structured:
+
+- `Simple Download Role <https://github.com/osx-provisioner/role-downloader>`_
+- `Simple Symlink Role <https://github.com/osx-provisioner/role-symlinks>`_
 
