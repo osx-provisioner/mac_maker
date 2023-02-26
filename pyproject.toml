@@ -64,7 +64,7 @@
       [tool.poetry.dependencies.pib_cli]
         extras = ["docs", "types"]
         optional = true
-        version = "0.1.4"
+        version = "1.2.0"
 
       [tool.poetry.dependencies.sphinx-autodoc-typehints]
         optional = true
