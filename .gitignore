@@ -141,9 +141,6 @@ override.env
 # Macs
 .DS_Store
 
-# LockFile
-poetry.lock
-
 # PEX
 *.pex
 
