@@ -96,6 +96,6 @@ You are however free to use and modify this source, as long as the license's ter
 ## Detailed Documentation
 
 The project's full documentation can be found here:
-  - [Mac Maker Documentation](https://mac_maker.readthedocs.io/)
+  - [Mac Maker Documentation](https://mac-maker.readthedocs.io/)
 
 Complete build instructions are included, so you can build your own binary.
