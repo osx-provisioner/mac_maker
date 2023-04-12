@@ -7,7 +7,7 @@ from typing import Dict, List, Literal, Union
 from .. import config
 from ..utilities.state import TypeState
 
-TypeStateAnsibleValues = Union[Literal["roles_path"],
+StateAnsibleValuesType = Union[Literal["roles_path"],
                                Literal["collections_path"]]
 
 
@@ -37,7 +37,7 @@ class Environment:
     self.log.debug("Environment: Ansible runtime environment is ready.")
 
   def _combine_env_with_state(
-      self, variable_name: str, state_name: TypeStateAnsibleValues
+      self, variable_name: str, state_name: StateAnsibleValuesType
   ) -> None:
     existing_env_value = self._env_to_list(variable_name)
     existing_state_value = self._state_to_list(state_name)
@@ -50,7 +50,7 @@ class Environment:
       return []
     return value.split(":")
 
-  def _state_to_list(self, state_name: TypeStateAnsibleValues) -> List[str]:
+  def _state_to_list(self, state_name: StateAnsibleValuesType) -> List[str]:
     return self.state[state_name]
 
   def _list_to_env(self, list_content: List[str]) -> str:
