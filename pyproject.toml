@@ -59,7 +59,7 @@
       jsonschema = "^4.3.3"
       pyinstaller = "^5.1"
       python = ">=3.9.0,<3.10.0"
-      requests = "^2.25.1"
+      requests = "^2.31.0"
 
       [tool.poetry.dependencies.pib_cli]
         extras = ["docs", "types"]
