@@ -15,6 +15,7 @@ ENV PIB_CONFIG_FILE_LOCATION "/app/assets/cli.yml"
 
 ENV VERSION_GITLEAKS "v7.2.0"
 ENV VERSION_POETRY "poetry<1.4.0"
+ENV VERSION_TOMLL "v1.9.4"
 
 # Mark Container
 RUN echo "mac_maker" > /etc/container_release
@@ -65,16 +66,22 @@ ENV ENVIRONMENT DEVELOPMENT
 RUN apt-get update                      && \
     apt-get install -y                     \
     --no-install-recommends                \
-    curl=7.74.*                            \
-    fish=3.1.*                             \
-    golang-github-pelletier-go-toml=1.8.*  \
+    curl=7.88.*                            \
+    fish=3.6.*                             \
     jq=1.6*                                \
     enchant-2=2.*                          \
-    openssh-client=1:8.*                   \
-    shellcheck=0.7.*                       \
+    openssh-client=1:9.*                   \
+    shellcheck=0.9.*                       \
     sudo=1.9.*                             \
     tig=2.5.*                              \
-    vim=2:8.*
+    vim=2:9.*
+
+# Install tomll
+RUN curl --fail -sL "https://github.com/pelletier/go-toml/releases/download/${VERSION_TOMLL}/tomll_linux_amd64.tar.xz"      \
+    -o tomll.tar.xz                                                                                                      && \
+    tar xvf tomll.tar.xz                                                                                                 && \
+    mv tomll /usr/bin                                                                                                    && \
+    chmod +x /usr/bin/tomll
 
 # Install Git Leaks
 RUN curl --fail -sL "https://github.com/zricethezav/gitleaks/releases/download/${VERSION_GITLEAKS}/gitleaks-linux-amd64"    \
