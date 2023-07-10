@@ -49,7 +49,7 @@
     name = "mac_maker"
     readme = "README.md"
     repository = "https://github.com/osx-provisioner/mac_maker"
-    version = "0.0.6"
+    version = "0.0.7"
 
     [tool.poetry.dependencies]
       PyYAML = "^6.0.0"
