@@ -33,16 +33,17 @@ If you'd like to try it out, head over to the [Mac Maker Releases](https://githu
 
 If you are unsure, use the tables below to help you find the right binary for your Mac:
 
-|Version Number|   OS Name    |
-|--------------|--------------|
-|12            | Monterey     |
-|11            | Big Sur      |
-|10            | Catalina     |
+| Version Number  | OS Name  |
+|-----------------|----------|
+| 13              | Ventura  |
+| 12              | Monterey |
+| 11              | Big Sur  |
+| 10              | Catalina |
 
-|Architecture  |   CPU Type   |
-|--------------|--------------|
-|arm64         | Apple Silicon|
-|x86_64        | Intel        |
+| Architecture | CPU Type      |
+|--------------|---------------|
+| arm64        | Apple Silicon |
+| x86_64       | Intel         |
 
 **Please Note**:
 - They are unsigned, and not notarized by Apple.
@@ -50,11 +51,11 @@ If you are unsure, use the tables below to help you find the right binary for yo
 
 ### OK, but you still didn't tell me how to get started...
 
-Are you on Monterey?  It may not ship with python anymore!  We better check:
+Are you on Monterey or Ventura?  It may not ship with python anymore!  We better check:
 - open a terminal and type `python3`, and if prompted to install the [x-code](https://developer.apple.com/xcode/) cli tools click `install`.
 - this is less than ideal, but it gets you into a compatible state quickly
 
-For Catalina, Big Sur and Monterey (once you've confirmed [python](https://python.org) is present):
+For Catalina, Big Sur, Monterey and Ventura (once you've confirmed [python](https://python.org) is present):
 - Copy the `mac_maker` binary to the OSX machine you'd like to put under configuration management.
 - If you have a working internet connection, you can start working with `Mac Maker Profiles`.  
 - To try creating your own `Profile`, check out [this](https://github.com/osx-provisioner/profile-generator) repository.

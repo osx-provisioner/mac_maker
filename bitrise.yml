@@ -1,49 +1,82 @@
 ---
 format_version: '11'
 default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"
+project_type: macos
+
 trigger_map:
   - push_branch: "production"
-    workflow: build_binary
-project_type: macos
+    pipeline: build_all
+
+pipelines:
+  build_all:
+    stages:
+      - monterey: {}
+      - ventura: {}
+
+stages:
+  monterey:
+    workflows:
+      - build_binary_monterey: {}
+  ventura:
+    workflows:
+      - build_binary_ventura: {}
+
 workflows:
-  build_binary:
+  build_binary_monterey:
+    meta:
+      bitrise.io:
+        stack: osx-xcode-13.0.x  # Monterey
+        machine_type_id: g2-m1.4core  # g2-m1.4core (M1)
     envs:
       - BITRISE_DEPLOY_DIR: "/Users/vagrant/artifacts"
       - OS_VERSION: "12"
       - PYTHON_VERSION: "3.9.16"
     steps:
-      - git-clone@7: {}
+      - git-clone@8: {}
       - script@1:
           inputs:
             - runner: bash
-            - content: |-
-                #!/bin/bash
-
-                set -eo pipefail
-
-                # Initialize Environment
-                rm -rf ~/.pyenv
-                mkdir "${BITRISE_DEPLOY_DIR}"
-
-                # Build Python Distribution
-                bash scripts/build.sh pyenv "${PYTHON_VERSION}"
-
-                # Build Mac Maker Binary
-                eval $(~/.pyenv/bin/pyenv init --path)
-                pip install poetry
-                BUILD_NAME="${BITRISE_GIT_TAG}"
-                if [[ -z "${BUILD_NAME}" ]]; then
-                  BUILD_NAME="${BITRISE_GIT_BRANCH}"
-                fi
-                bash scripts/build.sh binary "${OS_VERSION}" "${BUILD_NAME}"
-
-                # Move Built Binary to Artifacts Folder
-                mv ./dist/*.tar.gz "${BITRISE_DEPLOY_DIR}"
-
+            - content: ./scripts/bitrise.sh
       - deploy-to-bitrise-io@2:
           inputs:
             - notify_user_groups: none
-meta:
-  bitrise.io:
-    stack: osx-xcode-13.0.x  # Monterey
-    machine_type_id: g2-m1.8core  # g2.4core (intel) or g2-m1.8core (M1)
+      - slack@3:
+          inputs:
+            - webhook_url: $SLACK_URL
+            - title: 'Bitrise Status'
+            - text: 'Monterey build was successful!'
+      - slack@3:
+          run_if: .IsBuildFailed
+          inputs:
+            - webhook_url: $SLACK_URL
+            - title: 'Bitrise Status'
+            - text: 'Monterey build has failed!'
+  build_binary_ventura:
+    meta:
+      bitrise.io:
+        stack: osx-xcode-14.3.x-ventura  # Ventura
+        machine_type_id: g2-m1.4core  # g2-m1.4core (M1)
+    envs:
+      - BITRISE_DEPLOY_DIR: "/Users/vagrant/artifacts"
+      - OS_VERSION: "13"
+      - PYTHON_VERSION: "3.9.16"
+    steps:
+      - git-clone@8: {}
+      - script@1:
+          inputs:
+            - runner: bash
+            - content: ./scripts/bitrise.sh
+      - deploy-to-bitrise-io@2:
+          inputs:
+            - notify_user_groups: none
+      - slack@3:
+          inputs:
+            - webhook_url: $SLACK_URL
+            - title: 'Bitrise Status'
+            - text: 'Ventura build was successful!'
+      - slack@3:
+          run_if: .IsBuildFailed
+          inputs:
+            - webhook_url: $SLACK_URL
+            - title: 'Bitrise Status'
+            - text: 'Ventura build has failed!'
