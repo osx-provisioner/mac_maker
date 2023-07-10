@@ -11,7 +11,7 @@ ROOT_MODULE = mac_maker.__name__
 
 
 class TestCommandInterrupt(TestCase):
-  """The the command patched_method is patched into the CLI."""
+  """Test the command patched_method is patched into the CLI."""
 
   def setUp(self) -> None:
     self.runner = CliRunner()
@@ -19,7 +19,7 @@ class TestCommandInterrupt(TestCase):
   @mock.patch(ROOT_MODULE + ".utilities.shell.cmd_loop.patch_interrupt")
   def test_make_command_interrupt(self, m_interrupt: mock.Mock) -> None:
     importlib.reload(cli)
-    cli_root = cli.cli
+    cli_root = cli.cli  # type: ignore[attr-defined]
     original_postcmd = cli_root.shell.postcmd
 
     with self.assertRaises(SystemExit):

@@ -1,3 +1,4 @@
+# type: ignore[misc]
 """The Mac Maker CLI."""
 
 from typing import Optional
@@ -9,7 +10,7 @@ from .utilities.logger import Logger
 from .utilities.shell import cmd_loop
 
 
-@shell(  # type: ignore[misc]
+@shell(
     prompt='Mac Maker > ',
     intro="Welcome to Mac Maker. (Type 'help' to get started.)",
 )
@@ -23,17 +24,17 @@ def cli(debug: bool) -> None:
   logger.setup()
 
 
-@cli.group("apply")  # type: ignore[misc]
+@cli.group("apply")
 def apply() -> None:
   """Apply an OSX Machine Profile to this system."""
 
 
-@cli.group("precheck")  # type: ignore[misc]
+@cli.group("precheck")
 def precheck() -> None:
   """Ensure an OSX Machine Profile is ready to be applied."""
 
 
-@precheck.command("github")  # type: ignore[misc]
+@precheck.command("github")
 @click.argument('github_url', type=click.STRING)
 @click.option(
     '--branch',
@@ -50,7 +51,7 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
   job.precheck()
 
 
-@precheck.command("spec")  # type: ignore[misc]
+@precheck.command("spec")
 @click.argument('spec_file', type=click.STRING)
 def check_from_filesystem(spec_file: str) -> None:
   """Precheck an OSX Machine Profile from a spec.json file.
@@ -61,7 +62,7 @@ def check_from_filesystem(spec_file: str) -> None:
   job.precheck()
 
 
-@apply.command("github")  # type: ignore[misc]
+@apply.command("github")
 @click.argument('github_url', type=click.STRING)
 @click.option(
     '--branch',
@@ -79,7 +80,7 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
   job.provision()
 
 
-@apply.command("spec")  # type: ignore[misc]
+@apply.command("spec")
 @click.argument('spec_file', type=click.STRING)
 def apply_from_spec(spec_file: str) -> None:
   """Apply an OSX Machine Profile from a spec.json file.
@@ -91,7 +92,7 @@ def apply_from_spec(spec_file: str) -> None:
   job.provision()
 
 
-@cli.command("version")  # type: ignore[misc]
+@cli.command("version")
 def version() -> None:
   """Report the current Mac Maker version."""
   job = jobs.VersionJob()

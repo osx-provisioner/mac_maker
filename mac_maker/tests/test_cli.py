@@ -6,7 +6,7 @@ from unittest import mock
 from click.testing import CliRunner
 from parameterized import parameterized_class
 from .. import cli as cli_module
-from ..cli import cli
+from ..cli import cli  # type: ignore[attr-defined]
 from .fixtures import fixtures_git
 
 CLI_MODULE = cli_module.__name__

@@ -11,7 +11,8 @@ def was_started_without_shell() -> bool:
   :returns: A boolean indicating if the CLI was started without a shell.
   """
 
-  for command in mac_maker.cli.cli.commands.keys():
+  for command in mac_maker.cli.\
+      cli.commands.keys():  # type: ignore[attr-defined]
     if command in sys.argv:
       return True
   return False
