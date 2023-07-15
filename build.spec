@@ -30,6 +30,10 @@ a = Analysis(
             "ansible_collections",
         ),
         (
+            os.path.join(site.getsitepackages()[0], "jsonschema_specifications"),
+            "jsonschema_specifications",
+        ),
+        (
             os.path.join(
                 site.getsitepackages()[0],
                 f'mac_maker-{pkg_resources.get_distribution("mac_maker").version}.dist-info',
