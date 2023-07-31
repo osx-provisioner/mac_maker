@@ -353,6 +353,7 @@ jobs:
       - name: Documentation Test -- Documentation Validation
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
+          config-file: '.github/config/actions/gaurav-nelson-github-action-markdown-link-check.json'
           use-quiet-mode: 'no'
           use-verbose-mode: 'yes'
 
