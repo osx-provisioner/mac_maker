@@ -20,7 +20,7 @@ A portable single binary configuration tool for OSX machines.
 - GitHub:
   - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
 - Bitrise:
-  - [![bitrise M1 Binaries](https://app.bitrise.io/app/9a06da738bba2e7a/status.svg?token=fngmPo_dY5PcqQ-uCNRnaQ&branch=production)](https://app.bitrise.io/app/9a06da738bba2e7a)
+  - [![bitrise M1 Binaries](https://app.bitrise.io/app/9a06da738bba2e7a/status.svg?token=fngmPo_dY5PcqQ-uCNRnaQ)](https://app.bitrise.io/app/9a06da738bba2e7a)
 
 ## Quick Start
 
