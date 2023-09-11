@@ -387,11 +387,12 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
       - name: Security Test -- Run Trufflehog
-        uses: trufflesecurity/trufflehog@v3.20.0
+        uses: trufflesecurity/trufflehog@v3.54.4
         with:
           path: .
           base: ${{ env.PUSHED_COMMIT_RANGE }}
           head: ${{ env.BRANCH_OR_TAG }}
+          extra_args: --only-verified
 
       - name: Security Test -- Report Success
         if: env.VERBOSE_NOTIFICATIONS == '1'
