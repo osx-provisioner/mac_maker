@@ -77,7 +77,7 @@
 
       [tool.poetry.dependencies.sphinx-click]
         optional = true
-        version = "^3.0.2"
+        version = "^4.4.0"
 
       [tool.poetry.dependencies.sphinx-jsonschema]
         optional = true
