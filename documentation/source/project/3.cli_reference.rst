@@ -1,0 +1,6 @@
+CLI Subcommand Reference
+========================
+
+.. click:: mac_maker.cli:cli
+    :prog: mac_maker.cli
+    :nested: full

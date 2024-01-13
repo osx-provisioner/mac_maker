@@ -62,10 +62,13 @@
       python = ">=3.9.0,<3.10.0"
       requests = "^2.31.0"
 
-      [tool.poetry.dependencies.pib_cli]
-        extras = ["docs", "types"]
+      [tool.poetry.dependencies.myst_parser]
         optional = true
-        version = "0.1.4"
+        version = "^2.0.0"
+
+      [tool.poetry.dependencies.sphinx]
+        optional = true
+        version = "^6.0.0"
 
       [tool.poetry.dependencies.sphinx-autodoc-typehints]
         optional = true
@@ -77,11 +80,15 @@
 
       [tool.poetry.dependencies.sphinx-click]
         optional = true
-        version = "^3.0.2"
+        version = "^5.1.0"
 
       [tool.poetry.dependencies.sphinx-jsonschema]
         optional = true
         version = "^1.17.2"
+
+      [tool.poetry.dependencies.sphinx_rtd_theme]
+        optional = true
+        version = "^1.0.0"
 
       [tool.poetry.dependencies.sphinxcontrib-spelling]
         optional = true
@@ -95,8 +102,12 @@
       types-pkg-resources = "^0.1.3"
       types-requests = "^2.26.3"
 
+      [tool.poetry.dev-dependencies.pib_cli]
+        extras = ["types"]
+        version = "0.1.4"
+
     [tool.poetry.extras]
-      docs = ["pib_cli", "sphinx-jsonschema", "sphinx-click", "sphinxcontrib-spelling", "sphinx-autodoc-typehints"]
+      docs = ["myst_parser", "sphinx", "sphinx-autopackagesummary", "sphinx-autodoc-typehints", "sphinx-click", "sphinx-jsonschema", "sphinxcontrib-spelling", "sphinx-rtd-theme"]
 
     [[tool.poetry.packages]]
       include = "mac_maker"

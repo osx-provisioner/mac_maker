@@ -1,5 +1,7 @@
 ansible
+bitrise
 codebase
+cmd
 env
 filesystem
 github
@@ -9,8 +11,10 @@ localhost
 mac_maker
 minItems
 mixin
+pre
 precheck
 repo
+subcommand
 sudo
 uniqueItems
 url
