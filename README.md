@@ -79,9 +79,9 @@ You can work with `Profiles` in one of two ways:
 
 To find out more:
 
-- Read about the `Mac Maker Profiles`, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/3.profiles.html).
+- Read about the `Mac Maker Profiles`, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/4.profiles.html).
 - Use [this template](https://github.com/osx-provisioner/profile-generator) to create your own custom profiles.
-- Read about the `spec.json` file, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/4.spec_files.html).
+- Read about the `spec.json` file, and how to build one [here](https://mac-maker.readthedocs.io/en/latest/project/5.spec_files.html).
 
 **Please Note:**
 - We've had some user feedback that the `spec.json` files are a bit complicated to get started with.
@@ -89,7 +89,7 @@ To find out more:
 
 ## License
 
-As this project effectively bundles Ansible, it must comply with the [GNU GPL](https://mac-maker.readthedocs.io/en/latest/project/6.license.html).
+As this project effectively bundles Ansible, it must comply with the [GNU GPL](https://mac-maker.readthedocs.io/en/latest/project/7.license.html).
 You are however free to use and modify this source, as long as the license's terms are respected.
 
 (Pull requests are most welcome, as I sincerely hope this project can be of use to others.)

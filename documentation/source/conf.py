@@ -7,6 +7,7 @@
 # -- Path setup --------------------------------------------------------------
 
 import os
+import pathlib
 import sys
 
 if os.path.exists('/app'):
@@ -29,14 +30,15 @@ os.environ['PROJECT_NAME'] = project
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx_autopackagesummary',
     'sphinx_autodoc_typehints',
+    'sphinx_autopackagesummary',
     'sphinx_click.ext',
     'sphinx-jsonschema',
-    'sphinx.ext.intersphinx',
     'sphinxcontrib.spelling',
+    'myst_parser',
 ]
 
 # sphinx.ext.autosummary
@@ -53,16 +55,34 @@ spelling_lang = 'en_US'
 tokenizer_lang = 'en_US'
 spelling_word_list_filename = 'spelling_wordlist.txt'
 
-# sphinx_autopackagesummary
-autosummary_generate = True
-autosummary_mock_imports = [
-    "mac_maker.tests",
-    "mac_maker.ansible_controller.tests",
-    "mac_maker.jobs.tests",
-    "mac_maker.utilities.tests",
-    "mac_maker.utilities.mixins.tests",
-    "mac_maker.utilities.validation.tests",
-]
+
+def to_dotpath(path: pathlib.Path) -> str:
+  """Transform a Path instance into a dot separated import path."""
+  return '.'.join(path.with_suffix('').parts)
+
+
+def detect_tests():
+  """Create a list of import paths with tests."""
+
+  test_paths = []
+  for root, dirs, file_names in os.walk('../../mac_maker'):
+    for name in dirs:
+      if name == 'tests':
+        directory = pathlib.Path(
+            str(os.path.join(root, name).replace('../../', ''))
+        )
+        dot_path = to_dotpath(directory)
+        test_paths.append(dot_path)
+    if "conftest.py" in file_names:
+      directory = pathlib.Path(root.replace('../../', ''))
+      dot_path = to_dotpath(directory)
+      if dot_path not in test_paths:
+        test_paths.append(dot_path + "." + "conftest")
+  return test_paths
+
+
+# Exclude tests from sphinx_autopackagesummary here
+autosummary_mock_imports = detect_tests()
 
 source_suffix = {
     '.rst': 'restructuredtext',
@@ -81,12 +101,12 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'haiku'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
-html_theme_options = {
-    'body_max_width': '100%'
-}
+html_static_path = ['_static']
+html_css_files = [
+    'css/overrides.css',
+]
