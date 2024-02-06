@@ -508,6 +508,8 @@ jobs:
         if: steps.branch_filter.outputs.match == 'TRUE'
         run: |
           ./scripts/build.sh pyenv "${PYTHON_VERSION}"
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
       - name: OSX Build -- Setup Build Environment
         if: steps.branch_filter.outputs.match == 'TRUE'
