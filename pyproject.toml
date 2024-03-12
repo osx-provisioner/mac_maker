@@ -88,7 +88,7 @@
 
       [tool.poetry.dependencies.sphinx_rtd_theme]
         optional = true
-        version = "^1.0.0"
+        version = "^2.0.0"
 
       [tool.poetry.dependencies.sphinxcontrib-spelling]
         optional = true
