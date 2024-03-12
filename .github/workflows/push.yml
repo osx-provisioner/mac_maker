@@ -65,7 +65,7 @@ jobs:
   apply:
     needs: [container_build, osx_build]
 
-    # Only on tags, master and production branches.
+    # Only on tags, main and production branches.
 
     runs-on: macos-${{ matrix.os }}
     strategy:
@@ -81,7 +81,7 @@ jobs:
         run: |
           MATCH="FALSE"
           [[ "${{ github.event.ref }}" =~ /tags/v\.* ]] && MATCH="TRUE"
-          [[ "${{ github.event.ref }}" == "refs/heads/master" ]] && MATCH="TRUE"
+          [[ "${{ github.event.ref }}" == "refs/heads/main" ]] && MATCH="TRUE"
           [[ "${{ github.event.ref }}" == "refs/heads/production" ]] && MATCH="TRUE"
           echo "MATCH=${MATCH}" >> $GITHUB_OUTPUT
 
@@ -472,7 +472,7 @@ jobs:
 
   osx_build:
 
-    # Only on tags, master and production branches.
+    # Only on tags, main and production branches.
 
     runs-on: macos-${{ matrix.os }}
     strategy:
@@ -488,7 +488,7 @@ jobs:
         run: |
           MATCH="FALSE"
           [[ "${{ github.event.ref }}" =~ /tags/v\.* ]] && MATCH="TRUE"
-          [[ "${{ github.event.ref }}" == "refs/heads/master" ]] && MATCH="TRUE"
+          [[ "${{ github.event.ref }}" == "refs/heads/main" ]] && MATCH="TRUE"
           [[ "${{ github.event.ref }}" == "refs/heads/production" ]] && MATCH="TRUE"
           echo "MATCH=${MATCH}" >> $GITHUB_OUTPUT
 
