@@ -25,7 +25,7 @@ ANSIBLE_COLLECTIONS_MESSAGE = "--- Installing Profile Collections ---"
 
 GITHUB_HTTP_REGEX = r'http[s]?://github.com/(?P<org>.+)/(?P<repo>[^.]+)(\.git)?'
 GITHUB_SSH_REGEX = r'git@github.com:(?P<org>.+)/(?P<repo>[^.]+)(\.git)?'
-GITHUB_DEFAULT_BRANCH = 'master'
+GITHUB_DEFAULT_BRANCH = 'main'
 
 LOGGER_NAME = 'mac_maker'
 LOGGER_FORMAT = '[%(asctime)s] - [%(name)s] - [%(levelname)s] - %(message)s'

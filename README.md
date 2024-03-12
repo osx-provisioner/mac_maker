@@ -12,9 +12,9 @@ A portable single binary configuration tool for OSX machines.
 - Start with a freshly installed Mac, and apply a `Mac Maker Profile` to add all the customizations and applications you want.
 - Alternatively, start with an existing Mac you already use, and incrementally build a `Mac Maker Profile` putting all your existing apps and customizations under version control.
 
-### Master Branch Builds
+### Main Branch Builds
 - GitHub:
-  - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=master)](https://github.com/osx-provisioner/mac_maker/actions)
+  - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/actions/workflows/push.yml/badge.svg?branch=main)](https://github.com/osx-provisioner/mac_maker/actions)
 
 ### Production Branch Builds
 - GitHub:
