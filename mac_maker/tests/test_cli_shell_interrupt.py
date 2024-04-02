@@ -19,7 +19,7 @@ class TestCommandInterrupt(TestCase):
   @mock.patch(ROOT_MODULE + ".utilities.shell.cmd_loop.patch_interrupt")
   def test_make_command_interrupt(self, m_interrupt: mock.Mock) -> None:
     importlib.reload(cli)
-    cli_root = cli.cli  # type: ignore[attr-defined]
+    cli_root = cli.cli
     original_postcmd = cli_root.shell.postcmd
 
     with self.assertRaises(SystemExit):
