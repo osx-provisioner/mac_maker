@@ -1,4 +1,4 @@
-ARG BUILD_ARG_PYTHON_VERSION=3.9
+ARG BUILD_ARG_PYTHON_VERSION=3.10
 
 FROM python:$BUILD_ARG_PYTHON_VERSION-slim AS base
 
@@ -116,6 +116,9 @@ RUN ln -sf /app/assets/.bash_customize /home/user/.bash_customize
 
 # Setup The Dev CLI
 RUN poetry run dev setup-bash
+
+# Patch MyPy for yaml-stubs
+RUN poetry run pip install mypy=="0.981"
 
 CMD ["./mac_maker/container_init.sh"]
 
