@@ -30,7 +30,7 @@ workflows:
     envs:
       - BITRISE_DEPLOY_DIR: "/Users/vagrant/artifacts"
       - OS_VERSION: "12"
-      - PYTHON_VERSION: "3.9.16"
+      - PYTHON_VERSION: "3.10.14"
     steps:
       - git-clone@8: {}
       - script@1:
@@ -59,7 +59,7 @@ workflows:
     envs:
       - BITRISE_DEPLOY_DIR: "/Users/vagrant/artifacts"
       - OS_VERSION: "13"
-      - PYTHON_VERSION: "3.9.16"
+      - PYTHON_VERSION: "3.10.14"
     steps:
       - git-clone@8: {}
       - script@1:
