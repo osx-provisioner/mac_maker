@@ -68,7 +68,7 @@
 
       [tool.poetry.dependencies.sphinx]
         optional = true
-        version = "^6.0.0"
+        version = "^7.3.7"
 
       [tool.poetry.dependencies.sphinx-autodoc-typehints]
         optional = true
