@@ -58,7 +58,7 @@
       click_shell = "^2.1.0"
       cryptography = ">=41.0.3"
       jsonschema = "^4.3.3"
-      pyinstaller = "^5.1"
+      pyinstaller = "^6.1"
       python = ">=3.9.0,<3.10.0"
       requests = "^2.31.0"
 
