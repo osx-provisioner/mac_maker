@@ -223,35 +223,35 @@ jobs:
 
       - name: Container Build -- Ensure GIT is working
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" git status
+          docker compose exec -T "${PROJECT_NAME}" git status
 
       - name: Container Build -- Run TOML Linter
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" tomll /app/pyproject.toml
+          docker compose exec -T "${PROJECT_NAME}" tomll /app/pyproject.toml
 
       - name: Container Build -- Run Documentation Build
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" dev build-docs
+          docker compose exec -T "${PROJECT_NAME}" dev build-docs
 
       - name: Container Build -- Run Linter
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" dev lint
+          docker compose exec -T "${PROJECT_NAME}" dev lint
 
       - name: Container Build -- Run Sec Test
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" dev sectest
+          docker compose exec -T "${PROJECT_NAME}" dev sectest
 
       - name: Container Build -- Run Unit Tests
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" dev coverage
+          docker compose exec -T "${PROJECT_NAME}" dev coverage
 
       - name: Container Build -- Run MyPy
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" dev types
+          docker compose exec -T "${PROJECT_NAME}" dev types
 
       - name: Container Build -- Run Release Validation
         run: |
-          docker-compose exec -T "${PROJECT_NAME}" ./scripts/release.sh
+          docker compose exec -T "${PROJECT_NAME}" ./scripts/release.sh
 
       - name: Container Build -- Report Job Status (Success)
         if: env.VERBOSE_NOTIFICATIONS == '1'
