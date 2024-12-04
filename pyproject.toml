@@ -53,13 +53,13 @@
 
     [tool.poetry.dependencies]
       PyYAML = "^6.0.0"
-      ansible = "^8.0.0"
+      ansible = "^11.0.0"
       click = ">=8.0.0,<9.0.0"
       click_shell = "^2.1.0"
       cryptography = ">=41.0.3"
       jsonschema = "^4.3.3"
       pyinstaller = "^6.1"
-      python = ">=3.9.0,<3.10.0"
+      python = ">=3.11.0,<3.12.0"
       requests = "^2.31.0"
 
       [tool.poetry.dependencies.myst_parser]
@@ -98,7 +98,7 @@
       darglint = "^1.8.1"
       parameterized = "^0.8.1"
       pydocstyle = "^6.1.1"
-      types-PyYAML = "^6.0.1"
+      types-PyYAML = "^6.0.12.20240917"
       types-requests = "^2.26.3"
       types-setuptools = "^71.1.0"
 

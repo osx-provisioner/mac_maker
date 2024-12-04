@@ -2,7 +2,7 @@
 
 set -e
 
-PYENV_VERSION_TAG="v2.3.35"
+PYENV_VERSION_TAG="v2.4.20"
 
 wrong_platform(){
   echo "This script needs to be run on an OSX machine."

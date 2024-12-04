@@ -1,7 +1,8 @@
 """A simple job to report the version of the Mac Maker CLI."""
 
+from importlib.metadata import version
+
 import click
-import pkg_resources
 from . import bases
 
 
@@ -11,7 +12,4 @@ class VersionJob(bases.SimpleJobBase):
   def invoke(self) -> None:
     """Report the Mac Maker version."""
 
-    click.echo(
-        "Mac Maker Version: "
-        f"{pkg_resources.get_distribution('mac_maker').version}",
-    )
+    click.echo(f"Mac Maker Version: {version('mac_maker')}")
