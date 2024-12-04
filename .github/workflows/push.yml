@@ -73,7 +73,7 @@ jobs:
       matrix:
         os: [12, 13]
         platform: [x86_64]
-        python-version: [3.9.16]
+        python-version: [3.11.11]
 
     steps:
       - name: Apply Test -- Branch Filter
@@ -135,7 +135,7 @@ jobs:
       matrix:
         os: [12, 13]
         platform: [x86_64]
-        python-version: [3.9.16]
+        python-version: [3.11.11]
 
     steps:
       - name: Attach Release Binaries -- Branch Filter
@@ -198,7 +198,7 @@ jobs:
       max-parallel: 4
       matrix:
         include:
-          - python-version: 3.9
+          - python-version: 3.11
 
     steps:
       - name: Container Build -- Checkout
@@ -438,7 +438,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.9]
+        python-version: [3.11]
 
     steps:
       - name: Workflow Lint -- Set up Python ${{ matrix.python-version }}
@@ -480,7 +480,7 @@ jobs:
       matrix:
         os: [12, 13]
         platform: [x86_64]
-        python-version: [3.9.16]
+        python-version: [3.11.11]
 
     steps:
       - name: OSX Build -- Branch Filter

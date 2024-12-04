@@ -24,7 +24,10 @@ class AnsibleProcess:
   error_exit_code = 127
 
   def __init__(
-      self, ansible_module: str, ansible_class: str, state: TypeState
+      self,
+      ansible_module: str,
+      ansible_class: str,
+      state: TypeState,
   ) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.state = state
@@ -32,7 +35,7 @@ class AnsibleProcess:
     self.ansible_module = ansible_module
 
   def spawn(self, command: str) -> None:
-    """Spawns an Ansible CLI Command in it's own process.
+    """Spawns an Ansible CLI Command in its own process.
 
     :param command: The Ansible CLI Command to spawn.
     """

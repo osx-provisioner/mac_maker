@@ -1,8 +1,8 @@
 """Test the VersionCommand class."""
 
+from importlib.metadata import version
 from unittest import TestCase, mock
 
-import pkg_resources
 from .. import version as jobs_module
 
 JOBS_MODULE = jobs_module.__name__
@@ -19,6 +19,5 @@ class TestVersionCommand(TestCase):
     self.command.invoke()
 
     m_echo.assert_called_once_with(
-        "Mac Maker Version: "
-        f"{pkg_resources.get_distribution('mac_maker').version}",
+        f"Mac Maker Version: {version('mac_maker')}",
     )

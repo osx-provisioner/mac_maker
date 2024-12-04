@@ -42,7 +42,6 @@ class TestAnsibleProcessClass(TestCase):
     self.assertEqual(self.process.ansible_class, self.mock_class)
 
 
-@mock.patch(PROCESS_MODULE + ".os")
 @mock.patch(PROCESS_MODULE + ".importlib.import_module")
 @mock.patch(PROCESS_MODULE + ".cmd_loop")
 @mock.patch(PROCESS_MODULE + ".environment.Environment.setup")
@@ -127,12 +126,13 @@ class TestAnsibleProcessSpawn(TestCase):
         )
     ]
 
-  def test__spawn__forked_process(
+  @mock.patch(PROCESS_MODULE + ".os")
+  def test_spawn__forked_process(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       m_import: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     split_command = shlex.split(self.command)
     m_import.side_effect = [self.mock_cli_module]
@@ -145,12 +145,13 @@ class TestAnsibleProcessSpawn(TestCase):
     self.mock_cli_class.assert_called_once_with(split_command)
     self.mock_cli_class.return_value.run.assert_called_once_with()
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__logs(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
       m_import: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_import.side_effect = [self.mock_cli_module]
     m_os.fork.return_value = 0
@@ -163,12 +164,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.logs_for_forked_process(),
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__dynamic_imports(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       m_import: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_import.side_effect = [self.mock_cli_module]
     m_os.fork.return_value = 0
@@ -178,12 +180,13 @@ class TestAnsibleProcessSpawn(TestCase):
     m_cmdloop.exit_shell.assert_called_once_with(0, 0)
     self.assertEqual(m_import.call_args_list, [mock.call(self.mock_module)])
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__environment(
       self,
+      m_os: mock.Mock,
       m_env: mock.Mock,
       m_cmdloop: mock.Mock,
       m_import: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 0
     m_import.side_effect = [self.mock_cli_module]
@@ -194,12 +197,13 @@ class TestAnsibleProcessSpawn(TestCase):
     m_cmdloop.exit_shell.assert_called_once_with(0, 0)
     m_os.chdir.assert_called_once_with(self.process.state['profile_data_path'])
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__interrupt(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       __: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 0
     m_os.chdir.side_effect = KeyboardInterrupt("Boom!")
@@ -210,12 +214,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.process.error_exit_code, 0
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__interrupt__logs(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
       ___: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 0
     m_os.chdir.side_effect = KeyboardInterrupt("Boom!")
@@ -228,12 +233,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.logs_for_forked_process()[0:2],
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__exception(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       m_import: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 0
     m_import.side_effect = [self.mock_cli_module]
@@ -245,12 +251,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.process.error_exit_code, 0
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__forked_process__exception__logs(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
       m_import: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 0
     m_import.side_effect = [self.mock_cli_module]
@@ -264,12 +271,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.logs_for_forked_process()[0:4],
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__main_process(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       __: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.return_value = (0, 0)
@@ -283,12 +291,13 @@ class TestAnsibleProcessSpawn(TestCase):
     m_os.fork.assert_called_once()
     m_os.waitpid.assert_called_once_with(1, 0)
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__main_process__logs(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
       ___: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.return_value = (0, 0)
@@ -304,12 +313,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.logs_for_main_process_without_error(),
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__main_process__child_error(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       __: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.return_value = (0, 256)
@@ -323,12 +333,13 @@ class TestAnsibleProcessSpawn(TestCase):
     m_os.fork.assert_called_once()
     m_os.waitpid.assert_called_once_with(1, 0)
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__main_process__child_error__logs(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
       ___: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.return_value = (0, 256)
@@ -342,12 +353,13 @@ class TestAnsibleProcessSpawn(TestCase):
         self.logs_for_main_process_with_error(),
     )
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__main_process__interrupt(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       m_cmdloop: mock.Mock,
       __: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.side_effect = KeyboardInterrupt("Boom!")
@@ -358,12 +370,13 @@ class TestAnsibleProcessSpawn(TestCase):
     m_cmdloop.exit.assert_called_with(self.process.error_exit_code, 1)
     m_cmdloop.interrupt.assert_not_called()
 
+  @mock.patch(PROCESS_MODULE + ".os")
   def test__spawn__main_process_interrupt__logs(
       self,
+      m_os: mock.Mock,
       _: mock.Mock,
       __: mock.Mock,
       ___: mock.Mock,
-      m_os: mock.Mock,
   ) -> None:
     m_os.fork.return_value = 1
     m_os.waitpid.side_effect = KeyboardInterrupt("Boom!")

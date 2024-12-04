@@ -1,4 +1,4 @@
-# type: ignore[misc]
+# mypy: disable-error-code="misc"
 """The Mac Maker CLI."""
 
 from typing import Optional
