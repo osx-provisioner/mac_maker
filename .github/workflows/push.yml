@@ -102,7 +102,7 @@ jobs:
 
       - name: Apply Test -- Download Built Binary
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: built_binary_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
 
@@ -167,7 +167,7 @@ jobs:
 
       - name: Attach Release Binaries -- Download Built Binary
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: built_binary_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
 
@@ -550,7 +550,7 @@ jobs:
 
       - name: OSX Build -- Upload Build Artifact
         if: steps.branch_filter.outputs.match == 'TRUE'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: built_binary_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
           path: ./dist/mac_maker_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}.tar.gz
