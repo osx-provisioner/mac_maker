@@ -58,7 +58,7 @@
       click_shell = "^2.1.0"
       cryptography = ">=41.0.3"
       jsonschema = "^4.3.3"
-      pyinstaller = "^6.1"
+      pyinstaller = "^6.13.0"
       python = ">=3.11.0,<3.12.0"
       requests = "^2.31.0"
 
@@ -100,7 +100,7 @@
       pydocstyle = "^6.1.1"
       types-PyYAML = "^6.0.12.20240917"
       types-requests = "^2.26.3"
-      types-setuptools = "^71.1.0"
+      types-setuptools = "^80.3.0.20250505"
 
       [tool.poetry.dev-dependencies.pib_cli]
         extras = ["types"]
