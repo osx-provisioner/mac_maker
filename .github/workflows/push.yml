@@ -117,7 +117,7 @@ jobs:
         run: |
           cd mac_maker_${{ matrix.os.version }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}
           export ANSIBLE_BECOME_PASSWORD="skip the prompt"
-          ./mac_maker apply github https://github.com/osx-provisioner/profile-example.git
+          ./mac_maker --debug apply github https://github.com/osx-provisioner/profile-example.git
 
       - name: Apply Test -- Report Job Status (Success)
         if: steps.branch_filter.outputs.match == 'TRUE' && env.VERBOSE_NOTIFICATIONS == '1'
