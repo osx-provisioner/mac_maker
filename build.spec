@@ -1,9 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-import os
 import ansible
-import site
+import os
 import pkg_resources
+import site
+import sys
 
 from PyInstaller.utils.hooks import exec_statement
 
@@ -18,7 +19,13 @@ cert_datas = [(f, 'lib') for f in certificates]
 
 a = Analysis(
     ["entrypoint.py"],
-    binaries=[],
+    binaries=[
+        (
+            os.path.join(os.path.dirname(sys.executable)),
+            "bin",
+        )
+
+    ],
     cipher=block_cipher,
     datas=[
         (

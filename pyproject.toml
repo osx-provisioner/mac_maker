@@ -129,7 +129,7 @@
       function-rgx = "[A-Za-z_][A-Za-z0-9_]{2,40}$"
       good-names = "i,j,k,ex,Run,_"
       inlinevar-rgx = "[A-Za-z_][A-Za-z0-9_]*$"
-      method-rgx = "[A-Za-z_][A-Za-z0-9_]{2,50}$"
+      method-rgx = "[A-Za-z_][A-Za-z0-9_]{2,50}$|^test_[A-Za-z_][A-Za-z0-9_]{2,70}$"
       module-rgx = "(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$"
       no-docstring-rgx = ".*"
       required-attributes = []
@@ -143,7 +143,7 @@
 
     [tool.pylint.design]
       ignored-argument-names = "_.*"
-      max-args = 5
+      max-args = 6
       max-attributes = 7
       max-branches = 12
       max-locals = 15

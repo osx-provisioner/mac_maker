@@ -11,7 +11,7 @@ from . import process
 class AnsibleRunner:
   """AnsibleRunner workflow class.
 
-  :param state: The loaded runtime state object object.
+  :param state: The loaded runtime state object.
   :param debug: Enable or disable logs.
   """
 
@@ -19,6 +19,7 @@ class AnsibleRunner:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.debug = debug
     self.state = state
+    self.process = process.AnsibleProcess(state)
 
   def start(self) -> None:
     """Start the Ansible provisioning workflow."""
@@ -27,16 +28,19 @@ class AnsibleRunner:
     galaxy_col_command = self._construct_galaxy_col_command()
     playbook_command = self._construct_ansible_playbook_command()
 
-    self._do_install_galaxy_roles(galaxy_roles_command)
-    self._do_install_galaxy_col(galaxy_col_command)
-    self._do_ansible_playbook(playbook_command)
+    try:
+      self._do_install_galaxy_roles(galaxy_roles_command)
+      self._do_install_galaxy_col(galaxy_col_command)
+      self._do_ansible_playbook(playbook_command)
+    except ChildProcessError:
+      return
 
   def _construct_galaxy_roles_command(self) -> str:
 
     requirements_file = self.state['galaxy_requirements_file']
     role_path = self.state['roles_path'][0]
     self.log.debug(
-        "AnsibleRunner: Reading Profile requirements from: %s.",
+        "AnsibleRunner: Reading Profile role requirements from: %s",
         requirements_file,
     )
     command = (
@@ -50,7 +54,7 @@ class AnsibleRunner:
     requirements_file = self.state['galaxy_requirements_file']
     col_path = self.state['collections_path'][0]
     self.log.debug(
-        "AnsibleRunner: Reading Profile requirements from: %s.",
+        "AnsibleRunner: Reading Profile collection requirements from: %s",
         requirements_file,
     )
     command = (
@@ -61,7 +65,6 @@ class AnsibleRunner:
 
   def _construct_ansible_playbook_command(self) -> str:
 
-    self.log.debug("AnsibleRunner: Invoking Ansible.")
     command = (
         f"ansible-playbook {self.state['playbook']}"
         f" -i {self.state['inventory']}"
@@ -74,42 +77,25 @@ class AnsibleRunner:
     return command
 
   def _do_install_galaxy_roles(self, galaxy_command: str) -> None:
-    controller = process.AnsibleProcess(
-        config.ANSIBLE_LIBRARY_GALAXY_MODULE,
-        config.ANSIBLE_LIBRARY_GALAXY_CLASS,
-        self.state,
-    )
-
     click.echo(config.ANSIBLE_ROLES_MESSAGE)
-    controller.spawn(galaxy_command)
+    self.process.spawn(galaxy_command)
     self.log.debug(
         "AnsibleRunner: Profile Ansible Galaxy roles have been "
-        "installed to: %s.",
+        "installed to: %s",
         self.state['roles_path'][0],
     )
 
   def _do_install_galaxy_col(self, galaxy_command: str) -> None:
-    controller = process.AnsibleProcess(
-        config.ANSIBLE_LIBRARY_GALAXY_MODULE,
-        config.ANSIBLE_LIBRARY_GALAXY_CLASS,
-        self.state,
-    )
-
     click.echo(config.ANSIBLE_COLLECTIONS_MESSAGE)
-    controller.spawn(galaxy_command)
+    self.process.spawn(galaxy_command)
     self.log.debug(
         "AnsibleRunner: Profile Ansible Galaxy collections have been "
-        "installed to: %s.",
+        "installed to: %s",
         self.state['collections_path'][0],
     )
 
   def _do_ansible_playbook(self, ansible_command: str) -> None:
-    controller = process.AnsibleProcess(
-        config.ANSIBLE_LIBRARY_PLAYBOOK_MODULE,
-        config.ANSIBLE_LIBRARY_PLAYBOOK_CLASS,
-        self.state,
-    )
-
     click.echo(config.ANSIBLE_INVOKE_MESSAGE)
-    controller.spawn(ansible_command)
-    self.log.debug("AnsibleRunner: Ansible Playbook has finished.",)
+    self.log.debug("AnsibleRunner: Invoking Ansible ...")
+    self.process.spawn(ansible_command)
+    self.log.debug("AnsibleRunner: Ansible Playbook has finished!",)

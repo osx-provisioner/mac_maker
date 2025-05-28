@@ -1,390 +1,184 @@
 """Test the AnsibleProcess class."""
 
 import logging
-import shlex
+import os
+import sys
 from logging import Logger
-from typing import List
-from unittest import TestCase, mock
+from unittest import mock
 
-from ... import config
+import pytest
+from mac_maker.__helpers__.logs import decode_logs
 from ...utilities import filesystem, state
 from .. import process
 
 PROCESS_MODULE = process.__name__
 
 
-class TestAnsibleProcessClass(TestCase):
-  """Test instantiating the AnsibleProcess class."""
+class TestAnsibleProcessClass:
+  """Test AnsibleProcess class."""
 
-  def setUp(self) -> None:
-    self.mock_folder = "/mock/dir1"
-    self.mock_module = "ansible.module.mocked"
-    self.mock_class = "MockClass"
-
-    self.filesystem = filesystem.FileSystem(self.mock_folder)
-    self.state = state.State()
-    self.process = process.AnsibleProcess(
-        self.mock_module, self.mock_class,
-        self.state.state_generate(self.filesystem)
+  def test_init__attributes(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_filesystem: filesystem.FileSystem,
+      mocked_state: state.State,
+  ) -> None:
+    assert ansible_process.error_exit_code == 127
+    assert isinstance(ansible_process.log, Logger)
+    assert ansible_process.state == mocked_state.state_generate(
+        mocked_filesystem
     )
 
-  def test_init(self) -> None:
+  @pytest.mark.parametrize("m_return_code", [0, 1])
+  def test_spawn__not_frozen__vary_return_code__calls_subprocess(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_popen: mock.Mock,
+      mocked_popen_process: mock.Mock,
+      m_return_code: int,
+  ) -> None:
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = m_return_code
 
-    self.assertIsInstance(
-        self.process.log,
-        Logger,
+    try:
+      ansible_process.spawn(mocked_command)
+    except ChildProcessError:
+      pass
+
+    mocked_popen.assert_called_once_with(mocked_command, shell=True)
+    mocked_popen_process.__enter__.return_value.wait.assert_called_once_with()
+
+  @pytest.mark.parametrize("m_return_code", [0, 1])
+  def test_spawn__frozen__vary_return_code__calls_subprocess_with_bundle_path(
+      # pylint: disable=too-many-arguments
+      self,
+      ansible_process_frozen: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_bundle_path: str,
+      mocked_popen: mock.Mock,
+      mocked_popen_process: mock.Mock,
+      m_return_code: int,
+  ) -> None:
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = m_return_code
+
+    try:
+      ansible_process_frozen.spawn(mocked_command)
+    except ChildProcessError:
+      pass
+
+    mocked_popen.assert_called_once_with(
+        (
+            f'{sys.executable} '
+            f'{os.path.join(mocked_bundle_path, "bin", mocked_command)}'
+        ),
+        shell=True,
     )
-    self.assertEqual(
-        self.process.state,
-        self.state.state_generate(self.filesystem),
-    )
-    self.assertEqual(self.process.ansible_module, self.mock_module)
-    self.assertEqual(self.process.ansible_class, self.mock_class)
+    mocked_popen_process.__enter__.return_value.wait.assert_called_once_with()
 
+  @pytest.mark.parametrize("m_return_code", [0, 1])
+  def test_spawn__vary_return_code__changes_directory(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_os_chdir: mock.Mock,
+      mocked_popen_process: mock.Mock,
+      m_return_code: int,
+  ) -> None:
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = m_return_code
 
-@mock.patch(PROCESS_MODULE + ".importlib.import_module")
-@mock.patch(PROCESS_MODULE + ".cmd_loop")
-@mock.patch(PROCESS_MODULE + ".environment.Environment.setup")
-class TestAnsibleProcessSpawn(TestCase):
-  """Test the spawn method of an AnsibleProcess instance."""
+    try:
+      ansible_process.spawn(mocked_command)
+    except ChildProcessError:
+      pass
 
-  def setUp(self) -> None:
-    mock_folder = "/mock/dir1"
-    mock_class = "MockClass"
-
-    self.mock_module = "ansible.module.mocked"
-    self.mock_logger = mock.Mock()
-    self.state = state.State()
-    self.process = process.AnsibleProcess(
-        self.mock_module, mock_class,
-        self.state.state_generate(filesystem.FileSystem(mock_folder))
+    mocked_os_chdir.assert_called_once_with(
+        ansible_process.state['profile_data_path']
     )
 
-    self.mock_cli_module = mock.Mock()
-    self.mock_cli_class = getattr(self.mock_cli_module, mock_class)
+  @pytest.mark.parametrize("m_return_code", [0, 1])
+  def test_spawn__vary_return_code__sets_environment(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_environment: mock.Mock,
+      mocked_popen_process: mock.Mock,
+      m_return_code: int,
+  ) -> None:
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = m_return_code
 
-    self.command = "ansible-galaxy install requirements -r requirements.yml"
+    try:
+      ansible_process.spawn(mocked_command)
+    except ChildProcessError:
+      pass
 
-  def logs_for_forked_process(self) -> List[str]:
-    return [
+    mocked_environment.assert_called_once_with(ansible_process.state)
+    mocked_environment.return_value.setup.assert_called_once_with()
+
+  def test_spawn__fail__raises_exception(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_popen_process: mock.Mock,
+  ) -> None:
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = 127
+
+    with pytest.raises(ChildProcessError):
+      ansible_process.spawn(mocked_command)
+
+  def test_spawn__success__correct_logging(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_popen_process: mock.Mock,
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    caplog.set_level(logging.DEBUG)
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = 0
+
+    ansible_process.spawn(mocked_command)
+
+    assert decode_logs(caplog.records) == [
         (
             "DEBUG:mac_maker:AnsibleProcess: "
-            "Preparing to Fork for Ansible Process."
+            "Preparing to launch Ansible Process."
         ),
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 0: "
-            f"Forked process is now executing: {self.command}."
-        ),
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 0: "
-            "Forked process Ansible CLI Class instance has been "
-            f"created: {self.mock_cli_class.return_value}."
-        ),
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 0: "
-            "Forked process Ansible CLI Class instance is calling run."
-        ),
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 0: "
-            "Forked process has finished."
-        )
+        ("DEBUG:mac_maker:AnsibleProcess: "
+         f"Executing '{mocked_command}'"),
+        ("DEBUG:mac_maker:AnsibleProcess: "
+         f"Spawned worker process {999}"),
+        ("DEBUG:mac_maker:AnsibleProcess: "
+         "Command completed successfully!"),
     ]
 
-  def logs_for_main_process_without_error(self) -> List[str]:
-    return [
+  def test_spawn__fail__correct_logging(
+      self,
+      ansible_process: process.AnsibleProcess,
+      mocked_command: str,
+      mocked_popen_process: mock.Mock,
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    caplog.set_level(logging.DEBUG)
+    mocked_popen_process.__enter__.return_value.pid = 999
+    mocked_popen_process.__enter__.return_value.returncode = 127
+
+    with pytest.raises(ChildProcessError):
+      ansible_process.spawn(mocked_command)
+
+    assert decode_logs(caplog.records) == [
         (
             "DEBUG:mac_maker:AnsibleProcess: "
-            "Preparing to Fork for Ansible Process."
+            "Preparing to launch Ansible Process."
         ),
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 1: "
-            "Waited, and received exit code: 0."
-        ),
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 1: "
-            "Forked process has reported no error state."
-        ),
+        ("DEBUG:mac_maker:AnsibleProcess: "
+         f"Executing '{mocked_command}'"),
+        ("DEBUG:mac_maker:AnsibleProcess: "
+         f"Spawned worker process {999}"),
+        ("ERROR:mac_maker:AnsibleProcess: "
+         "Command failed to execute!"),
     ]
-
-  def logs_for_main_process_with_error(self) -> List[str]:
-    return self.logs_for_main_process_without_error()[0:1] + [
-        (
-            "DEBUG:mac_maker:AnsibleProcess - PID: 1: "
-            "Waited, and received exit code: 1."
-        ),
-        (
-            "ERROR:mac_maker:AnsibleProcess - PID: 1: "
-            "Forked process has reported an error state."
-        ),
-    ]
-
-  def logs_for_main_process_with_interrupt(self) -> List[str]:
-    return self.logs_for_main_process_without_error()[0:1] + [
-        (
-            "ERROR:mac_maker:AnsibleProcess - PID: 1: "
-            "Keyboard Interrupt Intercepted."
-        )
-    ]
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test_spawn__forked_process(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      m_import: mock.Mock,
-  ) -> None:
-    split_command = shlex.split(self.command)
-    m_import.side_effect = [self.mock_cli_module]
-    m_os.fork.return_value = 0
-
-    self.process.spawn(self.command)
-
-    m_os.fork.assert_called_once_with()
-    m_cmdloop.exit_shell.assert_called_once_with(0, 0)
-    self.mock_cli_class.assert_called_once_with(split_command)
-    self.mock_cli_class.return_value.run.assert_called_once_with()
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__logs(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      __: mock.Mock,
-      m_import: mock.Mock,
-  ) -> None:
-    m_import.side_effect = [self.mock_cli_module]
-    m_os.fork.return_value = 0
-
-    with self.assertLogs(config.LOGGER_NAME, logging.DEBUG) as logs:
-      self.process.spawn(self.command)
-
-    self.assertEqual(
-        logs.output,
-        self.logs_for_forked_process(),
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__dynamic_imports(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      m_import: mock.Mock,
-  ) -> None:
-    m_import.side_effect = [self.mock_cli_module]
-    m_os.fork.return_value = 0
-
-    self.process.spawn(self.command)
-
-    m_cmdloop.exit_shell.assert_called_once_with(0, 0)
-    self.assertEqual(m_import.call_args_list, [mock.call(self.mock_module)])
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__environment(
-      self,
-      m_os: mock.Mock,
-      m_env: mock.Mock,
-      m_cmdloop: mock.Mock,
-      m_import: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 0
-    m_import.side_effect = [self.mock_cli_module]
-
-    self.process.spawn(self.command)
-
-    m_env.assert_called_once_with()
-    m_cmdloop.exit_shell.assert_called_once_with(0, 0)
-    m_os.chdir.assert_called_once_with(self.process.state['profile_data_path'])
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__interrupt(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      __: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 0
-    m_os.chdir.side_effect = KeyboardInterrupt("Boom!")
-
-    self.process.spawn(self.command)
-
-    m_cmdloop.exit_shell.assert_called_once_with(
-        self.process.error_exit_code, 0
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__interrupt__logs(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      __: mock.Mock,
-      ___: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 0
-    m_os.chdir.side_effect = KeyboardInterrupt("Boom!")
-
-    with self.assertLogs(config.LOGGER_NAME, logging.DEBUG) as logs:
-      self.process.spawn(self.command)
-
-    self.assertEqual(
-        logs.output,
-        self.logs_for_forked_process()[0:2],
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__exception(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      m_import: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 0
-    m_import.side_effect = [self.mock_cli_module]
-    self.mock_cli_class.return_value.run.side_effect = Exception("Boom!")
-
-    self.process.spawn(self.command)
-
-    m_cmdloop.exit_shell.assert_called_once_with(
-        self.process.error_exit_code, 0
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__forked_process__exception__logs(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      __: mock.Mock,
-      m_import: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 0
-    m_import.side_effect = [self.mock_cli_module]
-    self.mock_cli_class.return_value.run.side_effect = Exception("Boom!")
-
-    with self.assertLogs(config.LOGGER_NAME, logging.DEBUG) as logs:
-      self.process.spawn(self.command)
-
-    self.assertEqual(
-        logs.output,
-        self.logs_for_forked_process()[0:4],
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__main_process(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      __: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 1
-    m_os.waitpid.return_value = (0, 0)
-    m_os.WEXITSTATUS.return_value = 0
-
-    self.process.spawn(self.command)
-
-    m_cmdloop.exit_shell.assert_not_called()
-    m_cmdloop.exit.assert_not_called()
-    m_cmdloop.interrupt.assert_not_called()
-    m_os.fork.assert_called_once()
-    m_os.waitpid.assert_called_once_with(1, 0)
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__main_process__logs(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      __: mock.Mock,
-      ___: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 1
-    m_os.waitpid.return_value = (0, 0)
-    m_os.WEXITSTATUS.return_value = 0
-
-    with self.assertLogs(config.LOGGER_NAME, logging.DEBUG) as logs:
-      self.process.spawn(self.command)
-
-    m_os.fork.assert_called_once()
-    m_os.waitpid.assert_called_once_with(1, 0)
-    self.assertEqual(
-        logs.output,
-        self.logs_for_main_process_without_error(),
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__main_process__child_error(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      __: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 1
-    m_os.waitpid.return_value = (0, 256)
-    m_os.WEXITSTATUS.return_value = 1
-
-    self.process.spawn(self.command)
-
-    m_cmdloop.exit_shell.assert_not_called()
-    m_cmdloop.exit.assert_called_with(1, 1)
-    m_cmdloop.interrupt.assert_not_called()
-    m_os.fork.assert_called_once()
-    m_os.waitpid.assert_called_once_with(1, 0)
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__main_process__child_error__logs(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      __: mock.Mock,
-      ___: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 1
-    m_os.waitpid.return_value = (0, 256)
-    m_os.WEXITSTATUS.return_value = 1
-
-    with self.assertLogs(config.LOGGER_NAME, logging.DEBUG) as logs:
-      self.process.spawn(self.command)
-
-    self.assertEqual(
-        logs.output,
-        self.logs_for_main_process_with_error(),
-    )
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__main_process__interrupt(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      m_cmdloop: mock.Mock,
-      __: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 1
-    m_os.waitpid.side_effect = KeyboardInterrupt("Boom!")
-
-    self.process.spawn(self.command)
-
-    m_cmdloop.exit_shell.assert_not_called()
-    m_cmdloop.exit.assert_called_with(self.process.error_exit_code, 1)
-    m_cmdloop.interrupt.assert_not_called()
-
-  @mock.patch(PROCESS_MODULE + ".os")
-  def test__spawn__main_process_interrupt__logs(
-      self,
-      m_os: mock.Mock,
-      _: mock.Mock,
-      __: mock.Mock,
-      ___: mock.Mock,
-  ) -> None:
-    m_os.fork.return_value = 1
-    m_os.waitpid.side_effect = KeyboardInterrupt("Boom!")
-
-    with self.assertLogs(config.LOGGER_NAME, logging.DEBUG) as logs:
-      self.process.spawn(self.command)
-
-    self.assertEqual(
-        logs.output,
-        self.logs_for_main_process_with_interrupt(),
-    )
