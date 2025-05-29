@@ -36,6 +36,7 @@ PRECHECK = {
     "notes": Path(PROFILE_FOLDER_PATH) / Path(PROFILE_NOTES_FILE),
     "env": Path(PROFILE_FOLDER_PATH) / Path(PROFILE_ENVIRONMENT_FILE)
 }
+PRECHECK_SUCCESS_MESSAGE = "Ready to proceed!"
 
 STATE_FILE_NAME = "spec.json"
 

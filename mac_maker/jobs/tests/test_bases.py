@@ -3,6 +3,7 @@
 from typing import cast
 from unittest import TestCase, mock
 
+from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from ...utilities import precheck, spec, state
 from ...utilities.validation import precheck as precheck_validation
 from .. import bases as bases_module
@@ -54,7 +55,11 @@ class TestJobsPrecheck(TestCase):
         env='environment test data',
     )
 
-  def test_precheck_echo(self, m_echo: mock.Mock, m_env: mock.Mock) -> None:
+  def test_precheck__notes__valid__click_echo(
+      self,
+      m_echo: mock.Mock,
+      m_env: mock.Mock,
+  ) -> None:
 
     instance = m_env.return_value
     instance.validate_environment.return_value = {
@@ -64,12 +69,18 @@ class TestJobsPrecheck(TestCase):
 
     self.concrete_job.precheck()
 
-    m_echo.assert_called_once_with(
-        self.concrete_job.mock_precheck_content['notes']
+    m_echo.assert_has_calls(
+        [
+            mock.call(self.concrete_job.mock_precheck_content['notes']),
+            mock.call(PRECHECK_SUCCESS_MESSAGE),
+        ],
+        any_order=False,
     )
 
-  def test_precheck_echo_no_notes(
-      self, m_echo: mock.Mock, m_env: mock.Mock
+  def test_precheck__no_notes__valid__click_echo(
+      self,
+      m_echo: mock.Mock,
+      m_env: mock.Mock,
   ) -> None:
 
     instance = m_env.return_value
@@ -80,9 +91,9 @@ class TestJobsPrecheck(TestCase):
 
     self.concrete_job.precheck(notes=False)
 
-    m_echo.assert_not_called()
+    m_echo.assert_called_once_with(PRECHECK_SUCCESS_MESSAGE)
 
-  def test_precheck_config_invalid(
+  def test_precheck__invalid_configuration__raises_exception(
       self,
       _: mock.Mock,
       m_env: mock.Mock,
@@ -95,18 +106,10 @@ class TestJobsPrecheck(TestCase):
     with self.assertRaises(precheck_validation.ValidationError):
       self.concrete_job.precheck()
 
-  def test_precheck_environment(self, _: mock.Mock, m_env: mock.Mock) -> None:
-
-    instance = m_env.return_value
-    instance.validate_environment.return_value = {
-        'is_valid': True,
-        'violations': [],
-    }
-
-    self.concrete_job.precheck()
-
-  def test_precheck_environment_invalid(
-      self, m_echo: mock.Mock, m_env: mock.Mock
+  def test_precheck__invalid_environment_vars__raises_exception(
+      self,
+      m_echo: mock.Mock,
+      m_env: mock.Mock,
   ) -> None:
 
     instance = m_env.return_value
