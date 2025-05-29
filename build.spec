@@ -2,9 +2,13 @@
 
 import ansible
 import os
-import pkg_resources
 import site
 import sys
+
+try:
+  from importlib import metadata
+except ImportError:  # pragma: no cover
+  import importlib_metadata as metadata  # type: ignore[no-redef]
 
 from PyInstaller.utils.hooks import exec_statement
 
@@ -43,9 +47,9 @@ a = Analysis(
         (
             os.path.join(
                 site.getsitepackages()[0],
-                f'mac_maker-{pkg_resources.get_distribution("mac_maker").version}.dist-info',
+                f'mac_maker-{metadata.version("mac_maker")}.dist-info',
             ),
-            f'mac_maker-{pkg_resources.get_distribution("mac_maker").version}.dist-info',
+            f'mac_maker-{metadata.version("mac_maker")}.dist-info',
         ),
         (
             "mac_maker",
