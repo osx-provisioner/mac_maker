@@ -113,7 +113,7 @@
       include = "mac_maker"
 
     [tool.poetry.scripts]
-      mac_maker = "mac_maker.app:main"
+      mac_maker = "mac_maker.cli:cli"
 
   [tool.pylint]
 
