@@ -4,6 +4,7 @@ import abc
 import sys
 
 import click
+from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from ..ansible_controller.inventory import InventoryFile
 from ..ansible_controller.runner import AnsibleRunner
 from ..utilities.precheck import PrecheckExtractor, TypePrecheckFileData
@@ -57,6 +58,8 @@ class ProvisionerJobBase(abc.ABC):
 
     if notes:
       click.echo(precheck_data['notes'])
+
+    click.echo(PRECHECK_SUCCESS_MESSAGE)
 
   def provision(self) -> None:
     """Begin provisioning with Ansible."""
