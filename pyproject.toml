@@ -8,7 +8,7 @@
   [tool.coverage]
 
     [tool.coverage.report]
-      exclude_lines = ["nocover"]
+      exclude_lines = ["nocover", "\\.\\.\\."]
       ignore_errors = true
       precision = 1
       show_missing = true

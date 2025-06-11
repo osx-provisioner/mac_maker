@@ -13,6 +13,7 @@ minItems
 mixin
 pre
 precheck
+pytest
 repo
 subcommand
 sudo
