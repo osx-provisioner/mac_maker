@@ -1,162 +1,149 @@
 """Test the Mac Maker CLI."""
-
-from typing import Optional
+from typing import Tuple, Union
 from unittest import mock
 
-from click.testing import CliRunner
-from parameterized import parameterized_class
-from .. import cli as cli_module
-from ..cli import cli
-from .fixtures import fixtures_git
-
-CLI_MODULE = cli_module.__name__
+import pytest
+from mac_maker.__helpers__.parametrize import named_parameters
+from .conftest import InvokeType
 
 
-class CLITestHarness(fixtures_git.GitTestHarness):
-  """Test Harness for CLI Commands."""
+class TestCli:
+  """Test the Mac Maker CLI."""
 
-  def setUp(self) -> None:
-    super().setUp()
-    self.runner = CliRunner()
+  mocked_spec_file = "/non/existent/path"
+  mocked_git_url = "https://github.com/non/existent/.git"
+  mocked_git_branch = "develop"
 
+  @pytest.mark.parametrize(
+      "mocked_job,command",
+      named_parameters(
+          (
+              "mocked_job_filesystem",
+              f"precheck spec {mocked_spec_file}",
+          ),
+          (
+              "mocked_job_filesystem",
+              f"apply spec {mocked_spec_file}",
+          ),
+          (
+              "mocked_job_github",
+              f"precheck git {mocked_git_url}",
+          ),
+          (
+              "mocked_job_github",
+              f"precheck git {mocked_git_url} --branch {mocked_git_branch}"
+          ),
+          (
+              "mocked_job_github",
+              f"apply git {mocked_git_url}",
+          ),
+          (
+              "mocked_job_github",
+              f"apply git {mocked_git_url} --branch {mocked_git_branch}"
+          ),
+          (
+              "mocked_job_version",
+              "version",
+          ),
+          name=1,
+      ),
+      indirect=["mocked_job"],
+  )
+  @pytest.mark.parametrize(
+      "global_flags", [("debug",), ()], ids=("debug_flag", "no_flags")
+  )
+  def test_vary_command__configures_logging_correctly(
+      self,
+      invoke: InvokeType,
+      mocked_logger: mock.Mock,
+      mocked_job: mock.Mock,  # pylint: disable=unused-argument
+      command: str,
+      global_flags: Union[Tuple[()], Tuple[str, ...]],
+  ) -> None:
+    invoke(command, global_flags=global_flags)
 
-@parameterized_class(
-    [
-        {
-            "branch": None,
-            "args": ""
-        }, {
-            "branch": "develop",
-            "args": " --branch=develop"
-        }
-    ]
-)
-@mock.patch(CLI_MODULE + ".jobs.GitHubJob")
-class TestPrecheckGithub(CLITestHarness):
-  """Test the `precheck` CLI command with Github Repositories."""
+    mocked_logger.assert_called_once_with(debug="debug" in global_flags)
 
-  args: str
-  branch: Optional[str]
+  @pytest.mark.parametrize(
+      "mocked_job,command",
+      named_parameters(
+          ("mocked_job_version", "version"),
+          name=1,
+      ),
+      indirect=["mocked_job"],
+  )
+  def test_vary_basic_command__invokes_job_correctly(
+      self,
+      invoke: InvokeType,
+      mocked_job: mock.Mock,
+      command: str,
+  ) -> None:
+    invoke(command)
 
-  def test_precheck(self, m_job: mock.Mock) -> None:
+    mocked_job.assert_called_once_with()
+    mocked_job.return_value.invoke.assert_called_once_with()
 
-    instance = m_job.return_value
+  @pytest.mark.parametrize(
+      "mocked_job,command,args",
+      named_parameters(
+          (
+              "mocked_job_filesystem",
+              f"precheck spec {mocked_spec_file}",
+              (mocked_spec_file,),
+          ), (
+              "mocked_job_github",
+              f"precheck github {mocked_git_url}",
+              (mocked_git_url, None),
+          ), (
+              "mocked_job_github",
+              f"precheck github {mocked_git_url} --branch {mocked_git_branch}",
+              (mocked_git_url, mocked_git_branch),
+          ),
+          name=1
+      ),
+      indirect=["mocked_job"],
+  )
+  def test_vary_pre_check_command__invokes_precheck_correctly(
+      self,
+      invoke: InvokeType,
+      mocked_job: mock.Mock,
+      command: str,
+      args: Tuple[str],
+  ) -> None:
+    invoke(command)
 
-    self.runner.invoke(
-        cli,
-        args=f"precheck github {self.repository_http_url}{self.args}",
-    )
-    m_job.assert_called_once_with(self.repository_http_url, self.branch)
-    instance.precheck.assert_called_once_with()
+    mocked_job.assert_called_once_with(*args)
+    mocked_job.return_value.precheck.assert_called_once_with()
 
+  @pytest.mark.parametrize(
+      "mocked_job,command,args",
+      named_parameters(
+          (
+              "mocked_job_filesystem",
+              f"apply spec {mocked_spec_file}",
+              (mocked_spec_file,),
+          ), (
+              "mocked_job_github",
+              f"apply github {mocked_git_url}",
+              (mocked_git_url, None),
+          ), (
+              "mocked_job_github",
+              f"apply github {mocked_git_url} --branch {mocked_git_branch}",
+              (mocked_git_url, mocked_git_branch),
+          ),
+          name=1
+      ),
+      indirect=["mocked_job"],
+  )
+  def test_vary_apply_command__invokes_provision_correctly(
+      self,
+      invoke: InvokeType,
+      mocked_job: mock.Mock,
+      command: str,
+      args: Tuple[str],
+  ) -> None:
+    invoke(command)
 
-@mock.patch(CLI_MODULE + ".jobs.FileSystemJob")
-class TestPrecheckSpec(CLITestHarness):
-  """Test the `precheck` CLI command with Job Spec files."""
-
-  def test_precheck(self, m_job: mock.Mock) -> None:
-
-    instance = m_job.return_value
-    mock_spec_file = "/non-existent/path"
-
-    self.runner.invoke(
-        cli,
-        args=f"precheck spec {mock_spec_file}",
-    )
-    m_job.assert_called_once_with(mock_spec_file)
-    instance.precheck.assert_called_once_with()
-
-
-@parameterized_class(
-    [
-        {
-            "branch": None,
-            "args": ""
-        }, {
-            "branch": "develop",
-            "args": " --branch=develop"
-        }
-    ]
-)
-@mock.patch(CLI_MODULE + ".jobs.GitHubJob")
-class TestApplyGithub(CLITestHarness):
-  """Test the `apply` CLI command with GitHub Repositories."""
-
-  args: str
-  branch: Optional[str]
-
-  def test_apply(self, m_job: mock.Mock) -> None:
-    instance = m_job.return_value
-
-    self.runner.invoke(
-        cli,
-        args=f"apply github {self.repository_http_url}{self.args}",
-    )
-
-    m_job.assert_called_once_with(self.repository_http_url, self.branch)
-    instance.precheck.assert_called_once_with(notes=False)
-    instance.provision.assert_called_once_with()
-
-
-@mock.patch(CLI_MODULE + ".jobs.FileSystemJob")
-class TestApplySpec(CLITestHarness):
-  """Test the `apply` CLI command with Job Spec files."""
-
-  def test_apply(self, m_job: mock.Mock) -> None:
-    instance = m_job.return_value
-    mock_spec_file = "/non-existent/path"
-
-    self.runner.invoke(
-        cli,
-        args=f"apply spec {mock_spec_file}",
-    )
-    m_job.assert_called_once_with(mock_spec_file)
-    instance.precheck.assert_called_once_with(notes=False)
-    instance.provision.assert_called_once_with()
-
-
-@mock.patch(CLI_MODULE + ".jobs.VersionJob")
-class TestVersion(CLITestHarness):
-  """Test the `version` CLI command."""
-
-  def test_precheck_call(self, m_command: mock.Mock) -> None:
-    instance = m_command.return_value
-
-    self.runner.invoke(
-        cli,
-        args="version",
-    )
-
-    instance.invoke.assert_called_once_with()
-
-
-@mock.patch(CLI_MODULE + ".Logger")
-class TestLoggerIsInitializedWithDebug(CLITestHarness):
-  """Test the logger is initialized with debug."""
-
-  def test_precheck_call(self, m_log: mock.Mock) -> None:
-    instance = m_log.return_value
-
-    self.runner.invoke(
-        cli,
-        args="--debug version",
-    )
-
-    m_log.assert_called_once_with(debug=True)
-    instance.setup.assert_called_once_with()
-
-
-@mock.patch(CLI_MODULE + ".Logger")
-class TestLoggerIsInitializedWithoutDebug(CLITestHarness):
-  """Test the logger is initialized without debug."""
-
-  def test_precheck_call(self, m_log: mock.Mock) -> None:
-    instance = m_log.return_value
-
-    self.runner.invoke(
-        cli,
-        args="version",
-    )
-
-    m_log.assert_called_once_with(debug=False)
-    instance.setup.assert_called_once_with()
+    mocked_job.assert_called_once_with(*args)
+    mocked_job.return_value.precheck.assert_called_once_with(notes=False)
+    mocked_job.return_value.provision.assert_called_once_with()
