@@ -1,168 +1,198 @@
 """Test the ProvisionerJobBase class."""
 
-from typing import cast
-from unittest import TestCase, mock
+from typing import Dict
+from unittest import mock
 
+import pytest
+from mac_maker.__helpers__.parametrize import templated_ids
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
-from mac_maker.jobs.bases import provisioner
-from mac_maker.utilities import precheck, spec, state
-from mac_maker.utilities.validation import precheck as precheck_validation
-
-PROVISIONER_MODULE = provisioner.__name__
+from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
+from mac_maker.jobs.bases.tests.conftest import ProvisionerMocks
+from mac_maker.utilities import precheck, spec
 
 
-class MockConcreteJob(provisioner.ProvisionerJobBase):
-  """Concrete test implementation of the ProvisionerJobBase class."""
+class TestJobsBase:
+  """Test the ProvisionerJobBase class."""
 
-  def __init__(self) -> None:
-    super().__init__()
-    self.mock_precheck_content = cast(precheck.TypePrecheckFileData, {})
-    self.mock_state = cast(state.TypeState, {})
-
-  def get_precheck_content(self) -> precheck.TypePrecheckFileData:
-    return self.mock_precheck_content
-
-  def get_state(self) -> state.TypeState:
-    return self.mock_state
-
-
-class TestJobsBase(TestCase):
-  """Test the ProvisionerJobBase class instantiation."""
-
-  def setUp(self) -> None:
-    self.concrete_job = MockConcreteJob()
-
-  def test_init(self) -> None:
-    self.assertIsInstance(
-        self.concrete_job.jobspec_extractor,
+  def test_initialize__has_spec_extractor(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+  ) -> None:
+    assert isinstance(
+        concrete_provisioning_job.jobspec_extractor,
         spec.JobSpecExtractor,
     )
-    self.assertIsInstance(
-        self.concrete_job.precheck_extractor,
+
+  def test_initialize__has_precheck_extractor(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+  ) -> None:
+    assert isinstance(
+        concrete_provisioning_job.precheck_extractor,
         precheck.PrecheckExtractor,
     )
 
+  @pytest.mark.parametrize(
+      "precheck_args",
+      (
+          {},
+          {
+              "notes": True
+          },
+          {
+              "notes": False
+          },
+      ),
+      ids=templated_ids("args:{0}"),
+  )
+  @pytest.mark.parametrize(
+      "validity",
+      ("True", "False"),
+      ids=templated_ids("validity:{0}", lambda arg: str(arg)[0]),
+  )
+  def test_precheck__vary_validity__vary_args__instantiates_validator(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      mocked_precheck_config_validator: mock.Mock,
+      global_precheck_data_mock: precheck.TypePrecheckFileData,
+      precheck_args: Dict[str, bool],
+      validity: bool,
+  ) -> None:
+    mocked_precheck_config_validator.return_value \
+        .validate_environment.return_value = {
+            'is_valid': validity,
+            'violations': [],
+        }
 
-@mock.patch(PROVISIONER_MODULE + ".PrecheckConfigValidator")
-@mock.patch(PROVISIONER_MODULE + ".click.echo")
-class TestJobsPrecheck(TestCase):
-  """Test the ProvisionerJobBase class precheck method."""
+    concrete_provisioning_job.precheck(**precheck_args)
 
-  def setUp(self) -> None:
-    self.concrete_job = MockConcreteJob()
-    self.concrete_job.mock_precheck_content = precheck.TypePrecheckFileData(
-        notes='some notes',
-        env='environment test data',
+    mocked_precheck_config_validator.assert_called_once_with(
+        global_precheck_data_mock['env']
     )
 
-  def test_precheck__notes__valid__click_echo(
+  @pytest.mark.parametrize(
+      "precheck_args",
+      (
+          {},
+          {
+              "notes": True
+          },
+      ),
+      ids=templated_ids("args:{0}"),
+  )
+  def test_precheck__valid_env__with_notes__calls_echo(
       self,
-      m_echo: mock.Mock,
-      m_env: mock.Mock,
+      concrete_provisioning_job: ProvisionerJobBase,
+      mocked_click_echo: mock.Mock,
+      global_precheck_data_mock: precheck.TypePrecheckFileData,
+      mocked_validate_environment: mock.Mock,
+      precheck_args: Dict[str, bool],
   ) -> None:
-
-    instance = m_env.return_value
-    instance.validate_environment.return_value = {
+    mocked_validate_environment.return_value = {
         'is_valid': True,
         'violations': [],
     }
 
-    self.concrete_job.precheck()
+    concrete_provisioning_job.precheck(**precheck_args)
 
-    m_echo.assert_has_calls(
-        [
-            mock.call(self.concrete_job.mock_precheck_content['notes']),
-            mock.call(PRECHECK_SUCCESS_MESSAGE),
-        ],
-        any_order=False,
-    )
+    assert mocked_click_echo.mock_calls == [
+        mock.call(global_precheck_data_mock['notes']),
+        mock.call(PRECHECK_SUCCESS_MESSAGE),
+    ]
 
-  def test_precheck__no_notes__valid__click_echo(
+  @pytest.mark.parametrize(
+      "precheck_args",
+      ({
+          "notes": False
+      },),
+      ids=templated_ids("args:{0}"),
+  )
+  def test_precheck__valid_env__vary_notes__calls_echo(
       self,
-      m_echo: mock.Mock,
-      m_env: mock.Mock,
+      concrete_provisioning_job: ProvisionerJobBase,
+      mocked_click_echo: mock.Mock,
+      mocked_validate_environment: mock.Mock,
+      precheck_args: Dict[str, bool],
   ) -> None:
-
-    instance = m_env.return_value
-    instance.validate_environment.return_value = {
+    mocked_validate_environment.return_value = {
         'is_valid': True,
         'violations': [],
     }
 
-    self.concrete_job.precheck(notes=False)
+    concrete_provisioning_job.precheck(**precheck_args)
 
-    m_echo.assert_called_once_with(PRECHECK_SUCCESS_MESSAGE)
+    assert mocked_click_echo.mock_calls == [
+        mock.call(PRECHECK_SUCCESS_MESSAGE),
+    ]
 
-  def test_precheck__invalid_configuration__raises_exception(
+  @pytest.mark.parametrize(
+      "precheck_args",
+      (
+          {},
+          {
+              "notes": True
+          },
+          {
+              "notes": False
+          },
+      ),
+      ids=templated_ids("args:{0}"),
+  )
+  def test_precheck__invalid_env__vary_notes__calls_echo(
       self,
-      _: mock.Mock,
-      m_env: mock.Mock,
+      concrete_provisioning_job: ProvisionerJobBase,
+      mocked_click_echo: mock.Mock,
+      mocked_sys: mock.Mock,
+      mocked_validate_environment: mock.Mock,
+      precheck_args: Dict[str, bool],
   ) -> None:
-    instance = m_env.return_value
-    instance.validate_config.side_effect = precheck_validation.ValidationError(
-        "Boom!"
-    )
-
-    with self.assertRaises(precheck_validation.ValidationError):
-      self.concrete_job.precheck()
-
-  def test_precheck__invalid_environment_vars__raises_exception(
-      self,
-      m_echo: mock.Mock,
-      m_env: mock.Mock,
-  ) -> None:
-
-    instance = m_env.return_value
-    instance.validate_environment.return_value = {
+    mocked_sys.exit.side_effect = SystemExit
+    mocked_validate_environment.return_value = {
         'is_valid': False,
         'violations': ['violation1', 'violation2'],
     }
 
-    with self.assertRaises(SystemExit):
-      self.concrete_job.precheck()
+    with pytest.raises(SystemExit):
+      concrete_provisioning_job.precheck(**precheck_args)
 
-    m_echo.assert_any_call('violation1')
-    m_echo.assert_any_call('violation2')
-    self.assertEqual(m_echo.call_count, 2)
+    assert mocked_click_echo.mock_calls == [
+        mock.call(violation)
+        for violation in mocked_validate_environment.return_value['violations']
+    ]
 
+  def test_provision__creates_inventory_file(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      provisioner_mocks: ProvisionerMocks,
+  ) -> None:
+    concrete_provisioning_job.provision()
 
-@mock.patch(PROVISIONER_MODULE + ".SUDO")
-@mock.patch(PROVISIONER_MODULE + ".InventoryFile")
-@mock.patch(PROVISIONER_MODULE + ".AnsibleRunner")
-class TestJobsProvision(TestCase):
-  """Test the ProvisionerJobBase class provision method."""
-
-  def setUp(self) -> None:
-    self.concrete_job = MockConcreteJob()
-    self.mock_state = cast(
-        state.TypeState, {'workspace_root_path': '/root/workspace1'}
+    provisioner_mocks.mocked_inventory_file.assert_called_once_with(
+        concrete_provisioning_job.get_state()
     )
-    self.concrete_job.mock_state = self.mock_state
+    provisioner_mocks.mocked_inventory_file.return_value \
+        .write_inventory_file.assert_called_once_with()
 
-  def test_provision_inventory(
-      self, _: mock.Mock, m_inventory: mock.Mock, __: mock.Mock
+  def test_provision__prompts_for_sudo(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      provisioner_mocks: ProvisionerMocks,
   ) -> None:
-    instance = m_inventory.return_value
+    concrete_provisioning_job.provision()
 
-    self.concrete_job.provision()
+    provisioner_mocks.mocked_sudo.assert_called_once_with()
+    provisioner_mocks.mocked_sudo.return_value \
+        .prompt_for_sudo.assert_called_once_with()
 
-    instance.write_inventory_file.assert_called_once_with()
-
-  def test_provision_sudo(
-      self, _: mock.Mock, __: mock.Mock, m_sudo: mock.Mock
+  def test_provision__starts_ansible_runner(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      provisioner_mocks: ProvisionerMocks,
   ) -> None:
-    self.concrete_job.provision()
+    concrete_provisioning_job.provision()
 
-    instance = m_sudo.return_value
-    instance.prompt_for_sudo.assert_called_once_with()
-
-  def test_provision_ansible(
-      self, m_ansible: mock.Mock, __: mock.Mock, m_sudo: mock.Mock
-  ) -> None:
-    sudo_password = "secret123"
-    instance = m_sudo.return_value
-    instance.sudo_password = sudo_password
-
-    self.concrete_job.provision()
-
-    m_ansible.assert_called_once_with(self.mock_state,)
+    provisioner_mocks.mocked_ansible_runner.assert_called_once_with(
+        concrete_provisioning_job.get_state()
+    )
+    provisioner_mocks.mocked_ansible_runner.return_value \
+        .start.assert_called_once_with()
