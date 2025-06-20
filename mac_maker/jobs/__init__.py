@@ -1,5 +1,5 @@
 """Executable Jobs for the Mac Maker."""
 
-from .filesystem import FileSystemJob
 from .github import GitHubJob
+from .spec import SpecFileJob
 from .version import VersionJob

@@ -18,11 +18,11 @@ class TestCli:
       "mocked_job,command",
       named_parameters(
           (
-              "mocked_job_filesystem",
+              "mocked_job_spec_file",
               f"precheck spec {mocked_spec_file}",
           ),
           (
-              "mocked_job_filesystem",
+              "mocked_job_spec_file",
               f"apply spec {mocked_spec_file}",
           ),
           (
@@ -87,10 +87,6 @@ class TestCli:
       "mocked_job,command,args",
       named_parameters(
           (
-              "mocked_job_filesystem",
-              f"precheck spec {mocked_spec_file}",
-              (mocked_spec_file,),
-          ), (
               "mocked_job_github",
               f"precheck github {mocked_git_url}",
               (mocked_git_url, None),
@@ -98,6 +94,10 @@ class TestCli:
               "mocked_job_github",
               f"precheck github {mocked_git_url} --branch {mocked_git_branch}",
               (mocked_git_url, mocked_git_branch),
+          ), (
+              "mocked_job_spec_file",
+              f"precheck spec {mocked_spec_file}",
+              (mocked_spec_file,),
           ),
           name=1
       ),
@@ -119,10 +119,6 @@ class TestCli:
       "mocked_job,command,args",
       named_parameters(
           (
-              "mocked_job_filesystem",
-              f"apply spec {mocked_spec_file}",
-              (mocked_spec_file,),
-          ), (
               "mocked_job_github",
               f"apply github {mocked_git_url}",
               (mocked_git_url, None),
@@ -130,6 +126,10 @@ class TestCli:
               "mocked_job_github",
               f"apply github {mocked_git_url} --branch {mocked_git_branch}",
               (mocked_git_url, mocked_git_branch),
+          ), (
+              "mocked_job_spec_file",
+              f"apply spec {mocked_spec_file}",
+              (mocked_spec_file,),
           ),
           name=1
       ),
