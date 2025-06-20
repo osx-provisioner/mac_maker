@@ -9,10 +9,10 @@ from ..utilities.precheck import TypePrecheckFileData
 from ..utilities.spec import TypeSpecFileData
 from ..utilities.state import TypeState
 from ..utilities.workspace import WorkSpace
-from . import bases
+from .bases.provisioner import ProvisionerJobBase
 
 
-class GitHubJob(bases.ProvisionerJobBase):
+class GitHubJob(ProvisionerJobBase):
   """A provisioning job for a Profile in a Github Repository.
 
   :param repository_url: The GitHub Repository URL.

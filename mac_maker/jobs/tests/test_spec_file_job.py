@@ -4,12 +4,12 @@ from typing import cast
 from unittest import TestCase, mock
 
 from ... import config
-from ...jobs import bases as jobs_bases
 from ...jobs import spec as jobs_module
+from ...jobs.bases import provisioner
 from ...utilities import spec
 
 JOBS_MODULE = jobs_module.__name__
-JOBS_BASES = jobs_bases.__name__
+JOBS_BASES = provisioner.__name__
 
 
 class TestSpecFileJob(TestCase):

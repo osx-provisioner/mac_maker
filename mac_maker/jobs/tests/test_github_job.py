@@ -3,13 +3,13 @@
 from unittest import mock
 
 from ... import config
-from ...jobs import bases as jobs_bases
 from ...jobs import github as jobs_module
+from ...jobs.bases import provisioner
 from ...tests.fixtures import fixtures_git
 from ...utilities import github
 
 JOBS_MODULE = jobs_module.__name__
-JOBS_BASES = jobs_bases.__name__
+JOBS_BASES = provisioner.__name__
 
 
 class TestGitHubJob(fixtures_git.GitTestHarness):
