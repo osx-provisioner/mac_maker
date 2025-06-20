@@ -33,9 +33,9 @@ def mocked_job_github(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
 
 
 @pytest.fixture
-def mocked_job_filesystem(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+def mocked_job_spec_file(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
   instance = mock.Mock()
-  monkeypatch.setattr(cli.jobs, "FileSystemJob", instance)
+  monkeypatch.setattr(cli.jobs, "SpecFileJob", instance)
   return instance
 
 

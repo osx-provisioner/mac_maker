@@ -10,7 +10,7 @@ from mac_maker.utilities.spec import TypeSpecFileData
 from mac_maker.utilities.state import TypeState
 
 
-class FileSystemJob(bases.ProvisionerJobBase):
+class SpecFileJob(bases.ProvisionerJobBase):
   """A provisioning job for a Job Spec file on the local file system.
 
   :param spec_file_location: The path to the Job Spec file.

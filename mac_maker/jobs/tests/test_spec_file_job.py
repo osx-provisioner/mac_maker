@@ -1,23 +1,23 @@
-"""Test the FileSystemJob class."""
+"""Test the SpecFileJob class."""
 
 from typing import cast
 from unittest import TestCase, mock
 
 from mac_maker import config
 from mac_maker.jobs import bases as jobs_bases
-from mac_maker.jobs import filesystem as jobs_module
+from mac_maker.jobs import spec as jobs_module
 from mac_maker.utilities import spec
 
 JOBS_MODULE = jobs_module.__name__
 JOBS_BASES = jobs_bases.__name__
 
 
-class TestFileSystemJob(TestCase):
-  """Test the FileSystemJob class instantiation."""
+class TestSpecFileJob(TestCase):
+  """Test the SpecFileJob class instantiation."""
 
   def setUp(self) -> None:
     self.mock_path = "/mock/path"
-    self.job = jobs_module.FileSystemJob(self.mock_path)
+    self.job = jobs_module.SpecFileJob(self.mock_path)
 
   def test_init(self) -> None:
     self.assertEqual(self.job.spec_file_location, self.mock_path)
@@ -26,12 +26,12 @@ class TestFileSystemJob(TestCase):
 
 @mock.patch(JOBS_BASES + ".JobSpecExtractor.get_job_spec_data")
 @mock.patch(JOBS_BASES + ".PrecheckExtractor.get_precheck_data")
-class TestFileSystemJobGetPrecheck(TestCase):
-  """Test the FileSystemJob class get_precheck_content method."""
+class TestSpecFileJobGetPrecheck(TestCase):
+  """Test the SpecFileJob class get_precheck_content method."""
 
   def setUp(self) -> None:
     self.mock_path = "/mock/path"
-    self.job = jobs_module.FileSystemJob(self.mock_path)
+    self.job = jobs_module.SpecFileJob(self.mock_path)
     self.mock_data1 = {
         "a": "b"
     }
@@ -59,12 +59,12 @@ class TestFileSystemJobGetPrecheck(TestCase):
 
 @mock.patch(JOBS_MODULE + ".click.echo")
 @mock.patch(JOBS_BASES + ".JobSpecExtractor.get_job_spec_data")
-class TestFileSystemJobGetStateCase(TestCase):
-  """Test the FileSystemJob class get_state method."""
+class TestSpecFileJobGetStateCase(TestCase):
+  """Test the SpecFileJob class get_state method."""
 
   def setUp(self) -> None:
     self.mock_path = "/mock/path"
-    self.jobs = jobs_module.FileSystemJob(self.mock_path)
+    self.jobs = jobs_module.SpecFileJob(self.mock_path)
     self.mock_spec_content = cast(
         spec.TypeSpecFileData, {
             'spec_file_content': {'a', 'b'},

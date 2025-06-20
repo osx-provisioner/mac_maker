@@ -51,12 +51,12 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
 
 @precheck.command("spec")
 @click.argument('spec_file', type=click.STRING)
-def check_from_filesystem(spec_file: str) -> None:
+def check_from_spec_file(spec_file: str) -> None:
   """Precheck an OSX Machine Profile from a spec.json file.
 
   SPEC_FILE: The location of a spec.json file referencing a profile.
   """
-  job = jobs.FileSystemJob(spec_file)
+  job = jobs.SpecFileJob(spec_file)
   job.precheck()
 
 
@@ -80,12 +80,12 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
 
 @apply.command("spec")
 @click.argument('spec_file', type=click.STRING)
-def apply_from_spec(spec_file: str) -> None:
+def apply_from_spec_file(spec_file: str) -> None:
   """Apply an OSX Machine Profile from a spec.json file.
 
   SPEC_FILE: The location of a spec.json file.
   """
-  job = jobs.FileSystemJob(spec_file)
+  job = jobs.SpecFileJob(spec_file)
   job.precheck(notes=False)
   job.provision()
 
