@@ -3,10 +3,10 @@
 from importlib.metadata import version
 
 import click
-from mac_maker.jobs import bases
+from mac_maker.jobs.bases.simple import SimpleJobBase
 
 
-class VersionJob(bases.SimpleJobBase):
+class VersionJob(SimpleJobBase):
   """Version command for the Mac Maker CLI."""
 
   def invoke(self) -> None:

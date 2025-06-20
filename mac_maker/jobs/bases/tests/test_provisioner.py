@@ -1,17 +1,17 @@
-"""Test the Jobs base class."""
+"""Test the ProvisionerJobBase class."""
 
 from typing import cast
 from unittest import TestCase, mock
 
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
-from mac_maker.jobs import bases as bases_module
+from mac_maker.jobs.bases import provisioner
 from mac_maker.utilities import precheck, spec, state
 from mac_maker.utilities.validation import precheck as precheck_validation
 
-BASES_MODULE = bases_module.__name__
+PROVISIONER_MODULE = provisioner.__name__
 
 
-class MockConcreteJob(bases_module.ProvisionerJobBase):
+class MockConcreteJob(provisioner.ProvisionerJobBase):
   """Concrete test implementation of the ProvisionerJobBase class."""
 
   def __init__(self) -> None:
@@ -43,8 +43,8 @@ class TestJobsBase(TestCase):
     )
 
 
-@mock.patch(BASES_MODULE + ".PrecheckConfigValidator")
-@mock.patch(BASES_MODULE + ".click.echo")
+@mock.patch(PROVISIONER_MODULE + ".PrecheckConfigValidator")
+@mock.patch(PROVISIONER_MODULE + ".click.echo")
 class TestJobsPrecheck(TestCase):
   """Test the ProvisionerJobBase class precheck method."""
 
@@ -126,9 +126,9 @@ class TestJobsPrecheck(TestCase):
     self.assertEqual(m_echo.call_count, 2)
 
 
-@mock.patch(BASES_MODULE + ".SUDO")
-@mock.patch(BASES_MODULE + ".InventoryFile")
-@mock.patch(BASES_MODULE + ".AnsibleRunner")
+@mock.patch(PROVISIONER_MODULE + ".SUDO")
+@mock.patch(PROVISIONER_MODULE + ".InventoryFile")
+@mock.patch(PROVISIONER_MODULE + ".AnsibleRunner")
 class TestJobsProvision(TestCase):
   """Test the ProvisionerJobBase class provision method."""
 

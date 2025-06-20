@@ -1,4 +1,4 @@
-"""Test the VersionCommand class."""
+"""Test the VersionJob class."""
 
 from importlib.metadata import version
 from unittest import TestCase, mock
@@ -9,8 +9,8 @@ JOBS_MODULE = jobs_module.__name__
 
 
 @mock.patch(JOBS_MODULE + ".click.echo")
-class TestVersionCommand(TestCase):
-  """Test the VersionCommand class."""
+class TestVersionJob(TestCase):
+  """Test the VersionJob class."""
 
   def setUp(self) -> None:
     self.command = jobs_module.VersionJob()

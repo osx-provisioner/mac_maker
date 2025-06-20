@@ -1,4 +1,4 @@
-"""Job base classes for the Mac Maker."""
+"""ProvisionerJobBase class."""
 
 import abc
 import sys
@@ -14,17 +14,8 @@ from mac_maker.utilities.sudo import SUDO
 from mac_maker.utilities.validation.precheck import PrecheckConfigValidator
 
 
-class SimpleJobBase(abc.ABC):
-  """Job base class for the Mac Maker, that doesn't require provisioning."""
-
-  @abc.abstractmethod
-  def invoke(self) -> None:
-    """Invoke a simple Job that doesn't require provisioning."""
-    raise NotImplementedError  # nocover
-
-
 class ProvisionerJobBase(abc.ABC):
-  """Job base class for the Mac Maker, with Ansible provisioning."""
+  """Job base class, with Ansible provisioning."""
 
   def __init__(self) -> None:
     self.jobspec_extractor = JobSpecExtractor()

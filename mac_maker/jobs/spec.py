@@ -4,13 +4,13 @@ from typing import Optional, cast
 
 import click
 from mac_maker import config
-from mac_maker.jobs import bases
+from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.utilities.precheck import TypePrecheckFileData
 from mac_maker.utilities.spec import TypeSpecFileData
 from mac_maker.utilities.state import TypeState
 
 
-class SpecFileJob(bases.ProvisionerJobBase):
+class SpecFileJob(ProvisionerJobBase):
   """A provisioning job for a Job Spec file on the local file system.
 
   :param spec_file_location: The path to the Job Spec file.
