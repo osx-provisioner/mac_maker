@@ -4,7 +4,8 @@ from logging import Logger
 from unittest import TestCase, mock
 
 from mac_maker.ansible_controller import environment
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import Profile
+from mac_maker.utilities import state
 
 ENV_MODULE = environment.__name__
 TypeMockDict = mock._patch_dict  # pylint: disable=protected-access
@@ -19,9 +20,9 @@ class TestEnvironmentClass(TestCase):
 
   def setUp(self) -> None:
     self.mock_root = ""
-    self.filesystem = filesystem.FileSystem(self.mock_root)
+    self.profile = Profile(self.mock_root)
     self.state = state.State()
-    self.mock_state = self.state.state_generate(self.filesystem)
+    self.mock_state = self.state.state_generate(self.profile)
     self.environment = environment.Environment(self.mock_state)
 
   def test_init(self) -> None:
@@ -32,7 +33,7 @@ class TestEnvironmentClass(TestCase):
     )
     self.assertEqual(
         self.environment.state,
-        self.state.state_generate(self.filesystem),
+        self.state.state_generate(self.profile),
     )
     self.assertDictEqual(
         self.environment.env,

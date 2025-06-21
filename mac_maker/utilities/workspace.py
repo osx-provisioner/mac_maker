@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from mac_maker import config
-from mac_maker.utilities.filesystem import FileSystem
+from mac_maker.profile import Profile
 from mac_maker.utilities.github import GithubRepository
 from mac_maker.utilities.state import State
 
@@ -53,9 +53,9 @@ class WorkSpace:
       raise InvalidWorkspace("No GitHub Repository has been added.")
 
     state_manager = State()
-    filesystem = FileSystem(str(self.repository_root))
-    self.spec_file = filesystem.get_spec_file()
-    spec_file_content = state_manager.state_generate(filesystem)
+    profile = Profile(str(self.repository_root))
+    self.spec_file = profile.get_spec_file()
+    spec_file_content = state_manager.state_generate(profile)
     state_manager.state_dehydrate(spec_file_content, self.spec_file)
     self.log.debug(
         "WorkSpace: Wrote Job Spec file to workspace: %s.",

@@ -3,10 +3,10 @@
 import json
 from logging import Logger
 
+from mac_maker.profile.spec_file import spec_file_validator
 from mac_maker.tests.fixtures import fixtures_spec
-from mac_maker.utilities.validation import spec
 
-SPEC_MODULE = spec.__name__
+SPEC_MODULE = spec_file_validator.__name__
 
 
 class TestSpecFileValidatorClass(fixtures_spec.SpecFileTestHarness):
@@ -16,7 +16,7 @@ class TestSpecFileValidatorClass(fixtures_spec.SpecFileTestHarness):
     valid_spec_data = self.json_reader.load_json_file(
         self.fixtures_folder / "mock_v1_job_spec.json"
     )
-    validator = spec.SpecFileValidator(valid_spec_data)
+    validator = spec_file_validator.SpecFileValidator(valid_spec_data)
     self.assertIsInstance(
         validator.log,
         Logger,
@@ -38,16 +38,18 @@ class TestSpecValidity(fixtures_spec.SpecFileTestHarness):
     valid_spec_data = self.json_reader.load_json_file(
         self.fixtures_folder / "mock_v1_job_spec.json"
     )
-    validator = spec.SpecFileValidator(valid_spec_data)
+    validator = spec_file_validator.SpecFileValidator(valid_spec_data)
     validator.validate_spec_file()
 
   def test_v1_spec_invalid(self) -> None:
     invalid_spec_data = self.json_reader.load_json_file(
         self.fixtures_folder / "mock_v1_invalid_job_spec.json"
     )
-    validator = spec.SpecFileValidator(invalid_spec_data)
+    validator = spec_file_validator.SpecFileValidator(invalid_spec_data)
 
-    with self.assertRaises(spec.SpecFileValidationException) as exc:
+    with self.assertRaises(
+        spec_file_validator.SpecFileValidationException
+    ) as exc:
       validator.validate_spec_file()
 
     self.assertListEqual(

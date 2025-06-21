@@ -9,7 +9,8 @@ from unittest import mock
 import pytest
 from mac_maker.__helpers__.logs import decode_logs
 from mac_maker.ansible_controller import process
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import Profile
+from mac_maker.utilities import state
 
 PROCESS_MODULE = process.__name__
 
@@ -20,14 +21,12 @@ class TestAnsibleProcessClass:
   def test_init__attributes(
       self,
       ansible_process: process.AnsibleProcess,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       mocked_state: state.State,
   ) -> None:
     assert ansible_process.error_exit_code == 127
     assert isinstance(ansible_process.log, Logger)
-    assert ansible_process.state == mocked_state.state_generate(
-        mocked_filesystem
-    )
+    assert ansible_process.state == mocked_state.state_generate(mocked_profile)
 
   @pytest.mark.parametrize("m_return_code", [0, 1])
   def test_spawn__not_frozen__vary_return_code__calls_subprocess(

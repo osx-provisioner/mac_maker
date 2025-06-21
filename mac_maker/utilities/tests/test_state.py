@@ -8,7 +8,8 @@ from typing import cast
 from unittest import TestCase, mock
 
 from jsonschema import validate
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import Profile
+from mac_maker.utilities import state
 
 STATE_MODULE = state.__name__
 
@@ -38,8 +39,8 @@ class TestStateClass(TestCase):
     with open(self.schema_definition, encoding="utf-8") as fhandle:
       schema = json.load(fhandle)
 
-    mock_fs = filesystem.FileSystem("/root/mockdir")
-    generated_state = self.state.state_generate(mock_fs)
+    mock_profile = Profile("/root/mockdir")
+    generated_state = self.state.state_generate(mock_profile)
     validate(generated_state, schema)
 
   @mock.patch(STATE_MODULE + ".JSONFileWriter.write_json_file")

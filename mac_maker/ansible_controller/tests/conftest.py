@@ -7,7 +7,8 @@ from unittest import mock
 
 import pytest
 from mac_maker.ansible_controller import process, runner
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import Profile
+from mac_maker.utilities import state
 
 
 @pytest.fixture
@@ -36,11 +37,6 @@ def mocked_environment() -> mock.Mock:
 
 
 @pytest.fixture
-def mocked_filesystem(mocked_folder: str) -> filesystem.FileSystem:
-  return filesystem.FileSystem(mocked_folder)
-
-
-@pytest.fixture
 def mocked_folder() -> str:
   return "/mock/dir1"
 
@@ -58,6 +54,11 @@ def mocked_popen(mocked_popen_process: mock.Mock,) -> mock.Mock:
 @pytest.fixture
 def mocked_popen_process() -> mock.MagicMock:
   return mock.MagicMock()
+
+
+@pytest.fixture
+def mocked_profile(mocked_folder: str) -> Profile:
+  return Profile(mocked_folder)
 
 
 @pytest.fixture
@@ -118,13 +119,13 @@ def setup_runner_module(
 
 @pytest.fixture
 def ansible_process(
-    mocked_filesystem: filesystem.FileSystem,
+    mocked_profile: Profile,
     mocked_state: state.State,
     setup_process_module: Callable[[], None],
 ) -> process.AnsibleProcess:
   setup_process_module()
 
-  return process.AnsibleProcess(mocked_state.state_generate(mocked_filesystem))
+  return process.AnsibleProcess(mocked_state.state_generate(mocked_profile))
 
 
 @pytest.fixture
@@ -149,10 +150,10 @@ def ansible_process_frozen(
 
 @pytest.fixture
 def ansible_runner(
-    mocked_filesystem: filesystem.FileSystem,
+    mocked_profile: Profile,
     mocked_state: state.State,
     setup_runner_module: Callable[[], None],
 ) -> runner.AnsibleRunner:
   setup_runner_module()
 
-  return runner.AnsibleRunner(mocked_state.state_generate(mocked_filesystem))
+  return runner.AnsibleRunner(mocked_state.state_generate(mocked_profile))

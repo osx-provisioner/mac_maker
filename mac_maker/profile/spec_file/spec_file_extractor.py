@@ -1,24 +1,18 @@
-"""Extractor for Job Spec files on the local filesystem."""
+"""Extractor for a spec file on the local filesystem."""
 
 import logging
 import os
 from pathlib import Path
-from typing import TypedDict, Union
+from typing import Union
 
 from mac_maker import config
-from mac_maker.utilities.state import State, TypeState
-from mac_maker.utilities.validation.spec import SpecFileValidator
-
-
-class TypeSpecFileData(TypedDict):
-  """Typed representation of a loaded Job Spec file."""
-
-  spec_file_content: TypeState
-  spec_file_location: Union[Path, str]
+from mac_maker.profile.spec_file import TypeSpecFileData
+from mac_maker.profile.spec_file.spec_file_validator import SpecFileValidator
+from mac_maker.utilities.state import State
 
 
 class JobSpecExtractor:
-  """Extractor for Job Spec files on the local filesystem."""
+  """Extractor for a spec file on the local filesystem."""
 
   schema_definition = (
       Path(os.path.dirname(__file__)).parent / "schemas" / "job_v1.json"
@@ -32,10 +26,10 @@ class JobSpecExtractor:
       self,
       spec_file_location: Union[Path, str],
   ) -> TypeSpecFileData:
-    """Read a Job Spec file from an arbitrary file system location.
+    """Read a spec file from an arbitrary file system location.
 
-    :param spec_file_location: The path to the Job Spec file that will be read.
-    :returns: The Job Spec file contents, and it's location on the filesystem.
+    :param spec_file_location: The path to the spec file that will be read.
+    :returns: The loaded spec file.
     """
     self.log.debug(
         'JobSpecExtractor: Reading runtime state from a Job Spec file.'

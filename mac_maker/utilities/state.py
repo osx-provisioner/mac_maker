@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, TypedDict, Union, cast
 
 from mac_maker import config
-from mac_maker.utilities.filesystem import FileSystem
+from mac_maker.profile import Profile
 from mac_maker.utilities.mixins.json_file import JSONFileReader, JSONFileWriter
 
 
@@ -27,27 +27,29 @@ class State(JSONFileReader, JSONFileWriter):
   def __init__(self) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
 
-  def state_generate(self, filesystem: FileSystem) -> TypeState:
-    """Generate a new runtime state object from a FileSystem instance.
+  def state_generate(self, profile: Profile) -> TypeState:
+    """Generate a new runtime state object from a profile instance.
 
-    :param filesystem: The FileSystem object you are using.
+    :param profile: The profile being used.
     :returns: The generated runtime state object.
     """
     self.log.debug("State: Generating new Ansible runtime state.")
     return TypeState(
-        workspace_root_path=str(filesystem.get_work_space_root().resolve()),
-        profile_data_path=str(filesystem.get_profile_data_path().resolve()),
+        workspace_root_path=str(profile.get_work_space_root().resolve()),
+        profile_data_path=str(profile.get_profile_data_path().resolve()),
         galaxy_requirements_file=str(
-            filesystem.get_galaxy_requirements_file().resolve()
+            profile.get_galaxy_requirements_file().resolve()
         ),
-        playbook=str(filesystem.get_playbook_file().resolve()),
-        roles_path=[str(filesystem.get_roles_path().resolve())],
-        collections_path=[str(filesystem.get_collections_path().resolve())],
-        inventory=str(filesystem.get_inventory_file().resolve()),
+        playbook=str(profile.get_playbook_file().resolve()),
+        roles_path=[str(profile.get_roles_path().resolve())],
+        collections_path=[str(profile.get_collections_path().resolve())],
+        inventory=str(profile.get_inventory_file().resolve()),
     )
 
   def state_dehydrate(
-      self, state_data: TypeState, spec_file_path: Union[Path, str]
+      self,
+      state_data: TypeState,
+      spec_file_path: Union[Path, str],
   ) -> None:
     """Write a runtime state object to a Job Spec file.
 

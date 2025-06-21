@@ -6,7 +6,8 @@ from unittest import mock
 
 import pytest
 from mac_maker.jobs.bases import provisioner
-from mac_maker.utilities import precheck, state
+from mac_maker.profile import precheck
+from mac_maker.utilities import state
 
 
 class ProvisionerMocks(NamedTuple):
@@ -65,13 +66,11 @@ def mocked_inventory_file(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
 
 
 @pytest.fixture
-def mocked_precheck_config_validator(
-    monkeypatch: pytest.MonkeyPatch,
-) -> mock.Mock:
+def mocked_precheck_validator(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
   instance = mock.Mock()
   monkeypatch.setattr(
       provisioner,
-      "PrecheckConfigValidator",
+      "PrecheckValidator",
       instance,
   )
   return instance
@@ -101,11 +100,11 @@ def mocked_sys(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
 
 @pytest.fixture
 def mocked_validate_environment(
-    mocked_precheck_config_validator: mock.Mock,
+    mocked_precheck_validator: mock.Mock,
 ) -> mock.Mock:
   return cast(
       mock.Mock,
-      mocked_precheck_config_validator.return_value.validate_environment,
+      mocked_precheck_validator.return_value.validate_environment,
   )
 
 

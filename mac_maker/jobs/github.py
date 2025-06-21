@@ -5,9 +5,9 @@ from typing import Optional
 import click
 from mac_maker import config
 from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
+from mac_maker.profile.precheck import TypePrecheckFileData
+from mac_maker.profile.spec_file import TypeSpecFileData
 from mac_maker.utilities.github import GithubRepository
-from mac_maker.utilities.precheck import TypePrecheckFileData
-from mac_maker.utilities.spec import TypeSpecFileData
 from mac_maker.utilities.state import TypeState
 from mac_maker.utilities.workspace import WorkSpace
 

@@ -6,7 +6,8 @@ from unittest import TestCase, mock
 
 from mac_maker import config
 from mac_maker.ansible_controller import interpreter, inventory
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import Profile
+from mac_maker.utilities import state
 
 INVENTORY_MODULE = inventory.__name__
 
@@ -16,9 +17,9 @@ class TestInventoryFile(TestCase):
 
   def setUp(self) -> None:
     self.root_folder = "/root/mock/dir1"
-    self.filesystem = filesystem.FileSystem(self.root_folder)
+    self.profile = Profile(self.root_folder)
     self.state = state.State()
-    self.loaded_state = self.state.state_generate(self.filesystem)
+    self.loaded_state = self.state.state_generate(self.profile)
     self.inventory = inventory.InventoryFile(self.loaded_state)
 
   def test_initialize(self) -> None:

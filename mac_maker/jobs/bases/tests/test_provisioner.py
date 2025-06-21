@@ -8,7 +8,8 @@ from mac_maker.__helpers__.parametrize import templated_ids
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.jobs.bases.tests.conftest import ProvisionerMocks
-from mac_maker.utilities import precheck, spec
+from mac_maker.profile.precheck import precheck_extractor
+from mac_maker.profile.spec_file import spec_file_extractor
 
 
 class TestJobsBase:
@@ -20,7 +21,7 @@ class TestJobsBase:
   ) -> None:
     assert isinstance(
         concrete_provisioning_job.jobspec_extractor,
-        spec.JobSpecExtractor,
+        spec_file_extractor.JobSpecExtractor,
     )
 
   def test_initialize__has_precheck_extractor(
@@ -29,7 +30,7 @@ class TestJobsBase:
   ) -> None:
     assert isinstance(
         concrete_provisioning_job.precheck_extractor,
-        precheck.PrecheckExtractor,
+        precheck_extractor.PrecheckExtractor,
     )
 
   @pytest.mark.parametrize(
@@ -53,12 +54,12 @@ class TestJobsBase:
   def test_precheck__vary_validity__vary_args__instantiates_validator(
       self,
       concrete_provisioning_job: ProvisionerJobBase,
-      mocked_precheck_config_validator: mock.Mock,
-      global_precheck_data_mock: precheck.TypePrecheckFileData,
+      mocked_precheck_validator: mock.Mock,
+      global_precheck_data_mock: precheck_extractor.TypePrecheckFileData,
       precheck_args: Dict[str, bool],
       validity: bool,
   ) -> None:
-    mocked_precheck_config_validator.return_value \
+    mocked_precheck_validator.return_value \
         .validate_environment.return_value = {
             'is_valid': validity,
             'violations': [],
@@ -66,7 +67,7 @@ class TestJobsBase:
 
     concrete_provisioning_job.precheck(**precheck_args)
 
-    mocked_precheck_config_validator.assert_called_once_with(
+    mocked_precheck_validator.assert_called_once_with(
         global_precheck_data_mock['env']
     )
 
@@ -84,7 +85,7 @@ class TestJobsBase:
       self,
       concrete_provisioning_job: ProvisionerJobBase,
       mocked_click_echo: mock.Mock,
-      global_precheck_data_mock: precheck.TypePrecheckFileData,
+      global_precheck_data_mock: precheck_extractor.TypePrecheckFileData,
       mocked_validate_environment: mock.Mock,
       precheck_args: Dict[str, bool],
   ) -> None:

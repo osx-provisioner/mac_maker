@@ -1,4 +1,4 @@
-"""Job Spec file validator."""
+"""A provisioning spec file validator."""
 
 import logging
 import os
@@ -13,20 +13,20 @@ from mac_maker.utilities.state import TypeState
 
 
 class TypeSpecFileData(TypedDict):
-  """Typed representation of a loaded Job Spec file."""
+  """Typed representation of a loaded spec file."""
 
   spec_file_content: TypeState
   spec_file_location: Union[Path, str]
 
 
 class SpecFileValidationException(Exception):
-  """Raised when reading an invalid Job Spec file."""
+  """Raised when reading an invalid spec file."""
 
 
 class SpecFileValidator(JSONFileReader):
-  """Validator for a Job Spec file.
+  """Validator for a spec file.
 
-  :param spec_file_content: The loaded Job Spec file to validate.
+  :param spec_file_content: The loaded spec file to validate.
   """
 
   schema_definition = (
@@ -50,13 +50,13 @@ class SpecFileValidator(JSONFileReader):
     return sorted(errors)
 
   def validate_spec_file(self) -> None:
-    """Validate the loaded Job Spec file.
+    """Validate the loaded spec file.
 
     :raises: :class:`SpecFileValidationException`
     """
 
     errors = self._validate_with_schema(self.schema)
     if errors:
-      self.log.error('JobSpecValidator: The loaded Job Spec file is invalid!')
+      self.log.error('JobSpecValidator: The loaded spec file is invalid!')
       formatted_errors = pprint.pformat(errors)
       raise SpecFileValidationException(formatted_errors)

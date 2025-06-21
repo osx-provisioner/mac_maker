@@ -7,11 +7,12 @@ import click
 from mac_maker.ansible_controller.inventory import InventoryFile
 from mac_maker.ansible_controller.runner import AnsibleRunner
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
-from mac_maker.utilities.precheck import PrecheckExtractor, TypePrecheckFileData
-from mac_maker.utilities.spec import JobSpecExtractor
+from mac_maker.profile.precheck import TypePrecheckFileData
+from mac_maker.profile.precheck.precheck_extractor import PrecheckExtractor
+from mac_maker.profile.precheck.precheck_validator import PrecheckValidator
+from mac_maker.profile.spec_file.spec_file_extractor import JobSpecExtractor
 from mac_maker.utilities.state import TypeState
 from mac_maker.utilities.sudo import SUDO
-from mac_maker.utilities.validation.precheck import PrecheckConfigValidator
 
 
 class ProvisionerJobBase(abc.ABC):
@@ -39,7 +40,7 @@ class ProvisionerJobBase(abc.ABC):
 
     precheck_data = self.get_precheck_content()
 
-    validator = PrecheckConfigValidator(precheck_data['env'])
+    validator = PrecheckValidator(precheck_data['env'])
     validator.validate_config()
     results = validator.validate_environment()
     if not results['is_valid']:
