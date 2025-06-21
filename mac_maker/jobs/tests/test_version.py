@@ -1,23 +1,20 @@
 """Test the VersionJob class."""
 
-from importlib.metadata import version
-from unittest import TestCase, mock
+from importlib.metadata import version as metadata_version
+from unittest import mock
 
-from mac_maker.jobs import version as jobs_module
-
-JOBS_MODULE = jobs_module.__name__
+from mac_maker.jobs import version
 
 
-@mock.patch(JOBS_MODULE + ".click.echo")
-class TestVersionJob(TestCase):
+class TestVersionJob:
   """Test the VersionJob class."""
 
-  def setUp(self) -> None:
-    self.command = jobs_module.VersionJob()
+  def test_invoke__calls_echo(
+      self, mocked_click_echo: mock.Mock,
+      version_job_instance: version.VersionJob
+  ) -> None:
+    version_job_instance.invoke()
 
-  def test_invoke(self, m_echo: mock.Mock) -> None:
-    self.command.invoke()
-
-    m_echo.assert_called_once_with(
-        f"Mac Maker Version: {version('mac_maker')}",
+    mocked_click_echo.assert_called_once_with(
+        f"Mac Maker Version: {metadata_version('mac_maker')}",
     )

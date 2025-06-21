@@ -24,3 +24,16 @@ def templated_ids(
     return template.format(arg)
 
   return templater
+
+
+def templated_parameters(
+    *args: Tuple[Any, ...],
+    name: int,
+    template: str,
+    transformation: Optional[Callable[[Any], str]] = None,
+) -> List[ParameterSet]:
+  """Create a test id function from a template string."""
+
+  templater = templated_ids(template, transformation)
+
+  return [pytest.param(*argset, id=templater(argset[name])) for argset in args]

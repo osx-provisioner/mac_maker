@@ -133,7 +133,7 @@
       module-rgx = "(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$"
       no-docstring-rgx = ".*"
       required-attributes = []
-      variable-rgx = "[a-z_][a-z0-9_]{2,30}$|^pk$"
+      variable-rgx = "[a-z_][a-z0-9_]{2,30}$|^pk$|^mocked_[a-z0-9_]{2,50}$"
 
     [tool.pylint.classes]
       defining-attr-methods = "__init__,__new__,setUp"

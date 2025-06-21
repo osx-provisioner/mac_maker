@@ -2,7 +2,17 @@
 # pylint: disable=redefined-outer-name
 
 import pytest
-from mac_maker.utilities import precheck, state
+from mac_maker.utilities import precheck, spec, state
+
+
+@pytest.fixture
+def global_git_branch_mock() -> str:
+  return "development"
+
+
+@pytest.fixture
+def global_git_url_mock() -> str:
+  return "https://github.com/osx-provisioner/mac_maker"
 
 
 @pytest.fixture
@@ -29,4 +39,14 @@ def global_state_data_mock() -> state.TypeState:
           '/path/to/collections2',
       ],
       inventory="/path/to/inventory"
+  )
+
+
+@pytest.fixture
+def global_spec_file_mock(
+    global_state_data_mock: state.TypeState,
+) -> spec.TypeSpecFileData:
+  return spec.TypeSpecFileData(
+      spec_file_content=global_state_data_mock,
+      spec_file_location="/path/to/spec_file/"
   )
