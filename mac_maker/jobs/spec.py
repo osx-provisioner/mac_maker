@@ -1,6 +1,6 @@
 """A provisioning job for a Job Spec file on the local file system."""
 
-from typing import Optional, cast
+from typing import Optional
 
 import click
 from mac_maker import config
@@ -24,12 +24,12 @@ class SpecFileJob(ProvisionerJobBase):
     self.spec_file_location = spec_file_location
     self.job_spec_data = None
 
-  def _extract_precheck_data(self) -> None:
-    """Extract Precheck data from a loaded Job Spec file."""
+  def _extract_job_spec_data(self) -> TypeSpecFileData:
     if not self.job_spec_data:
       self.job_spec_data = self.jobspec_extractor.get_job_spec_data(
           self.spec_file_location
       )
+    return self.job_spec_data
 
   def get_precheck_content(self) -> TypePrecheckFileData:
     """Read the Precheck data defined in a Job Spec file.
@@ -37,9 +37,8 @@ class SpecFileJob(ProvisionerJobBase):
     :returns: The Precheck file data.
     """
 
-    self._extract_precheck_data()
     precheck_data = self.precheck_extractor.get_precheck_data(
-        cast(TypeSpecFileData, self.job_spec_data)
+        self._extract_job_spec_data()
     )
 
     return precheck_data
@@ -50,8 +49,7 @@ class SpecFileJob(ProvisionerJobBase):
     :returns: The created runtime state object.
     """
 
-    self._extract_precheck_data()
+    job_spec_data = self._extract_job_spec_data()
     click.echo(config.ANSIBLE_JOB_SPEC_READ_MESSAGE)
-    job_spec_data = cast(TypeSpecFileData, self.job_spec_data)
     click.echo(job_spec_data['spec_file_location'])
     return job_spec_data['spec_file_content']

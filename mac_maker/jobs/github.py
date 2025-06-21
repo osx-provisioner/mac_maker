@@ -1,4 +1,4 @@
-"""A provisioning job for a Profile in a Github Repository."""
+"""A provisioning job for a Profile in a GitHub Repository."""
 
 from typing import Optional
 
@@ -13,7 +13,7 @@ from mac_maker.utilities.workspace import WorkSpace
 
 
 class GitHubJob(ProvisionerJobBase):
-  """A provisioning job for a Profile in a Github Repository.
+  """A provisioning job for a Profile in a GitHub Repository.
 
   :param repository_url: The GitHub Repository URL.
   :param branch_name: The GitHub Repository branch name.
