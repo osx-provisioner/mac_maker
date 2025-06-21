@@ -6,7 +6,8 @@ from unittest import TestCase, mock
 
 from mac_maker import config
 from mac_maker.ansible_controller import interpreter, inventory
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import filesystem
+from mac_maker.utilities import state
 
 INVENTORY_MODULE = inventory.__name__
 

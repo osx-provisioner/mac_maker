@@ -4,18 +4,21 @@ from logging import Logger
 from pathlib import Path
 from unittest import TestCase, mock
 
+from mac_maker.profile.spec_file import spec_file_extractor
+from mac_maker.profile.spec_file.spec_file_validator import (
+    SpecFileValidationException,
+)
 from mac_maker.tests.fixtures import fixtures_spec
-from mac_maker.utilities import spec, state
-from mac_maker.utilities.validation.spec import SpecFileValidationException
+from mac_maker.utilities import state
 
-SPEC_MODULE = spec.__name__
+SPEC_MODULE = spec_file_extractor.__name__
 
 
 class TestSpecClass(TestCase):
   """Test the JobSpecExtractor class."""
 
   def setUp(self) -> None:
-    self.spec = spec.JobSpecExtractor()
+    self.spec = spec_file_extractor.JobSpecExtractor()
     self.mock_spec_file_location = Path("spec.json")
 
   def test_init_settings(self) -> None:
@@ -34,7 +37,7 @@ class TestSpecReadSpecFromFileSystem(fixtures_spec.SpecFileTestHarness):
 
   def setUp(self) -> None:
     super().setUp()
-    self.spec = spec.JobSpecExtractor()
+    self.spec = spec_file_extractor.JobSpecExtractor()
     self.spec_fixture = self.fixtures_folder / "mock_v1_job_spec.json"
     self.loaded_spec_fixture = self.json_reader.load_json_file(
         self.spec_fixture

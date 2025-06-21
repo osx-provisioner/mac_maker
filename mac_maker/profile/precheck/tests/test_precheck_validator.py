@@ -4,14 +4,14 @@ from pathlib import Path
 from typing import Any
 from unittest import TestCase, mock
 
-from mac_maker.tests import fixtures
-from mac_maker.utilities.validation import precheck
-from mac_maker.utilities.validation.precheck import (
+from mac_maker.profile.precheck import precheck_validator
+from mac_maker.profile.precheck.precheck_validator import (
     PrecheckConfigValidationException,
     PrecheckConfigValidator,
 )
+from mac_maker.tests import fixtures
 
-PRECHECK_MODULE = precheck.__name__
+PRECHECK_MODULE = precheck_validator.__name__
 
 
 class TestValidator(TestCase):

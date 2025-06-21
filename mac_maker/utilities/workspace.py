@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from mac_maker import config
-from mac_maker.utilities.filesystem import FileSystem
+from mac_maker.profile.filesystem import FileSystem
 from mac_maker.utilities.github import GithubRepository
 from mac_maker.utilities.state import State
 

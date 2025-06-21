@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, TypedDict, Union, cast
 
 from mac_maker import config
-from mac_maker.utilities.filesystem import FileSystem
+from mac_maker.profile.filesystem import FileSystem
 from mac_maker.utilities.mixins.json_file import JSONFileReader, JSONFileWriter
 
 

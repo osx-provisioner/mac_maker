@@ -4,7 +4,8 @@ from logging import Logger
 from unittest import TestCase, mock
 
 from mac_maker.ansible_controller import environment
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import filesystem
+from mac_maker.utilities import state
 
 ENV_MODULE = environment.__name__
 TypeMockDict = mock._patch_dict  # pylint: disable=protected-access

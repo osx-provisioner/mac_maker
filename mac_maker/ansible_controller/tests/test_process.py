@@ -9,7 +9,8 @@ from unittest import mock
 import pytest
 from mac_maker.__helpers__.logs import decode_logs
 from mac_maker.ansible_controller import process
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import filesystem
+from mac_maker.utilities import state
 
 PROCESS_MODULE = process.__name__
 

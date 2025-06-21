@@ -2,7 +2,8 @@
 # pylint: disable=redefined-outer-name
 
 import pytest
-from mac_maker.utilities import precheck, spec, state
+from mac_maker.profile import precheck, spec_file
+from mac_maker.utilities import state
 
 
 @pytest.fixture
@@ -45,8 +46,8 @@ def global_state_data_mock() -> state.TypeState:
 @pytest.fixture
 def global_spec_file_mock(
     global_state_data_mock: state.TypeState,
-) -> spec.TypeSpecFileData:
-  return spec.TypeSpecFileData(
+) -> spec_file.TypeSpecFileData:
+  return spec_file.TypeSpecFileData(
       spec_file_content=global_state_data_mock,
       spec_file_location="/path/to/spec_file/"
   )

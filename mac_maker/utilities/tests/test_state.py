@@ -8,7 +8,8 @@ from typing import cast
 from unittest import TestCase, mock
 
 from jsonschema import validate
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import filesystem
+from mac_maker.utilities import state
 
 STATE_MODULE = state.__name__
 

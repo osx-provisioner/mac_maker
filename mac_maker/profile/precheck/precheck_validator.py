@@ -1,4 +1,4 @@
-"""Profile Precheck validator."""
+"""Profile precheck data validator."""
 
 import os
 from pathlib import Path
@@ -10,25 +10,25 @@ from mac_maker.utilities.mixins.json_file import JSONFileReader
 
 
 class TypePrecheckEnvironmentValidationResult(TypedDict):
-  """Typed representation of an Precheck environment validation result."""
+  """Typed representation of a precheck environment variable validation."""
 
   is_valid: bool
   violations: List[str]
 
 
 class TypePrecheckVariableDefinition(TypedDict):
-  """Typed representation of a Precheck environment variable definition."""
+  """Typed representation of a precheck environment variable definition."""
 
   name: str
   description: str
 
 
 class PrecheckConfigValidationException(Exception):
-  """Raised when reading an invalid Precheck environment configuration file."""
+  """Raised when reading an invalid precheck environment configuration file."""
 
 
 class PrecheckConfigValidator(JSONFileReader):
-  """Profile Precheck validator.
+  """Profile precheck data validator.
 
   :param precheck_env_file: The path to a Precheck environment config file.
   :raises: :class:`PrecheckConfigValidationException`
@@ -50,7 +50,7 @@ class PrecheckConfigValidator(JSONFileReader):
       raise PrecheckConfigValidationException(self.syntax_error) from exc
 
   def validate_config(self) -> None:
-    """Validate an Precheck environment config file.
+    """Validate an precheck environment config file.
 
     :raises: :class:`PrecheckConfigValidationException`
     """
@@ -61,7 +61,7 @@ class PrecheckConfigValidator(JSONFileReader):
       raise PrecheckConfigValidationException(self.syntax_error) from exc
 
   def validate_environment(self) -> TypePrecheckEnvironmentValidationResult:
-    """Validate the environment against the parsed configuration file.
+    """Validate the current environment against the parsed configuration file.
 
     :returns: The results of the environment validation as a hash.
     """

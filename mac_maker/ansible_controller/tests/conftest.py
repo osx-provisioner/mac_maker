@@ -7,7 +7,8 @@ from unittest import mock
 
 import pytest
 from mac_maker.ansible_controller import process, runner
-from mac_maker.utilities import filesystem, state
+from mac_maker.profile import filesystem
+from mac_maker.utilities import state
 
 
 @pytest.fixture
