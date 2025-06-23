@@ -1,7 +1,7 @@
-Mac Maker Job Spec Files
-========================
+Mac Maker Spec Files
+====================
 
-`Job Spec` files or `spec` files, are JSON files that contain a series of absolute paths, that tell `Mac Maker` where to find the Ansible configuration required to provision a Mac.
+`Spec` files are JSON files that contain a series of absolute paths, that tell `Mac Maker` where to find the Ansible configuration required to provision a Mac.
 
 Absolute paths are a bit of a pain to work with, but they are an excellent choice for removable media, such as USB sticks.  If you wish to work with a **private** code source as your `Mac Maker Profile`, creating a `Spec` file on removable media is a simple solution.
 

@@ -1,4 +1,4 @@
-`Job Spec File` (spec.json) Specification
-=========================================
+`Spec File` (spec.json) Specification
+=====================================
 
-.. jsonschema:: ../../../../mac_maker/schemas/job_v1.json
+.. jsonschema:: ../../../../mac_maker/schemas/spec_file_v1.json

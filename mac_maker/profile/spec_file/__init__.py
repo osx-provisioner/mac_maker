@@ -7,7 +7,7 @@ from mac_maker.utilities.state import TypeState
 
 
 class TypeSpecFileData(TypedDict):
-  """Typed representation of a loaded Job Spec file."""
+  """Typed representation of a loaded spec file."""
 
   spec_file_content: TypeState
   spec_file_location: Union[Path, str]

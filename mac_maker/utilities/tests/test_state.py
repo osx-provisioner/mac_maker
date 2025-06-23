@@ -26,7 +26,7 @@ class TestStateClass(TestCase):
 
     self.schema_definition = (
         Path(os.path.dirname(__file__)).parent.parent / "schemas" /
-        "job_v1.json"
+        "spec_file_v1.json"
     )
 
   def test_init(self) -> None:

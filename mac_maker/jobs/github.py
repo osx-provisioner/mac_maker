@@ -39,7 +39,7 @@ class GitHubJob(ProvisionerJobBase):
     self.workspace = WorkSpace()
     self.workspace.add_repository(self.repository, self.branch_name)
     self.workspace.add_spec_file()
-    self.loaded_spec_file_data = self.jobspec_extractor.get_job_spec_data(
+    self.loaded_spec_file_data = self.spec_file_extractor.get_spec_file_data(
         str(self.workspace.spec_file)
     )
 
@@ -62,6 +62,6 @@ class GitHubJob(ProvisionerJobBase):
     """
 
     self._initialize_workspace()
-    click.echo(config.ANSIBLE_JOB_SPEC_MESSAGE)
+    click.echo(config.SPEC_FILE_CREATED_MESSAGE)
     click.echo(self.loaded_spec_file_data['spec_file_location'])
     return self.loaded_spec_file_data['spec_file_content']

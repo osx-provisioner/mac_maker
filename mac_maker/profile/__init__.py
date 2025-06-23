@@ -1,4 +1,4 @@
-"""Mac Maker profile."""
+"""Mac Maker Profile."""
 
 from pathlib import Path
 from typing import Union
@@ -7,30 +7,30 @@ from mac_maker import config
 
 
 class Profile:
-  """Mac Maker profile.
+  """Mac Maker Profile.
 
-  :param work_space_root: The path of the Workspace root location.
+  :param profile_root: The path of the Profile's root location.
   """
 
   def __init__(
       self,
-      work_space_root: Union[Path, str],
+      profile_root: Union[Path, str],
   ) -> None:
-    self.work_space_root = Path(work_space_root)
+    self.profile_root = Path(profile_root)
 
-  def get_work_space_root(self) -> Path:
-    """Return the workspace root folder location.
+  def get_profile_root(self) -> Path:
+    """Return the Profile's root folder location.
 
-    :return: The workspace root folder location.
+    :return: The Profile's root folder location.
     """
-    return self.work_space_root
+    return self.profile_root
 
   def get_spec_file(self) -> Path:
     """Return the spec file's location.
 
     :return: The spec file's location.
     """
-    return self.work_space_root / config.STATE_FILE_NAME
+    return self.profile_root / config.SPEC_FILE_NAME
 
   def get_inventory_file(self) -> Path:
     """Return the Ansible inventory file's location.
@@ -59,7 +59,7 @@ class Profile:
 
     :return: The Mac Maker profile's root folder location.
     """
-    return self.work_space_root / config.PROFILE_FOLDER_PATH
+    return self.profile_root / config.PROFILE_FOLDER_PATH
 
   def get_roles_path(self) -> Path:
     """Return the Ansible roles folder's location(s).
