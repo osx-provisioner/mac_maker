@@ -30,7 +30,7 @@ class Profile:
 
     :return: The spec file's location.
     """
-    return self.work_space_root / config.STATE_FILE_NAME
+    return self.work_space_root / config.SPEC_FILE_NAME
 
   def get_inventory_file(self) -> Path:
     """Return the Ansible inventory file's location.

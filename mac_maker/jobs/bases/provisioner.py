@@ -12,7 +12,7 @@ from mac_maker.profile.precheck.precheck_extractor import PrecheckExtractor
 from mac_maker.profile.precheck.precheck_validator import (
     PrecheckConfigValidator,
 )
-from mac_maker.profile.spec_file.spec_file_extractor import JobSpecExtractor
+from mac_maker.profile.spec_file.spec_file_extractor import SpecFileExtractor
 from mac_maker.utilities.state import TypeState
 from mac_maker.utilities.sudo import SUDO
 
@@ -21,7 +21,7 @@ class ProvisionerJobBase(abc.ABC):
   """Job base class, with Ansible provisioning."""
 
   def __init__(self) -> None:
-    self.jobspec_extractor = JobSpecExtractor()
+    self.spec_file_extractor = SpecFileExtractor()
     self.precheck_extractor = PrecheckExtractor()
 
   @abc.abstractmethod

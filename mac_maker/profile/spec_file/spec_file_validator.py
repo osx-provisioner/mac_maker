@@ -30,7 +30,8 @@ class SpecFileValidator(JSONFileReader):
   """
 
   schema_definition = (
-      Path(os.path.dirname(__file__)).parent.parent / "schemas" / "job_v1.json"
+      Path(os.path.dirname(__file__)).parent.parent / "schemas" /
+      "spec_file_v1.json"
   )
 
   def __init__(self, spec_file_content: TypeState) -> None:
@@ -57,6 +58,6 @@ class SpecFileValidator(JSONFileReader):
 
     errors = self._validate_with_schema(self.schema)
     if errors:
-      self.log.error('JobSpecValidator: The loaded spec file is invalid!')
+      self.log.error('SpecFileValidator: The loaded spec file is invalid!')
       formatted_errors = pprint.pformat(errors)
       raise SpecFileValidationException(formatted_errors)

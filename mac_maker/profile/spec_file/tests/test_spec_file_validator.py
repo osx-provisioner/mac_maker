@@ -10,11 +10,11 @@ SPEC_MODULE = spec_file_validator.__name__
 
 
 class TestSpecFileValidatorClass(fixtures_spec.SpecFileTestHarness):
-  """Test the JobSpecExtractor class."""
+  """Test the SpecFileValidator class."""
 
   def test_init_settings(self) -> None:
     valid_spec_data = self.json_reader.load_json_file(
-        self.fixtures_folder / "mock_v1_job_spec.json"
+        self.fixtures_folder / "mock_v1_spec_file.json"
     )
     validator = spec_file_validator.SpecFileValidator(valid_spec_data)
     self.assertIsInstance(
@@ -32,18 +32,18 @@ class TestSpecFileValidatorClass(fixtures_spec.SpecFileTestHarness):
 
 
 class TestSpecValidity(fixtures_spec.SpecFileTestHarness):
-  """Test the JobSpecExtractor class validation methods."""
+  """Test the SpecFileValidator class validation methods."""
 
   def test_v1_spec_valid(self) -> None:
     valid_spec_data = self.json_reader.load_json_file(
-        self.fixtures_folder / "mock_v1_job_spec.json"
+        self.fixtures_folder / "mock_v1_spec_file.json"
     )
     validator = spec_file_validator.SpecFileValidator(valid_spec_data)
     validator.validate_spec_file()
 
   def test_v1_spec_invalid(self) -> None:
     invalid_spec_data = self.json_reader.load_json_file(
-        self.fixtures_folder / "mock_v1_invalid_job_spec.json"
+        self.fixtures_folder / "mock_v1_invalid_spec_file.json"
     )
     validator = spec_file_validator.SpecFileValidator(invalid_spec_data)
 

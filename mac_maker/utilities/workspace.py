@@ -44,7 +44,7 @@ class WorkSpace:
     )
 
   def add_spec_file(self) -> None:
-    """Generate and write a Job Spec file to this Workspace.
+    """Generate and write a spec file to this workspace.
 
     :raises: :class:`InvalidWorkspace`
     """
@@ -58,6 +58,6 @@ class WorkSpace:
     spec_file_content = state_manager.state_generate(profile)
     state_manager.state_dehydrate(spec_file_content, self.spec_file)
     self.log.debug(
-        "WorkSpace: Wrote Job Spec file to workspace: %s.",
+        "WorkSpace: Wrote spec file to workspace: %s.",
         self.spec_file,
     )

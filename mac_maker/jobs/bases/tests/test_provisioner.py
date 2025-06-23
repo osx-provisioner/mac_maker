@@ -20,8 +20,8 @@ class TestJobsBase:
       concrete_provisioning_job: ProvisionerJobBase,
   ) -> None:
     assert isinstance(
-        concrete_provisioning_job.jobspec_extractor,
-        spec_file_extractor.JobSpecExtractor,
+        concrete_provisioning_job.spec_file_extractor,
+        spec_file_extractor.SpecFileExtractor,
     )
 
   def test_initialize__has_precheck_extractor(

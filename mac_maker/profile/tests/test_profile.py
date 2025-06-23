@@ -24,7 +24,7 @@ class TestProfile(TestCase):
 
   def test_get_state_file(self) -> None:
     self.assertEqual(
-        self.profile.get_spec_file(), self.mock_root / config.STATE_FILE_NAME
+        self.profile.get_spec_file(), self.mock_root / config.SPEC_FILE_NAME
     )
 
   def test_get_inventory_file(self) -> None:

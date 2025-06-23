@@ -12,8 +12,6 @@ ANSIBLE_INVENTORY_CONTENT = (
     'localhost\t'
     'ansible_connection=local\t'
 )
-ANSIBLE_JOB_SPEC_MESSAGE = "--- Job Spec Created ---"
-ANSIBLE_JOB_SPEC_READ_MESSAGE = "--- Job Spec Loaded ---"
 ANSIBLE_RETRIEVE_MESSAGE = "--- Retrieving Remote Profile ---"
 ANSIBLE_ROLES_MESSAGE = "--- Installing Profile Roles ---"
 ANSIBLE_COLLECTIONS_MESSAGE = "--- Installing Profile Collections ---"
@@ -38,7 +36,9 @@ PRECHECK = {
 }
 PRECHECK_SUCCESS_MESSAGE = "Ready to proceed!"
 
-STATE_FILE_NAME = "spec.json"
+SPEC_FILE_CREATED_MESSAGE = "--- Spec Created ---"
+SPEC_FILE_LOADED_MESSAGE = "--- Spec Loaded ---"
+SPEC_FILE_NAME = "spec.json"
 
 SUDO_PROMPT = "Please enter the SUDO password for your MAC: "
 SUDO_CHECK_COMMAND = "sudo -kS /bin/echo"
