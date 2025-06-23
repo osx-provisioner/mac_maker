@@ -5,8 +5,9 @@ from typing import cast
 from unittest import mock
 
 import pytest
-from mac_maker.jobs import github, spec, version
+from mac_maker.jobs import github, spec_file, version
 from mac_maker.jobs.bases import provisioner
+from mac_maker.profile.spec_file import TypeSpecFileData
 
 
 @pytest.fixture
@@ -18,7 +19,7 @@ def mocked_click_echo(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
       mock.Mock(echo=instance),
   )
   monkeypatch.setattr(
-      spec,
+      spec_file,
       "click",
       mock.Mock(echo=instance),
   )
@@ -42,28 +43,6 @@ def mocked_github_repository(monkeypatch: pytest.MonkeyPatch,) -> mock.Mock:
 
 
 @pytest.fixture
-def mocked_jobspec_extractor(
-    global_spec_file_mock: spec.TypeSpecFileData,
-    monkeypatch: pytest.MonkeyPatch,
-) -> mock.Mock:
-  instance = mock.Mock()
-  instance.return_value.get_job_spec_data.return_value = global_spec_file_mock
-  monkeypatch.setattr(
-      provisioner,
-      "JobSpecExtractor",
-      instance,
-  )
-  return instance
-
-
-@pytest.fixture
-def mocked_jobspec_extractor_instance(
-    mocked_jobspec_extractor: mock.Mock,
-) -> mock.Mock:
-  return cast(mock.Mock, mocked_jobspec_extractor.return_value)
-
-
-@pytest.fixture
 def mocked_precheck_extractor(monkeypatch: pytest.MonkeyPatch,) -> mock.Mock:
   instance = mock.Mock()
   monkeypatch.setattr(
@@ -79,6 +58,28 @@ def mocked_precheck_extractor_instance(
     mocked_precheck_extractor: mock.Mock,
 ) -> mock.Mock:
   return cast(mock.Mock, mocked_precheck_extractor.return_value)
+
+
+@pytest.fixture
+def mocked_spec_file_extractor(
+    global_spec_file_mock: TypeSpecFileData,
+    monkeypatch: pytest.MonkeyPatch,
+) -> mock.Mock:
+  instance = mock.Mock()
+  instance.return_value.get_spec_file_data.return_value = global_spec_file_mock
+  monkeypatch.setattr(
+      provisioner,
+      "SpecFileExtractor",
+      instance,
+  )
+  return instance
+
+
+@pytest.fixture
+def mocked_spec_file_extractor_instance(
+    mocked_spec_file_extractor: mock.Mock,
+) -> mock.Mock:
+  return cast(mock.Mock, mocked_spec_file_extractor.return_value)
 
 
 @pytest.fixture
@@ -101,7 +102,7 @@ def mocked_workspace(monkeypatch: pytest.MonkeyPatch,) -> mock.Mock:
 def setup_provisioner_mocks(
     # pylint: disable=unused-argument
     mocked_click_echo: mock.Mock,
-    mocked_jobspec_extractor: mock.Mock,
+    mocked_spec_file_extractor: mock.Mock,
     mocked_precheck_extractor: mock.Mock,
 ) -> None:
   return None
@@ -127,8 +128,8 @@ def spec_file_job_instance(
     # pylint: disable=unused-argument
     mocked_spec_file_path: str,
     setup_provisioner_mocks: None,
-) -> spec.SpecFileJob:
-  return spec.SpecFileJob(mocked_spec_file_path)
+) -> spec_file.SpecFileJob:
+  return spec_file.SpecFileJob(mocked_spec_file_path)
 
 
 @pytest.fixture

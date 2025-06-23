@@ -1,4 +1,4 @@
-"""Test harness for the Job Spec file test classes."""
+"""Test harness for the spec file test classes."""
 
 import os
 from pathlib import Path
@@ -8,7 +8,7 @@ from mac_maker.utilities.mixins import json_file
 
 
 class SpecFileTestHarness(TestCase):
-  """Test harness for Job Spec file test classes."""
+  """Test harness for spec file test classes."""
 
   def setUp(self) -> None:
     self.json_reader = json_file.JSONFileReader()
