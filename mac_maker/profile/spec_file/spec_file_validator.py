@@ -4,29 +4,18 @@ import logging
 import os
 import pprint
 from pathlib import Path
-from typing import Any, List, TypedDict, Union
+from typing import Any, List
 
 from jsonschema.validators import validator_for
 from mac_maker import config
 from mac_maker.utilities.mixins.json_file import JSONFileReader
-from mac_maker.utilities.state import TypeState
-
-
-class TypeSpecFileData(TypedDict):
-  """Typed representation of a loaded spec file."""
-
-  spec_file_content: TypeState
-  spec_file_location: Union[Path, str]
-
-
-class SpecFileValidationException(Exception):
-  """Raised when reading an invalid spec file."""
+from mac_maker.profile.spec_file.exceptions import SpecFileValidationException
 
 
 class SpecFileValidator(JSONFileReader):
-  """Validator for a spec file.
+  """Validator for spec file json content.
 
-  :param spec_file_content: The loaded spec file to validate.
+  :param spec_file_json_content: The spec file content to validate.
   """
 
   schema_definition = (
@@ -34,10 +23,10 @@ class SpecFileValidator(JSONFileReader):
       "spec_file_v1.json"
   )
 
-  def __init__(self, spec_file_content: TypeState) -> None:
+  def __init__(self, spec_file_json_content: Any) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.schema = self.load_json_file(self.schema_definition)
-    self.spec_file_content = spec_file_content
+    self.spec_file_json_content = spec_file_json_content
 
   def _validate_with_schema(
       self,
@@ -46,7 +35,7 @@ class SpecFileValidator(JSONFileReader):
     validator_class = validator_for(schema)
     validator = validator_class(schema)
     errors = []
-    for error in validator.iter_errors(self.spec_file_content):
+    for error in validator.iter_errors(self.spec_file_json_content):
       errors.append(error.message)
     return sorted(errors)
 

@@ -2,8 +2,8 @@
 # pylint: disable=redefined-outer-name
 
 import pytest
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.profile import precheck, spec_file
-from mac_maker.utilities import state
 
 
 @pytest.fixture
@@ -25,8 +25,8 @@ def global_precheck_data_mock() -> precheck.TypePrecheckFileData:
 
 
 @pytest.fixture
-def global_state_data_mock() -> state.TypeState:
-  return state.TypeState(
+def global_spec_mock() -> Spec:
+  return Spec(
       workspace_root_path='/path/to/root',
       profile_data_path='/path/to/profile_data',
       galaxy_requirements_file='/path/to/galaxy_requirements_file',
@@ -45,9 +45,15 @@ def global_state_data_mock() -> state.TypeState:
 
 @pytest.fixture
 def global_spec_file_mock(
-    global_state_data_mock: state.TypeState,
-) -> spec_file.TypeSpecFileData:
-  return spec_file.TypeSpecFileData(
-      spec_file_content=global_state_data_mock,
-      spec_file_location="/path/to/spec_file/"
-  )
+    global_spec_file_path_mock: str,
+    global_spec_mock: Spec,
+) -> spec_file.SpecFile:
+  spec_file_mock = spec_file.SpecFile()
+  spec_file_mock.content = global_spec_mock
+  spec_file_mock.path = global_spec_file_path_mock
+  return spec_file_mock
+
+
+@pytest.fixture
+def global_spec_file_path_mock() -> str:
+  return "/path/to/spec_file.json"
