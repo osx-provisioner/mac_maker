@@ -5,9 +5,9 @@ from typing import NamedTuple, Type, cast
 from unittest import mock
 
 import pytest
+from mac_maker.jobs.bases import provisioner
 from mac_maker.profile import precheck
 from mac_maker.utilities import state
-from .. import provisioner
 
 
 class ProvisionerMocks(NamedTuple):

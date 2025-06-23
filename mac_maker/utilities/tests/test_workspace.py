@@ -65,14 +65,14 @@ class TestWorkSpace(fixtures_git.GitTestHarness):
     self.assertIsNone(self.workspace.spec_file)
 
   @mock.patch(WORKSPACE_MODULE + ".State")
-  @mock.patch(WORKSPACE_MODULE + ".FileSystem")
+  @mock.patch(WORKSPACE_MODULE + ".Profile")
   def test_add_spec_file_with_repo(
-      self, m_fs: mock.Mock, m_state: mock.Mock
+      self, m_profile: mock.Mock, m_state: mock.Mock
   ) -> None:
     mock_spec_file_path = "/mock/path"
     mock_spec_file_content = "mock state"
 
-    m_fs.return_value.get_spec_file.return_value = mock_spec_file_path
+    m_profile.return_value.get_spec_file.return_value = mock_spec_file_path
     m_state.return_value.state_generate.return_value = mock_spec_file_content
 
     self.workspace.repository_root = Path("/mock_root_path")

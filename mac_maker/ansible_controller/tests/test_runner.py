@@ -8,7 +8,7 @@ import pytest
 from mac_maker import config
 from mac_maker.__helpers__.logs import decode_logs
 from mac_maker.ansible_controller import process, runner
-from mac_maker.profile import filesystem
+from mac_maker.profile import Profile
 from mac_maker.utilities import state
 
 RUNNER_MODULE = runner.__name__
@@ -19,15 +19,15 @@ class TestAnsibleRunnerClass:
 
   def create_commands(
       self,
-      file_system: filesystem.FileSystem,
+      profile: Profile,
       debug: bool,
   ) -> List[str]:
     requirements_file_path = \
-      file_system.get_galaxy_requirements_file().resolve()
-    roles_file_path = file_system.get_roles_path().resolve()
-    collections_file_path = file_system.get_collections_path().resolve()
-    playbook_file = file_system.get_playbook_file().resolve()
-    inventory_file = file_system.get_inventory_file()
+      profile.get_galaxy_requirements_file().resolve()
+    roles_file_path = profile.get_roles_path().resolve()
+    collections_file_path = profile.get_collections_path().resolve()
+    playbook_file = profile.get_playbook_file().resolve()
+    inventory_file = profile.get_inventory_file()
 
     debug_flag = " -vvvv" if debug else ""
 
@@ -55,12 +55,12 @@ class TestAnsibleRunnerClass:
 
   def create_logging_messages(
       self,
-      file_system: filesystem.FileSystem,
+      profile: Profile,
   ) -> List[str]:
     requirements_file_path = \
-      file_system.get_galaxy_requirements_file().resolve()
-    roles_file_path = file_system.get_roles_path().resolve()
-    collections_file_path = file_system.get_collections_path().resolve()
+      profile.get_galaxy_requirements_file().resolve()
+    roles_file_path = profile.get_roles_path().resolve()
+    collections_file_path = profile.get_collections_path().resolve()
 
     return [
         (
@@ -96,31 +96,31 @@ class TestAnsibleRunnerClass:
   )
   def test_init__attributes(
       self,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       mocked_state: state.State,
       kwargs: Dict[str, bool],
       expected_debug: bool,
   ) -> None:
 
     instance = runner.AnsibleRunner(
-        mocked_state.state_generate(mocked_filesystem),
+        mocked_state.state_generate(mocked_profile),
         **kwargs,
     )
 
     assert isinstance(instance.log, logging.Logger)
-    assert instance.state == mocked_state.state_generate(mocked_filesystem)
+    assert instance.state == mocked_state.state_generate(mocked_profile)
     assert instance.debug == expected_debug
     assert isinstance(instance.process, process.AnsibleProcess)
 
   def test_init__ansible_process(
       self,
       ansible_runner: runner.AnsibleRunner,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       mocked_state: state.State,
       mocked_ansible_process: mock.Mock,
   ) -> None:
     mocked_ansible_process.assert_called_with(
-        mocked_state.state_generate(mocked_filesystem)
+        mocked_state.state_generate(mocked_profile)
     )
     assert ansible_runner.process == mocked_ansible_process.return_value
 
@@ -129,7 +129,7 @@ class TestAnsibleRunnerClass:
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       debug: bool,
   ) -> None:
     ansible_runner.debug = debug
@@ -143,13 +143,13 @@ class TestAnsibleRunnerClass:
 
     assert mocked_ansible_process.return_value.spawn.call_args_list == [
         mock.call(command)
-        for command in self.create_commands(mocked_filesystem, debug)
+        for command in self.create_commands(mocked_profile, debug)
     ]
 
   def test_start__all_processes_succeed__correct_logging(
       self,
       ansible_runner: runner.AnsibleRunner,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       caplog: pytest.LogCaptureFixture,
   ) -> None:
     caplog.set_level(logging.DEBUG)
@@ -157,7 +157,7 @@ class TestAnsibleRunnerClass:
     ansible_runner.start()
 
     assert decode_logs(caplog.records) == \
-        self.create_logging_messages(mocked_filesystem)
+        self.create_logging_messages(mocked_profile)
 
   def test_start__all_process_succeed__click_echo(
       self,
@@ -177,7 +177,7 @@ class TestAnsibleRunnerClass:
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       debug: bool,
   ) -> None:
     mocked_ansible_process.return_value.spawn.side_effect = (ChildProcessError,)
@@ -186,7 +186,7 @@ class TestAnsibleRunnerClass:
 
     assert mocked_ansible_process.return_value.spawn.call_args_list == [
         mock.call(command)
-        for command in self.create_commands(mocked_filesystem, debug)[0:1]
+        for command in self.create_commands(mocked_profile, debug)[0:1]
     ]
 
   def test_start__first_process_fails__click_echo(
@@ -206,7 +206,7 @@ class TestAnsibleRunnerClass:
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       caplog: pytest.LogCaptureFixture,
   ) -> None:
     mocked_ansible_process.return_value.spawn.side_effect = (ChildProcessError,)
@@ -215,14 +215,14 @@ class TestAnsibleRunnerClass:
     ansible_runner.start()
 
     assert decode_logs(caplog.records) == \
-        self.create_logging_messages(mocked_filesystem)[0:2]
+           self.create_logging_messages(mocked_profile)[0:2]
 
   @pytest.mark.parametrize("debug", (True, False))
   def test_spawn__vary_debug__second_process_fails__calls_spawn(
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       debug: bool,
   ) -> None:
     mocked_ansible_process.return_value.spawn.side_effect = (
@@ -234,7 +234,7 @@ class TestAnsibleRunnerClass:
 
     assert mocked_ansible_process.return_value.spawn.call_args_list == [
         mock.call(command)
-        for command in self.create_commands(mocked_filesystem, debug)[0:2]
+        for command in self.create_commands(mocked_profile, debug)[0:2]
     ]
 
   def test_spawn__second_process_fails__click_echo(
@@ -258,7 +258,7 @@ class TestAnsibleRunnerClass:
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       caplog: pytest.LogCaptureFixture,
   ) -> None:
     mocked_ansible_process.return_value.spawn.side_effect = (
@@ -270,14 +270,14 @@ class TestAnsibleRunnerClass:
     ansible_runner.start()
 
     assert decode_logs(caplog.records) == \
-        self.create_logging_messages(mocked_filesystem)[0:3]
+           self.create_logging_messages(mocked_profile)[0:3]
 
   @pytest.mark.parametrize("debug", (True, False))
   def test_spawn__vary_debug__third_process_fails__calls_spawn(
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       debug: bool,
   ) -> None:
     ansible_runner.debug = debug
@@ -291,7 +291,7 @@ class TestAnsibleRunnerClass:
 
     assert mocked_ansible_process.return_value.spawn.call_args_list == [
         mock.call(command)
-        for command in self.create_commands(mocked_filesystem, debug)
+        for command in self.create_commands(mocked_profile, debug)
     ]
 
   def test_spawn__third_process_fails__click_echo(
@@ -317,7 +317,7 @@ class TestAnsibleRunnerClass:
       self,
       ansible_runner: runner.AnsibleRunner,
       mocked_ansible_process: mock.Mock,
-      mocked_filesystem: filesystem.FileSystem,
+      mocked_profile: Profile,
       caplog: pytest.LogCaptureFixture,
   ) -> None:
     mocked_ansible_process.return_value.spawn.side_effect = (
@@ -330,4 +330,4 @@ class TestAnsibleRunnerClass:
     ansible_runner.start()
 
     assert decode_logs(caplog.records) == \
-        self.create_logging_messages(mocked_filesystem)[0:-1]
+           self.create_logging_messages(mocked_profile)[0:-1]
