@@ -70,4 +70,3 @@ class TestLoggerMessage(TestCase):
   def tearDown(self) -> None:
     self.log = logger.Logger(debug=True)
     self.log.setup()
-

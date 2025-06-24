@@ -4,11 +4,10 @@ from typing import Optional
 
 import click
 from mac_maker import config
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.profile.precheck import TypePrecheckFileData
-from mac_maker.profile.spec_file import TypeSpecFileData
 from mac_maker.utilities.github import GithubRepository
-from mac_maker.utilities.state import TypeState
 from mac_maker.utilities.workspace import WorkSpace
 
 
@@ -22,7 +21,6 @@ class GitHubJob(ProvisionerJobBase):
   repository_url: str
   branch_name: Optional[str]
   workspace: Optional[WorkSpace]
-  loaded_spec_file_data: TypeSpecFileData
 
   def __init__(self, repository_url: str, branch_name: Optional[str]):
     super().__init__()
@@ -39,9 +37,8 @@ class GitHubJob(ProvisionerJobBase):
     self.workspace = WorkSpace()
     self.workspace.add_repository(self.repository, self.branch_name)
     self.workspace.add_spec_file()
-    self.loaded_spec_file_data = self.spec_file_extractor.get_spec_file_data(
-        str(self.workspace.spec_file)
-    )
+    self.spec_file.path = str(self.workspace.spec_file)
+    self.spec_file.load()
 
   def get_precheck_content(self) -> TypePrecheckFileData:
     """Read the Precheck data from a GitHub Repository.
@@ -51,17 +48,17 @@ class GitHubJob(ProvisionerJobBase):
 
     self._initialize_workspace()
     precheck_data = self.precheck_extractor.get_precheck_data(
-        self.loaded_spec_file_data
+        self.spec_file.content
     )
     return precheck_data
 
-  def get_state(self) -> TypeState:
-    """Fetch a GitHub zip bundle, and build a runtime state object.
+  def get_spec(self) -> Spec:
+    """Assemble and return a provisioning spec instance.
 
-    :returns: The created runtime state object.
+    :returns: The created provisioning spec instance.
     """
 
     self._initialize_workspace()
     click.echo(config.SPEC_FILE_CREATED_MESSAGE)
-    click.echo(self.loaded_spec_file_data['spec_file_location'])
-    return self.loaded_spec_file_data['spec_file_content']
+    click.echo(self.spec_file.path)
+    return self.spec_file.content

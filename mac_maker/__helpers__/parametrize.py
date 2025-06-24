@@ -1,6 +1,6 @@
 """Test helpers for pytest parametrize."""
 
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple
 
 import pytest
 from _pytest.mark import ParameterSet
@@ -13,10 +13,10 @@ def named_parameters(
   """Extract a test id from a pytest parameter set."""
 
   return [
-    pytest.param(
-      *argset,
-      id=str(*[argset[selected] for selected in names]),
-    ) for argset in args
+      pytest.param(
+          *argset,
+          id=str(*[argset[selected] for selected in names]),
+      ) for argset in args
   ]
 
 
@@ -45,8 +45,8 @@ def templated_parameters(
   templater = templated_ids(template, transformation)
 
   return [
-    pytest.param(
-      *argset,
-      id=templater(*[argset[selected] for selected in names]),
-    ) for argset in args
+      pytest.param(
+          *argset,
+          id=templater(*[argset[selected] for selected in names]),
+      ) for argset in args
   ]

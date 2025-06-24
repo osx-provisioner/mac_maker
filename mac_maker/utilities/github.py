@@ -9,14 +9,10 @@ from zipfile import ZipFile
 
 import requests
 from mac_maker import config
-
-
-class InvalidGithubRepository(Exception):
-  """Raised when a Github repository URL cannot be parsed."""
-
-
-class GithubCommunicationError(Exception):
-  """Raised when a remote Github repository cannot be accessed."""
+from mac_maker.utilities.exceptions import (
+    GithubCommunicationError,
+    GithubRepositoryInvalid,
+)
 
 
 class GithubRepository:
@@ -43,7 +39,7 @@ class GithubRepository:
           "GithubRepository: Cannot parse a Github Repository URL from: %s",
           repository,
       )
-      raise InvalidGithubRepository("Invalid GitHub Repository.")
+      raise GithubRepositoryInvalid("Invalid GitHub Repository.")
     return parsed_url
 
   def get_branch_name(self, branch_name: Optional[str]) -> str:

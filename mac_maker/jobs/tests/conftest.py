@@ -1,56 +1,28 @@
 """Pytest fixtures for mac_maker job classes."""
 # pylint: disable=redefined-outer-name
 
-from typing import cast
+from typing import Callable, cast
 from unittest import mock
 
 import pytest
 from mac_maker.jobs import github, spec_file, version
 from mac_maker.jobs.bases import provisioner
-from mac_maker.profile.spec_file import TypeSpecFileData
+from mac_maker.profile.spec_file import SpecFile
 
 
 @pytest.fixture
-def mocked_click_echo(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
-  instance = mock.Mock()
-  monkeypatch.setattr(
-      github,
-      "click",
-      mock.Mock(echo=instance),
-  )
-  monkeypatch.setattr(
-      spec_file,
-      "click",
-      mock.Mock(echo=instance),
-  )
-  monkeypatch.setattr(
-      version,
-      "click",
-      mock.Mock(echo=instance),
-  )
-  return instance
+def mocked_click_echo() -> mock.Mock:
+  return mock.Mock()
 
 
 @pytest.fixture
-def mocked_github_repository(monkeypatch: pytest.MonkeyPatch,) -> mock.Mock:
-  instance = mock.Mock()
-  monkeypatch.setattr(
-      github,
-      "GithubRepository",
-      instance,
-  )
-  return instance
+def mocked_github_repository() -> mock.Mock:
+  return mock.Mock()
 
 
 @pytest.fixture
-def mocked_precheck_extractor(monkeypatch: pytest.MonkeyPatch,) -> mock.Mock:
-  instance = mock.Mock()
-  monkeypatch.setattr(
-      provisioner,
-      "PrecheckExtractor",
-      instance,
-  )
-  return instance
+def mocked_precheck_extractor() -> mock.Mock:
+  return mock.Mock()
 
 
 @pytest.fixture
@@ -61,25 +33,8 @@ def mocked_precheck_extractor_instance(
 
 
 @pytest.fixture
-def mocked_spec_file_extractor(
-    global_spec_file_mock: TypeSpecFileData,
-    monkeypatch: pytest.MonkeyPatch,
-) -> mock.Mock:
-  instance = mock.Mock()
-  instance.return_value.get_spec_file_data.return_value = global_spec_file_mock
-  monkeypatch.setattr(
-      provisioner,
-      "SpecFileExtractor",
-      instance,
-  )
-  return instance
-
-
-@pytest.fixture
-def mocked_spec_file_extractor_instance(
-    mocked_spec_file_extractor: mock.Mock,
-) -> mock.Mock:
-  return cast(mock.Mock, mocked_spec_file_extractor.return_value)
+def mocked_spec_file(global_spec_file_mock: SpecFile) -> mock.Mock:
+  return mock.Mock(return_value=global_spec_file_mock)
 
 
 @pytest.fixture
@@ -88,35 +43,103 @@ def mocked_spec_file_path() -> str:
 
 
 @pytest.fixture
-def mocked_workspace(monkeypatch: pytest.MonkeyPatch,) -> mock.Mock:
+def mocked_workspace() -> mock.Mock:
   instance = mock.Mock()
-  monkeypatch.setattr(
-      github,
-      "WorkSpace",
-      instance,
-  )
   return instance
 
 
 @pytest.fixture
-def setup_provisioner_mocks(
-    # pylint: disable=unused-argument
+def setup_github_job_module(
     mocked_click_echo: mock.Mock,
-    mocked_spec_file_extractor: mock.Mock,
+    mocked_github_repository: mock.Mock,
     mocked_precheck_extractor: mock.Mock,
-) -> None:
-  return None
+    mocked_spec_file: mock.Mock,
+    mocked_workspace: mock.Mock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        github,
+        "click",
+        mock.Mock(echo=mocked_click_echo),
+    )
+    monkeypatch.setattr(
+        github,
+        "GithubRepository",
+        mocked_github_repository,
+    )
+    monkeypatch.setattr(
+        provisioner,
+        "PrecheckExtractor",
+        mocked_precheck_extractor,
+    )
+    monkeypatch.setattr(
+        provisioner,
+        "SpecFile",
+        mocked_spec_file,
+    )
+    monkeypatch.setattr(
+        github,
+        "WorkSpace",
+        mocked_workspace,
+    )
+
+  return setup
+
+
+@pytest.fixture
+def setup_spec_file_job_module(
+    mocked_click_echo: mock.Mock,
+    mocked_precheck_extractor: mock.Mock,
+    mocked_spec_file: mock.Mock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        spec_file,
+        "click",
+        mock.Mock(echo=mocked_click_echo),
+    )
+    monkeypatch.setattr(
+        provisioner,
+        "PrecheckExtractor",
+        mocked_precheck_extractor,
+    )
+    monkeypatch.setattr(
+        provisioner,
+        "SpecFile",
+        mocked_spec_file,
+    )
+
+  return setup
+
+
+@pytest.fixture
+def setup_version_job_module(
+    mocked_click_echo: mock.Mock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        version,
+        "click",
+        mock.Mock(echo=mocked_click_echo),
+    )
+
+  return setup
 
 
 @pytest.fixture
 def github_job_instance(
-    # pylint: disable=unused-argument
     global_git_branch_mock: str,
     global_git_url_mock: str,
-    mocked_github_repository: mock.Mock,
-    mocked_workspace: mock.Mock,
-    setup_provisioner_mocks: None,
+    setup_github_job_module: Callable[[], None],
 ) -> github.GitHubJob:
+  setup_github_job_module()
+
   return github.GitHubJob(
       global_git_url_mock,
       global_git_branch_mock,
@@ -125,13 +148,18 @@ def github_job_instance(
 
 @pytest.fixture
 def spec_file_job_instance(
-    # pylint: disable=unused-argument
     mocked_spec_file_path: str,
-    setup_provisioner_mocks: None,
+    setup_spec_file_job_module: Callable[[], None],
 ) -> spec_file.SpecFileJob:
+  setup_spec_file_job_module()
+
   return spec_file.SpecFileJob(mocked_spec_file_path)
 
 
 @pytest.fixture
-def version_job_instance() -> version.VersionJob:
+def version_job_instance(
+    setup_version_job_module: Callable[[], None],
+) -> version.VersionJob:
+  setup_version_job_module()
+
   return version.VersionJob()

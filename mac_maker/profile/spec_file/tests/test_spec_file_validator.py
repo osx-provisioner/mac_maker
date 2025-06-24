@@ -2,59 +2,51 @@
 
 import json
 from logging import Logger
+from pathlib import Path
 
-from mac_maker.profile.spec_file import spec_file_validator
-from mac_maker.tests.fixtures import fixtures_spec
+import mac_maker
+import pytest
+from mac_maker.profile.spec_file import exceptions
+from mac_maker.profile.spec_file.spec_file_validator import SpecFileValidator
+from mac_maker.tests import fixtures
 
-SPEC_MODULE = spec_file_validator.__name__
 
-
-class TestSpecFileValidatorClass(fixtures_spec.SpecFileTestHarness):
+class TestSpecFileValidator:
   """Test the SpecFileValidator class."""
 
-  def test_init_settings(self) -> None:
-    valid_spec_data = self.json_reader.load_json_file(
-        self.fixtures_folder / "mock_v1_spec_file.json"
+  spec_data_valid = json.loads(
+      (Path(fixtures.__file__).parent /
+       "mock_v1_spec_file.json").read_text(encoding="utf-8")
+  )
+  spec_data_invalid = json.loads(
+      (Path(fixtures.__file__).parent /
+       "mock_v1_invalid_spec_file.json").read_text(encoding="utf-8")
+  )
+
+  def test_initializer__attributes(self) -> None:
+    instance = SpecFileValidator(self.spec_data_valid)
+
+    assert instance.spec_file_json_content == self.spec_data_valid
+    assert isinstance(instance.log, Logger)
+    assert instance.schema_definition == (
+        Path(mac_maker.__file__).parent / "schemas" / "spec_file_v1.json"
     )
-    validator = spec_file_validator.SpecFileValidator(valid_spec_data)
-    self.assertIsInstance(
-        validator.log,
-        Logger,
-    )
-    self.assertIsInstance(
-        validator.schema,
-        dict,
-    )
-    self.assertEqual(
-        validator.spec_file_content,
-        valid_spec_data,
+    assert instance.schema == instance.load_json_file(
+        instance.schema_definition
     )
 
+  def test_validate__invalid_content__raises_exception(self) -> None:
+    instance = SpecFileValidator(self.spec_data_invalid)
 
-class TestSpecValidity(fixtures_spec.SpecFileTestHarness):
-  """Test the SpecFileValidator class validation methods."""
+    with pytest.raises(exceptions.SpecFileValidationError) as exc:
+      instance.validate()
 
-  def test_v1_spec_valid(self) -> None:
-    valid_spec_data = self.json_reader.load_json_file(
-        self.fixtures_folder / "mock_v1_spec_file.json"
-    )
-    validator = spec_file_validator.SpecFileValidator(valid_spec_data)
-    validator.validate_spec_file()
+    assert json.loads(exc.value.args[0]) == [
+        "'collections_path' is a required property",
+        "'roles_path' is a required property",
+    ]
 
-  def test_v1_spec_invalid(self) -> None:
-    invalid_spec_data = self.json_reader.load_json_file(
-        self.fixtures_folder / "mock_v1_invalid_spec_file.json"
-    )
-    validator = spec_file_validator.SpecFileValidator(invalid_spec_data)
+  def test_validate__valid_content__no_exception(self) -> None:
+    instance = SpecFileValidator(self.spec_data_valid)
 
-    with self.assertRaises(
-        spec_file_validator.SpecFileValidationException
-    ) as exc:
-      validator.validate_spec_file()
-
-    self.assertListEqual(
-        json.loads(exc.exception.args[0]), [
-            "'collections_path' is a required property",
-            "'roles_path' is a required property",
-        ]
-    )
+    instance.validate()

@@ -2,52 +2,46 @@
 
 import os
 from pathlib import Path
-from typing import List, TypedDict
+from typing import List
 
+import mac_maker
 import yaml
 from jsonschema import ValidationError, validate
+from mac_maker.profile.precheck import (
+    TypePrecheckEnvironmentValidationResult,
+    TypePrecheckVariableDefinition,
+)
+from mac_maker.profile.precheck.exceptions import PrecheckValidationError
 from mac_maker.utilities.mixins.json_file import JSONFileReader
 
 
-class TypePrecheckEnvironmentValidationResult(TypedDict):
-  """Typed representation of a precheck environment variable validation."""
-
-  is_valid: bool
-  violations: List[str]
-
-
-class TypePrecheckVariableDefinition(TypedDict):
-  """Typed representation of a precheck environment variable definition."""
-
-  name: str
-  description: str
-
-
-class PrecheckConfigValidationException(Exception):
-  """Raised when reading an invalid precheck environment configuration file."""
-
-
-class PrecheckConfigValidator(JSONFileReader):
+class PrecheckValidator(JSONFileReader):
   """Profile precheck data validator.
 
-  :param precheck_env_file: The path to a Precheck environment config file.
-  :raises: :class:`PrecheckConfigValidationException`
+  :param env_config_file_data: Contents of a Precheck environment config file.
+  :raises: :class:`exceptions.PrecheckConfigValidationError`
   """
 
-  syntax_error = "Invalid YAML syntax."
+  class Messages:
+    syntax_error = "Invalid YAML syntax."
+    error_template = (
+        "ERROR: environment variable {name} is undefined.\n"
+        "DESCRIPTION: {description}\n"
+    )
+
   schema_definition = (
-      Path(os.path.dirname(__file__)).parent.parent / "schemas" / "env_v1.json"
+      Path(os.path.dirname(mac_maker.__file__)) / "schemas" / "env_v1.json"
   )
 
-  def __init__(self, precheck_env_file: str) -> None:
+  def __init__(self, env_config_file_data: str) -> None:
     self.schema = self.load_json_file(self.schema_definition)
 
     try:
       self.parsed_yaml: List[TypePrecheckVariableDefinition] = yaml.safe_load(
-          precheck_env_file
+          env_config_file_data
       )
     except yaml.YAMLError as exc:
-      raise PrecheckConfigValidationException(self.syntax_error) from exc
+      raise PrecheckValidationError(self.Messages.syntax_error) from exc
 
   def validate_config(self) -> None:
     """Validate an precheck environment config file.
@@ -58,7 +52,7 @@ class PrecheckConfigValidator(JSONFileReader):
     try:
       validate(self.parsed_yaml, self.schema)
     except ValidationError as exc:
-      raise PrecheckConfigValidationException(self.syntax_error) from exc
+      raise PrecheckValidationError(self.Messages.syntax_error) from exc
 
   def validate_environment(self) -> TypePrecheckEnvironmentValidationResult:
     """Validate the current environment against the parsed configuration file.
@@ -78,10 +72,7 @@ class PrecheckConfigValidator(JSONFileReader):
     }
 
   def _env_validation_error(
-      self, variable_definition: TypePrecheckVariableDefinition
+      self,
+      variable_definition: TypePrecheckVariableDefinition,
   ) -> str:
-    return (
-        "ERROR: "
-        f"environment variable {variable_definition['name']} is undefined.\n"
-        f"DESCRIPTION: {variable_definition['description']}\n"
-    )
+    return self.Messages.error_template.format(**variable_definition)

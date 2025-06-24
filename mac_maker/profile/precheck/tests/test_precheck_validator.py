@@ -1,111 +1,106 @@
-"""Test precheck YAML configuration validator."""
-
+"""Test the PrecheckValidator class."""
+import os
 from pathlib import Path
-from typing import Any
-from unittest import TestCase, mock
+from unittest import mock
 
-from mac_maker.profile.precheck import precheck_validator
-from mac_maker.profile.precheck.precheck_validator import (
-    PrecheckConfigValidationException,
-    PrecheckConfigValidator,
-)
+import mac_maker
+import pytest
+import yaml
+from mac_maker.profile.precheck.exceptions import PrecheckValidationError
+from mac_maker.profile.precheck.precheck_validator import PrecheckValidator
 from mac_maker.tests import fixtures
 
-PRECHECK_MODULE = precheck_validator.__name__
 
+class TestPrecheckValidator:
+  """Test the PrecheckValidator class."""
 
-class TestValidator(TestCase):
-  """Test the precheck YAML configuration validator."""
+  env_config_valid = (Path(fixtures.__file__).parent /
+                      "mock_env.yml").read_text(encoding="utf-8")
+  env_config_invalid = "invalid configuration"
+  yaml_data_valid = '[{"name" : "name", "description": "description"}]'
+  yaml_data_invalid = '- invalid }: - yaml'
 
-  def test_invalid_env_file(self) -> None:
-    yaml_data = "not a list"
-    validator = PrecheckConfigValidator(yaml_data)
+  def test_initialize__valid_yaml__attributes(self,) -> None:
+    instance = PrecheckValidator(self.yaml_data_valid)
 
-    with self.assertRaises(PrecheckConfigValidationException) as exc:
-      validator.validate_config()
-
-    self.assertEqual(str(exc.exception), PrecheckConfigValidator.syntax_error)
-
-  def test_correct(self) -> None:
-    yaml_data = '[{"name" : "name", "description": "description"}]'
-    validator = PrecheckConfigValidator(yaml_data)
-    validator.validate_config()
-
-    self.assertListEqual(
-        validator.parsed_yaml, [{
-            "name": "name",
-            "description": "description"
-        }]
+    assert instance.parsed_yaml == yaml.safe_load(self.yaml_data_valid)
+    assert instance.schema_definition == (
+        Path(mac_maker.__file__).parent / "schemas" / "env_v1.json"
+    )
+    assert instance.schema == instance.load_json_file(
+        instance.schema_definition
     )
 
-  def test_invalid_yaml(self) -> None:
-    with self.assertRaises(PrecheckConfigValidationException):
-      PrecheckConfigValidator('- dsfsdfs }: - dsfdsf')
+  def test_initialize__invalid_yaml__raises_exception(self,) -> None:
 
+    with pytest.raises(PrecheckValidationError) as exc:
+      PrecheckValidator(self.yaml_data_invalid)
 
-class TestValidateEnv(TestCase):
-  """Test the precheck environment validation method."""
+    assert str(exc.value) == PrecheckValidator.Messages.syntax_error
 
-  mock_yaml_data: Any
+  def test_validate_config__valid_config__no_exception(self,) -> None:
+    instance = PrecheckValidator(self.env_config_valid)
 
-  @classmethod
-  def setUpClass(cls) -> None:
-    yaml_env_fixture = Path(fixtures.__file__).parent / "mock_env.yml"
-    with open(yaml_env_fixture, encoding="utf-8") as fhandle:
-      cls.mock_yaml_data = fhandle.read()
+    instance.validate_config()
 
-  def setUp(self) -> None:
-    self.validator = PrecheckConfigValidator(self.mock_yaml_data)
+  def test_validate_config__invalid_config__raises_exception(self,) -> None:
+    instance = PrecheckValidator(self.env_config_invalid)
 
-  @mock.patch(PRECHECK_MODULE + ".os.environ", {})
-  def test_validate_empty_environment(self) -> None:
+    with pytest.raises(PrecheckValidationError) as exc:
+      instance.validate_config()
 
-    results = self.validator.validate_environment()
+    assert str(exc.value) == PrecheckValidator.Messages.syntax_error
 
-    var0 = self.validator.parsed_yaml[0]
-    var1 = self.validator.parsed_yaml[1]
-
-    self.assertFalse(results['is_valid'])
-    self.assertListEqual(
-        results['violations'], [
-            (
-                "ERROR: "
-                f"environment variable {var0['name']} is undefined.\n"
-                f"DESCRIPTION: {var0['description']}\n"
-            ),
-            (
-                "ERROR: "
-                f"environment variable {var1['name']} is undefined.\n"
-                f"DESCRIPTION: {var1['description']}\n"
-            ),
-        ]
-    )
-
-  @mock.patch(PRECHECK_MODULE + ".os.environ", {"USER": "niall"})
-  def test_validate_user_defined(self) -> None:
-    results = self.validator.validate_environment()
-
-    self.assertFalse(results['is_valid'])
-
-    var1 = self.validator.parsed_yaml[1]
-    self.assertListEqual(
-        results['violations'], [
-            (
-                "ERROR: "
-                f"environment variable {var1['name']} is undefined.\n"
-                f"DESCRIPTION: {var1['description']}\n"
-            ),
-        ]
-    )
-
-  @mock.patch(
-      PRECHECK_MODULE + ".os.environ", {
+  @mock.patch.dict(
+      os.environ,
+      {
           "USER": "niall",
-          "JUMPCLOUD_CONNECT_KEY": "11"
-      }
+          "JUMPCLOUD_CONNECT_KEY": "11",
+      },
+      clear=True,
   )
-  def test_validate_all_defined(self) -> None:
-    results = self.validator.validate_environment()
+  def test_validate_environment__complete_env__returns_correct_value(
+      self,
+  ) -> None:
+    instance = PrecheckValidator(self.env_config_valid)
 
-    self.assertTrue(results['is_valid'])
-    self.assertListEqual(results['violations'], [])
+    result = instance.validate_environment()
+
+    assert result == {
+        "is_valid": True,
+        "violations": [],
+    }
+
+  @mock.patch.dict(os.environ, {"USER": "niall"}, clear=True)
+  def test_validate_environment__partial_env__returns_correct_value(
+      self,
+  ) -> None:
+    instance = PrecheckValidator(self.env_config_valid)
+    var1 = instance.parsed_yaml[1]
+
+    result = instance.validate_environment()
+
+    assert result == {
+        "is_valid": False,
+        "violations": [instance.Messages.error_template.format(**var1)]
+    }
+
+  @mock.patch.dict(os.environ, {}, clear=True)
+  def test_validate_environment__empty_env__returns_correct_value(
+      self,
+  ) -> None:
+    instance = PrecheckValidator(self.env_config_valid)
+    var0 = instance.parsed_yaml[0]
+    var1 = instance.parsed_yaml[1]
+
+    result = instance.validate_environment()
+
+    assert result == {
+        "is_valid":
+            False,
+        "violations":
+            [
+                instance.Messages.error_template.format(**var0),
+                instance.Messages.error_template.format(**var1),
+            ]
+    }

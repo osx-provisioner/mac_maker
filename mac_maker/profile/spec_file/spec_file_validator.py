@@ -8,8 +8,8 @@ from typing import Any, List
 
 from jsonschema.validators import validator_for
 from mac_maker import config
+from mac_maker.profile.spec_file.exceptions import SpecFileValidationError
 from mac_maker.utilities.mixins.json_file import JSONFileReader
-from mac_maker.profile.spec_file.exceptions import SpecFileValidationException
 
 
 class SpecFileValidator(JSONFileReader):
@@ -17,6 +17,9 @@ class SpecFileValidator(JSONFileReader):
 
   :param spec_file_json_content: The spec file content to validate.
   """
+
+  class Messages:
+    spec_invalid = 'SpecFileValidator: The loaded spec file is invalid!'
 
   schema_definition = (
       Path(os.path.dirname(__file__)).parent.parent / "schemas" /
@@ -28,6 +31,18 @@ class SpecFileValidator(JSONFileReader):
     self.schema = self.load_json_file(self.schema_definition)
     self.spec_file_json_content = spec_file_json_content
 
+  def validate(self) -> None:
+    """Validate the loaded spec file.
+
+    :raises: :class:`SpecFileValidationError`
+    """
+
+    errors = self._validate_with_schema(self.schema)
+    if errors:
+      self.log.error(self.Messages.spec_invalid)
+      formatted_errors = pprint.pformat(errors)
+      raise SpecFileValidationError(formatted_errors)
+
   def _validate_with_schema(
       self,
       schema: Any,
@@ -38,15 +53,3 @@ class SpecFileValidator(JSONFileReader):
     for error in validator.iter_errors(self.spec_file_json_content):
       errors.append(error.message)
     return sorted(errors)
-
-  def validate_spec_file(self) -> None:
-    """Validate the loaded spec file.
-
-    :raises: :class:`SpecFileValidationException`
-    """
-
-    errors = self._validate_with_schema(self.schema)
-    if errors:
-      self.log.error('SpecFileValidator: The loaded spec file is invalid!')
-      formatted_errors = pprint.pformat(errors)
-      raise SpecFileValidationException(formatted_errors)

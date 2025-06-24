@@ -1,6 +1,10 @@
 """Pytest fixtures for mac_maker."""
 # pylint: disable=redefined-outer-name
 
+from dataclasses import asdict
+from typing import Any, Dict
+from unittest import mock
+
 import pytest
 from mac_maker.ansible_controller.spec import Spec
 from mac_maker.profile import precheck, spec_file
@@ -25,6 +29,11 @@ def global_precheck_data_mock() -> precheck.TypePrecheckFileData:
 
 
 @pytest.fixture
+def global_spec_data_mock(global_spec_mock: Spec) -> Dict[str, Any]:
+  return asdict(global_spec_mock)
+
+
+@pytest.fixture
 def global_spec_mock() -> Spec:
   return Spec(
       workspace_root_path='/path/to/root',
@@ -44,14 +53,40 @@ def global_spec_mock() -> Spec:
 
 
 @pytest.fixture
+def global_spec_file_instance() -> spec_file.SpecFile:
+  return spec_file.SpecFile()
+
+
+@pytest.fixture
 def global_spec_file_mock(
-    global_spec_file_path_mock: str,
-    global_spec_mock: Spec,
+    # pylint: disable=unused-argument
+    global_spec_file_instance: spec_file.SpecFile,
+    global_spec_file_reader_mock: mock.Mock,
+    global_spec_file_writer_mock: mock.Mock,
 ) -> spec_file.SpecFile:
-  spec_file_mock = spec_file.SpecFile()
-  spec_file_mock.content = global_spec_mock
-  spec_file_mock.path = global_spec_file_path_mock
-  return spec_file_mock
+  return global_spec_file_instance
+
+
+@pytest.fixture
+def global_spec_file_reader_mock(
+    global_spec_file_instance: spec_file.SpecFile,
+    global_spec_mock: Spec,
+    monkeypatch: pytest.MonkeyPatch,
+) -> mock.Mock:
+
+  def mock_data_assignment() -> None:
+    global_spec_file_instance.content = global_spec_mock
+
+  instance = mock.Mock(side_effect=mock_data_assignment)
+  monkeypatch.setattr(spec_file.SpecFile, "load", instance)
+  return instance
+
+
+@pytest.fixture
+def global_spec_file_writer_mock(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+  instance = mock.Mock()
+  monkeypatch.setattr(spec_file.SpecFile, "write", instance)
+  return instance
 
 
 @pytest.fixture
