@@ -6,10 +6,18 @@ import pytest
 from _pytest.mark import ParameterSet
 
 
-def named_parameters(*args: Tuple[Any, ...], name: int) -> List[ParameterSet]:
+def named_parameters(
+    *args: Tuple[Any, ...],
+    names: List[int],
+) -> List[ParameterSet]:
   """Extract a test id from a pytest parameter set."""
 
-  return [pytest.param(*argset, id=argset[name]) for argset in args]
+  return [
+      pytest.param(
+          *argset,
+          id=str(*[argset[selected] for selected in names]),
+      ) for argset in args
+  ]
 
 
 def templated_ids(
@@ -18,17 +26,17 @@ def templated_ids(
 ) -> Callable[[Any], str]:
   """Create a test id function from a template string."""
 
-  def templater(arg: Any) -> str:
+  def templater(*args: Any) -> str:
     if transformation:
-      arg = transformation(arg)
-    return template.format(arg)
+      args = tuple(transformation(arg) for arg in args)
+    return template.format(*args)
 
   return templater
 
 
 def templated_parameters(
     *args: Tuple[Any, ...],
-    name: int,
+    names: List[int],
     template: str,
     transformation: Optional[Callable[[Any], str]] = None,
 ) -> List[ParameterSet]:
@@ -36,4 +44,9 @@ def templated_parameters(
 
   templater = templated_ids(template, transformation)
 
-  return [pytest.param(*argset, id=templater(argset[name])) for argset in args]
+  return [
+      pytest.param(
+          *argset,
+          id=templater(*[argset[selected] for selected in names]),
+      ) for argset in args
+  ]

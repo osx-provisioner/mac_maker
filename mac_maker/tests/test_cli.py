@@ -45,7 +45,7 @@ class TestCli:
               "mocked_job_version",
               "version",
           ),
-          name=1,
+          names=[1],
       ),
       indirect=["mocked_job"],
   )
@@ -68,7 +68,7 @@ class TestCli:
       "mocked_job,command",
       named_parameters(
           ("mocked_job_version", "version"),
-          name=1,
+          names=[1],
       ),
       indirect=["mocked_job"],
   )
@@ -90,16 +90,18 @@ class TestCli:
               "mocked_job_github",
               f"precheck github {mocked_git_url}",
               (mocked_git_url, None),
-          ), (
+          ),
+          (
               "mocked_job_github",
               f"precheck github {mocked_git_url} --branch {mocked_git_branch}",
               (mocked_git_url, mocked_git_branch),
-          ), (
+          ),
+          (
               "mocked_job_spec_file",
               f"precheck spec {mocked_spec_file}",
               (mocked_spec_file,),
           ),
-          name=1
+          names=[1],
       ),
       indirect=["mocked_job"],
   )
@@ -122,16 +124,18 @@ class TestCli:
               "mocked_job_github",
               f"apply github {mocked_git_url}",
               (mocked_git_url, None),
-          ), (
+          ),
+          (
               "mocked_job_github",
               f"apply github {mocked_git_url} --branch {mocked_git_branch}",
               (mocked_git_url, mocked_git_branch),
-          ), (
+          ),
+          (
               "mocked_job_spec_file",
               f"apply spec {mocked_spec_file}",
               (mocked_spec_file,),
           ),
-          name=1
+          names=[1],
       ),
       indirect=["mocked_job"],
   )

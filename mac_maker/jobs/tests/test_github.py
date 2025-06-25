@@ -18,7 +18,7 @@ class TestGitHubJob:
       templated_parameters(
           (valid_url, None),
           (valid_url, "main"),
-          name=1,
+          names=[1],
           template="branch:{0}",
       ),
   )
