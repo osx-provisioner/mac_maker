@@ -66,3 +66,7 @@ class TestLoggerMessage(TestCase):
     self.assertIn(config.LOGGER_NAME, message)
     self.assertIn(self.test_message, message)
     self.assertIn("ERROR", message)
+
+  def tearDown(self) -> None:
+    self.log = logger.Logger(debug=True)
+    self.log.setup()
