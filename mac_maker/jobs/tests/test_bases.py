@@ -4,9 +4,9 @@ from typing import cast
 from unittest import TestCase, mock
 
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
-from ...utilities import precheck, spec, state
-from ...utilities.validation import precheck as precheck_validation
-from .. import bases as bases_module
+from mac_maker.jobs import bases as bases_module
+from mac_maker.utilities import precheck, spec, state
+from mac_maker.utilities.validation import precheck as precheck_validation
 
 BASES_MODULE = bases_module.__name__
 

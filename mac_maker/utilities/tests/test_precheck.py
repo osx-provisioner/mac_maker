@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import cast
 from unittest import TestCase, mock
 
-from ... import config
-from .. import precheck, spec, state
+from mac_maker import config
+from mac_maker.utilities import precheck, spec, state
 
 PRECHECK_MODULE = precheck.__name__
 

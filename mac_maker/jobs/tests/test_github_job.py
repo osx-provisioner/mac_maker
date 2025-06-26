@@ -2,11 +2,11 @@
 
 from unittest import mock
 
-from ... import config
-from ...jobs import bases as jobs_bases
-from ...jobs import github as jobs_module
-from ...tests.fixtures import fixtures_git
-from ...utilities import github
+from mac_maker import config
+from mac_maker.jobs import bases as jobs_bases
+from mac_maker.jobs import github as jobs_module
+from mac_maker.tests.fixtures import fixtures_git
+from mac_maker.utilities import github
 
 JOBS_MODULE = jobs_module.__name__
 JOBS_BASES = jobs_bases.__name__

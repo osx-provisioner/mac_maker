@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Union
 
-from .. import config
+from mac_maker import config
 
 
 class FileSystem:

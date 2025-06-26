@@ -5,10 +5,10 @@ from typing import Dict, List
 from unittest import mock
 
 import pytest
+from mac_maker import config
 from mac_maker.__helpers__.logs import decode_logs
-from ... import config
-from ...utilities import filesystem, state
-from .. import process, runner
+from mac_maker.ansible_controller import process, runner
+from mac_maker.utilities import filesystem, state
 
 RUNNER_MODULE = runner.__name__
 

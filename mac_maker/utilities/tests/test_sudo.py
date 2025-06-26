@@ -2,9 +2,9 @@
 
 from unittest import mock
 
-from ... import config
-from ...tests.fixtures import fixtures_git
-from .. import sudo
+from mac_maker import config
+from mac_maker.tests.fixtures import fixtures_git
+from mac_maker.utilities import sudo
 
 SUDO_MODULE = sudo.__name__
 

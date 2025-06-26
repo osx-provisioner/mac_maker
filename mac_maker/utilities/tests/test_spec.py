@@ -4,9 +4,9 @@ from logging import Logger
 from pathlib import Path
 from unittest import TestCase, mock
 
-from ...tests.fixtures import fixtures_spec
-from .. import spec, state
-from ..validation.spec import SpecFileValidationException
+from mac_maker.tests.fixtures import fixtures_spec
+from mac_maker.utilities import spec, state
+from mac_maker.utilities.validation.spec import SpecFileValidationException
 
 SPEC_MODULE = spec.__name__
 

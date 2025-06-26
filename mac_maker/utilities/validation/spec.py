@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any, List, TypedDict, Union
 
 from jsonschema.validators import validator_for
-from ... import config
-from ..mixins.json_file import JSONFileReader
-from ..state import TypeState
+from mac_maker import config
+from mac_maker.utilities.mixins.json_file import JSONFileReader
+from mac_maker.utilities.state import TypeState
 
 
 class TypeSpecFileData(TypedDict):

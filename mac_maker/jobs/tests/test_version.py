@@ -3,7 +3,7 @@
 from importlib.metadata import version
 from unittest import TestCase, mock
 
-from .. import version as jobs_module
+from mac_maker.jobs import version as jobs_module
 
 JOBS_MODULE = jobs_module.__name__
 

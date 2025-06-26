@@ -5,9 +5,9 @@ import os
 import subprocess
 import sys
 
-from .. import config
-from ..utilities.state import TypeState
-from . import environment
+from mac_maker import config
+from mac_maker.ansible_controller import environment
+from mac_maker.utilities.state import TypeState
 
 
 class AnsibleProcess:

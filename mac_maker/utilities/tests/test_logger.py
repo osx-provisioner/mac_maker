@@ -5,9 +5,9 @@ import logging
 from typing import cast
 from unittest import TestCase
 
+from mac_maker import config
+from mac_maker.utilities import logger
 from parameterized import parameterized_class
-from ... import config
-from .. import logger
 
 LOGGING_MODULE = logger.__name__
 

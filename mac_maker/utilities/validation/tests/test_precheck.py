@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any
 from unittest import TestCase, mock
 
-from ....tests import fixtures
-from .. import precheck
-from ..precheck import (
+from mac_maker.tests import fixtures
+from mac_maker.utilities.validation import precheck
+from mac_maker.utilities.validation.precheck import (
     PrecheckConfigValidationException,
     PrecheckConfigValidator,
 )

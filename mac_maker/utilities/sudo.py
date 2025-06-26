@@ -5,7 +5,7 @@ import os
 import shlex
 import subprocess
 
-from .. import config
+from mac_maker import config
 
 
 class SUDO:

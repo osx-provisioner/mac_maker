@@ -3,8 +3,8 @@ import os
 from logging import Logger
 from unittest import TestCase, mock
 
-from ...utilities import filesystem, state
-from .. import environment
+from mac_maker.ansible_controller import environment
+from mac_maker.utilities import filesystem, state
 
 ENV_MODULE = environment.__name__
 TypeMockDict = mock._patch_dict  # pylint: disable=protected-access

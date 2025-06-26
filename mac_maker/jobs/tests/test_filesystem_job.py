@@ -3,10 +3,10 @@
 from typing import cast
 from unittest import TestCase, mock
 
-from ... import config
-from ...jobs import bases as jobs_bases
-from ...jobs import filesystem as jobs_module
-from ...utilities import spec
+from mac_maker import config
+from mac_maker.jobs import bases as jobs_bases
+from mac_maker.jobs import filesystem as jobs_module
+from mac_maker.utilities import spec
 
 JOBS_MODULE = jobs_module.__name__
 JOBS_BASES = jobs_bases.__name__

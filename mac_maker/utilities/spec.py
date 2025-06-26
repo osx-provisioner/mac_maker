@@ -5,9 +5,9 @@ import os
 from pathlib import Path
 from typing import TypedDict, Union
 
-from .. import config
-from .state import State, TypeState
-from .validation.spec import SpecFileValidator
+from mac_maker import config
+from mac_maker.utilities.state import State, TypeState
+from mac_maker.utilities.validation.spec import SpecFileValidator
 
 
 class TypeSpecFileData(TypedDict):

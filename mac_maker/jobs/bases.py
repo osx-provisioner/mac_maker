@@ -4,14 +4,14 @@ import abc
 import sys
 
 import click
+from mac_maker.ansible_controller.inventory import InventoryFile
+from mac_maker.ansible_controller.runner import AnsibleRunner
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
-from ..ansible_controller.inventory import InventoryFile
-from ..ansible_controller.runner import AnsibleRunner
-from ..utilities.precheck import PrecheckExtractor, TypePrecheckFileData
-from ..utilities.spec import JobSpecExtractor
-from ..utilities.state import TypeState
-from ..utilities.sudo import SUDO
-from ..utilities.validation.precheck import PrecheckConfigValidator
+from mac_maker.utilities.precheck import PrecheckExtractor, TypePrecheckFileData
+from mac_maker.utilities.spec import JobSpecExtractor
+from mac_maker.utilities.state import TypeState
+from mac_maker.utilities.sudo import SUDO
+from mac_maker.utilities.validation.precheck import PrecheckConfigValidator
 
 
 class SimpleJobBase(abc.ABC):

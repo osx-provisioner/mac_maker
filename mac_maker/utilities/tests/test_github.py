@@ -4,9 +4,9 @@ from io import BytesIO
 from unittest import mock
 
 import requests.exceptions
-from ...tests.fixtures import fixtures_git
-from .. import github as github_module
-from ..github import (
+from mac_maker.tests.fixtures import fixtures_git
+from mac_maker.utilities import github as github_module
+from mac_maker.utilities.github import (
     GithubCommunicationError,
     GithubRepository,
     InvalidGithubRepository,

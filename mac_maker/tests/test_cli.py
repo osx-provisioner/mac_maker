@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 from mac_maker.__helpers__.parametrize import named_parameters
-from .conftest import InvokeType
+from mac_maker.tests.conftest import InvokeType
 
 
 class TestCli:

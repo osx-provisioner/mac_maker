@@ -3,9 +3,9 @@
 from pathlib import Path
 from typing import TypedDict
 
-from .. import config
-from .mixins.text_file import TextFileReader
-from .spec import TypeSpecFileData
+from mac_maker import config
+from mac_maker.utilities.mixins.text_file import TextFileReader
+from mac_maker.utilities.spec import TypeSpecFileData
 
 
 class TypePrecheckFileData(TypedDict):

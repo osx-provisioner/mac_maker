@@ -3,9 +3,9 @@
 import logging
 
 import click
-from .. import config
-from ..utilities.state import TypeState
-from . import process
+from mac_maker import config
+from mac_maker.ansible_controller import process
+from mac_maker.utilities.state import TypeState
 
 
 class AnsibleRunner:

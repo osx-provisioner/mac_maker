@@ -6,7 +6,7 @@ from typing import List, TypedDict
 
 import yaml
 from jsonschema import ValidationError, validate
-from ..mixins.json_file import JSONFileReader
+from mac_maker.utilities.mixins.json_file import JSONFileReader
 
 
 class TypePrecheckEnvironmentValidationResult(TypedDict):

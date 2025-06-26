@@ -4,9 +4,9 @@ from logging import Logger
 from pathlib import Path
 from unittest import mock
 
-from ... import config
-from ...tests.fixtures import fixtures_git
-from .. import github, workspace
+from mac_maker import config
+from mac_maker.tests.fixtures import fixtures_git
+from mac_maker.utilities import github, workspace
 
 WORKSPACE_MODULE = workspace.__name__
 

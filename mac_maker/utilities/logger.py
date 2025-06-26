@@ -3,7 +3,7 @@
 import logging
 import sys
 
-from .. import config
+from mac_maker import config
 
 
 class Logger:

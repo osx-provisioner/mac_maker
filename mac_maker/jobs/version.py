@@ -3,7 +3,7 @@
 from importlib.metadata import version
 
 import click
-from . import bases
+from mac_maker.jobs import bases
 
 
 class VersionJob(bases.SimpleJobBase):

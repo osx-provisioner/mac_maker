@@ -4,9 +4,9 @@ from logging import Logger
 from pathlib import Path
 from unittest import TestCase, mock
 
-from ... import config
-from ...utilities import filesystem, state
-from .. import interpreter, inventory
+from mac_maker import config
+from mac_maker.ansible_controller import interpreter, inventory
+from mac_maker.utilities import filesystem, state
 
 INVENTORY_MODULE = inventory.__name__
 

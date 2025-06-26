@@ -6,8 +6,8 @@ from typing import Callable, Generator
 from unittest import mock
 
 import pytest
-from ...utilities import filesystem, state
-from .. import process, runner
+from mac_maker.ansible_controller import process, runner
+from mac_maker.utilities import filesystem, state
 
 
 @pytest.fixture

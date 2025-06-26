@@ -3,8 +3,8 @@
 import json
 from logging import Logger
 
-from ....tests.fixtures import fixtures_spec
-from .. import spec
+from mac_maker.tests.fixtures import fixtures_spec
+from mac_maker.utilities.validation import spec
 
 SPEC_MODULE = spec.__name__
 

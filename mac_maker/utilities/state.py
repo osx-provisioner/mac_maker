@@ -4,9 +4,9 @@ import logging
 from pathlib import Path
 from typing import List, TypedDict, Union, cast
 
-from .. import config
-from .filesystem import FileSystem
-from .mixins.json_file import JSONFileReader, JSONFileWriter
+from mac_maker import config
+from mac_maker.utilities.filesystem import FileSystem
+from mac_maker.utilities.mixins.json_file import JSONFileReader, JSONFileWriter
 
 
 class TypeState(TypedDict):

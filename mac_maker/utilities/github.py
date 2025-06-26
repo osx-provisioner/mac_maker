@@ -8,7 +8,7 @@ from typing import Match, Optional, Union
 from zipfile import ZipFile
 
 import requests
-from .. import config
+from mac_maker import config
 
 
 class InvalidGithubRepository(Exception):

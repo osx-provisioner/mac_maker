@@ -5,8 +5,8 @@ from typing import Optional
 
 import click
 from click_shell import shell
-from . import jobs
-from .utilities.logger import Logger
+from mac_maker import jobs
+from mac_maker.utilities.logger import Logger
 
 
 @shell(

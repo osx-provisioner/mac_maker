@@ -3,8 +3,8 @@
 from pathlib import Path
 from unittest import TestCase
 
-from ... import config
-from .. import filesystem
+from mac_maker import config
+from mac_maker.utilities import filesystem
 
 FILESYSTEM_MODULE = filesystem.__name__
 MOCK_FOLDER = "mock_folder"

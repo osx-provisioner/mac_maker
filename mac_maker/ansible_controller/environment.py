@@ -4,8 +4,8 @@ import logging
 import os
 from typing import Dict, List, Literal, Union
 
-from .. import config
-from ..utilities.state import TypeState
+from mac_maker import config
+from mac_maker.utilities.state import TypeState
 
 StateAnsibleValuesType = Union[Literal["roles_path"],
                                Literal["collections_path"]]

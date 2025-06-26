@@ -3,10 +3,10 @@
 import logging
 import os
 
-from .. import config
-from ..utilities.mixins.text_file import TextFileWriter
-from ..utilities.state import TypeState
-from .interpreter import Interpreter
+from mac_maker import config
+from mac_maker.ansible_controller.interpreter import Interpreter
+from mac_maker.utilities.mixins.text_file import TextFileWriter
+from mac_maker.utilities.state import TypeState
 
 
 class InventoryFile(TextFileWriter):

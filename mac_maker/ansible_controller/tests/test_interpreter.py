@@ -3,7 +3,7 @@
 from pathlib import Path
 from unittest import TestCase, mock
 
-from .. import interpreter
+from mac_maker.ansible_controller import interpreter
 
 INTERPRETER_MODULE = interpreter.__name__
 

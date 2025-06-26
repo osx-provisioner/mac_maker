@@ -3,7 +3,7 @@
 import json
 from unittest import TestCase, mock
 
-from .. import json_file
+from mac_maker.utilities.mixins import json_file
 
 JSON_FILE_MODULE = json_file.__name__
 

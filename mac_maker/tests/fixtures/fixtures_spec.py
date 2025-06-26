@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from unittest import TestCase, mock
 
-from ...utilities.mixins import json_file
+from mac_maker.utilities.mixins import json_file
 
 
 class SpecFileTestHarness(TestCase):

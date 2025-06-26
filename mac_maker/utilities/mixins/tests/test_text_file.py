@@ -2,7 +2,7 @@
 
 from unittest import TestCase, mock
 
-from .. import text_file
+from mac_maker.utilities.mixins import text_file
 
 TEXT_FILE_MODULE = text_file.__name__
 

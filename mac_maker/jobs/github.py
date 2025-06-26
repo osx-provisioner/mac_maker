@@ -3,13 +3,13 @@
 from typing import Optional
 
 import click
-from .. import config
-from ..utilities.github import GithubRepository
-from ..utilities.precheck import TypePrecheckFileData
-from ..utilities.spec import TypeSpecFileData
-from ..utilities.state import TypeState
-from ..utilities.workspace import WorkSpace
-from . import bases
+from mac_maker import config
+from mac_maker.jobs import bases
+from mac_maker.utilities.github import GithubRepository
+from mac_maker.utilities.precheck import TypePrecheckFileData
+from mac_maker.utilities.spec import TypeSpecFileData
+from mac_maker.utilities.state import TypeState
+from mac_maker.utilities.workspace import WorkSpace
 
 
 class GitHubJob(bases.ProvisionerJobBase):

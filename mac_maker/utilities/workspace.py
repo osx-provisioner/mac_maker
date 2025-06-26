@@ -4,10 +4,10 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from .. import config
-from .filesystem import FileSystem
-from .github import GithubRepository
-from .state import State
+from mac_maker import config
+from mac_maker.utilities.filesystem import FileSystem
+from mac_maker.utilities.github import GithubRepository
+from mac_maker.utilities.state import State
 
 
 class InvalidWorkspace(Exception):

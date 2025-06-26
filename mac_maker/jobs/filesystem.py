@@ -3,11 +3,11 @@
 from typing import Optional, cast
 
 import click
-from .. import config
-from ..utilities.precheck import TypePrecheckFileData
-from ..utilities.spec import TypeSpecFileData
-from ..utilities.state import TypeState
-from . import bases
+from mac_maker import config
+from mac_maker.jobs import bases
+from mac_maker.utilities.precheck import TypePrecheckFileData
+from mac_maker.utilities.spec import TypeSpecFileData
+from mac_maker.utilities.state import TypeState
 
 
 class FileSystemJob(bases.ProvisionerJobBase):
