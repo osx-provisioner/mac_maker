@@ -66,12 +66,12 @@ ENV ENVIRONMENT DEVELOPMENT
 RUN apt-get update                      && \
     apt-get install -y                     \
     --no-install-recommends                \
-    curl=7.88.*                            \
-    fish=3.6.*                             \
-    jq=1.6*                                \
+    curl=8.14.*                            \
+    fish=4.0.*                             \
+    jq=1.7*                                \
     enchant-2=2.*                          \
-    openssh-client=1:9.*                   \
-    shellcheck=0.9.*                       \
+    openssh-client=1:10.*                  \
+    shellcheck=0.10.*                      \
     sudo=1.9.*                             \
     tig=2.5.*                              \
     vim=2:9.*
