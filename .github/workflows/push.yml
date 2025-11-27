@@ -75,6 +75,12 @@ jobs:
           - version_tag: 14
             version_digit: 14
             platform: arm64
+          - version_tag: 15
+            version_digit: 15
+            platform: arm64
+          - version_tag: 15-intel
+            version_digit: 15
+            platform: x86_64
         python-version: [3.11.11]
 
     steps:
@@ -139,6 +145,12 @@ jobs:
           - version_tag: 14
             version_digit: 14
             platform: arm64
+          - version_tag: 15
+            version_digit: 15
+            platform: arm64
+          - version_tag: 15-intel
+            version_digit: 15
+            platform: x86_64
         python-version: [3.11.11]
 
     steps:
@@ -486,6 +498,12 @@ jobs:
           - version_tag: 14
             version_digit: 14
             platform: arm64
+          - version_tag: 15
+            version_digit: 15
+            platform: arm64
+          - version_tag: 15-intel
+            version_digit: 15
+            platform: x86_64
         python-version: [3.11.11]
 
     steps:
