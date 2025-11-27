@@ -18,6 +18,9 @@
     },
     {
       "pattern": "^https://github.com/osx-provisioner/mac_maker/"
+    },
+    {
+      "pattern": "^https://developer.apple.com/xcode/"
     }
   ]
 }
