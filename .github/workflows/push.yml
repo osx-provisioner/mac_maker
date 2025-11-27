@@ -67,14 +67,13 @@ jobs:
 
     # Only on tags, main and production branches.
 
-    runs-on: macos-${{ matrix.os.version }}
+    runs-on: macos-${{ matrix.os.version_tag }}
     strategy:
       max-parallel: 4
       matrix:
         os:
-          - version: 13
-            platform: x86_64
-          - version: 14
+          - version_tag: 14
+            version_digit: 14
             platform: arm64
         python-version: [3.11.11]
 
@@ -104,30 +103,30 @@ jobs:
         if: steps.branch_filter.outputs.match == 'TRUE'
         uses: actions/download-artifact@v4
         with:
-          name: built_binary_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
+          name: built_binary_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
 
       - name: Apply Test -- Clear Quarantine Attribute
         if: steps.branch_filter.outputs.match == 'TRUE'
         run: |
-          tar xvzf mac_maker_${{ matrix.os.version }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}.tar.gz
-          xattr -d -r com.apple.quarantine mac_maker_${{ matrix.os.version }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}
+          tar xvzf mac_maker_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}.tar.gz
+          xattr -d -r com.apple.quarantine mac_maker_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}
 
       - name: Apply Test -- Apply a Profile
         if: steps.branch_filter.outputs.match == 'TRUE'
         run: |
-          cd mac_maker_${{ matrix.os.version }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}
+          cd mac_maker_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${BRANCH_OR_TAG}
           export ANSIBLE_BECOME_PASSWORD="skip the prompt"
           ./mac_maker --debug apply github https://github.com/osx-provisioner/profile-example.git
 
       - name: Apply Test -- Report Job Status (Success)
         if: steps.branch_filter.outputs.match == 'TRUE' && env.VERBOSE_NOTIFICATIONS == '1'
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os }} profile application using built binary (${{ matrix.os.version }} ${{ matrix.os.platform }}) was successful"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os.version_digit }} profile application using built binary (${{ matrix.os.platform }}) was successful"
 
       - name: Apply Test -- Report Job Status (Failure)
         if: failure()
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os.version }} profile application using built binary (${{ matrix.os }} ${{ matrix.os.platform }}) failed!"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os.version_digit }} profile application using built binary (${{ matrix.os.platform }}) failed!"
 
   attach_release_binaries:
     needs: [create_release]
@@ -137,9 +136,8 @@ jobs:
       max-parallel: 4
       matrix:
         os:
-          - version: 13
-            platform: x86_64
-          - version: 14
+          - version_tag: 14
+            version_digit: 14
             platform: arm64
         python-version: [3.11.11]
 
@@ -169,7 +167,7 @@ jobs:
         if: steps.branch_filter.outputs.match == 'TRUE'
         uses: actions/download-artifact@v4
         with:
-          name: built_binary_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
+          name: built_binary_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
 
       - name: Attach Release Binaries -- Identify Binary
         if: steps.branch_filter.outputs.match == 'TRUE'
@@ -480,14 +478,13 @@ jobs:
 
     # Only on tags, main and production branches.
 
-    runs-on: macos-${{ matrix.os.version }}
+    runs-on: macos-${{ matrix.os.version_tag }}
     strategy:
       max-parallel: 4
       matrix:
         os:
-          - version: 13
-            platform: x86_64
-          - version: 14
+          - version_tag: 14
+            version_digit: 14
             platform: arm64
         python-version: [3.11.11]
 
@@ -537,7 +534,7 @@ jobs:
           ./scripts/build.sh binary "${OS_VERSION}" "${BRANCH_OR_TAG}"
         env:
           PYENV_VERSION: ${{ matrix.python-version }}
-          OS_VERSION: ${{ matrix.os.version }}
+          OS_VERSION: ${{ matrix.os.version_digit }}
           PLATFORM: ${{ matrix.os.platform }}
 
       - name: OSX Build -- Test the version command
@@ -552,17 +549,16 @@ jobs:
         if: steps.branch_filter.outputs.match == 'TRUE'
         uses: actions/upload-artifact@v4
         with:
-          name: built_binary_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
-          path: ./dist/mac_maker_${{ matrix.os.version }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}.tar.gz
+          name: built_binary_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}
+          path: ./dist/mac_maker_${{ matrix.os.version_digit }}_${{ matrix.os.platform }}_${{ env.BRANCH_OR_TAG }}.tar.gz
           retention-days: 1
           if-no-files-found: error
 
       - name: OSX Build -- Report Job Status (Success)
         if: steps.branch_filter.outputs.match == 'TRUE' && env.VERBOSE_NOTIFICATIONS == '1'
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os.version }} binary build for Python ${PYTHON_VERSION} was successful"
-
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os.version_digit }} profile application using built binary (${{ matrix.os.platform }}) was successful"
       - name: OSX Build -- Report Job Status (Failure)
         if: failure()
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os.version }} binary build for Python ${PYTHON_VERSION} failed!"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os.version_digit }} binary build for Python ${PYTHON_VERSION} (${{ matrix.os.platform }}) failed!"
