@@ -575,9 +575,9 @@ jobs:
       - name: OSX Build -- Report Job Status (Success)
         if: steps.branch_filter.outputs.match == 'TRUE' && env.VERBOSE_NOTIFICATIONS == '1'
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os.version_digit }} binary build for Python ${PYTHON_VERSION} was successful"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":white_check_mark: ${{ matrix.os.version_digit }} (${{ matrix.platform }}) binary build for Python ${PYTHON_VERSION} was successful"
 
       - name: OSX Build -- Report Job Status (Failure)
         if: failure()
         run: |
-          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os.version_digit }} binary build for Python ${PYTHON_VERSION} failed!"
+          ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: ${{ matrix.os.version_digit }} (${{ matrix.platform }}) binary build for Python ${PYTHON_VERSION} failed!"
