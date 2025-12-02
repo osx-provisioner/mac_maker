@@ -9,7 +9,7 @@ from mac_maker import jobs
 from mac_maker.utilities.logger import Logger
 
 
-@shell(
+@shell(  # type: ignore[untyped-decorator]
     prompt='Mac Maker > ',
     intro="Welcome to Mac Maker. (Type 'help' to get started.)",
 )
@@ -22,17 +22,17 @@ def cli(debug: bool) -> None:
   logger.setup()
 
 
-@cli.group("apply")
+@cli.group("apply")  # type: ignore[untyped-decorator]
 def apply() -> None:
   """Apply an OSX Machine Profile to this system."""
 
 
-@cli.group("precheck")
+@cli.group("precheck")  # type: ignore[untyped-decorator]
 def precheck() -> None:
   """Ensure an OSX Machine Profile is ready to be applied."""
 
 
-@precheck.command("github")
+@precheck.command("github")  # type: ignore[untyped-decorator]
 @click.argument('github_url', type=click.STRING)
 @click.option(
     '--branch',
@@ -49,7 +49,7 @@ def check_from_github(github_url: str, branch: Optional[str]) -> None:
   job.precheck()
 
 
-@precheck.command("spec")
+@precheck.command("spec")  # type: ignore[untyped-decorator]
 @click.argument('spec_file', type=click.STRING)
 def check_from_spec_file(spec_file: str) -> None:
   """Precheck an OSX Machine Profile from a spec.json file.
@@ -60,7 +60,7 @@ def check_from_spec_file(spec_file: str) -> None:
   job.precheck()
 
 
-@apply.command("github")
+@apply.command("github")  # type: ignore[untyped-decorator]
 @click.argument('github_url', type=click.STRING)
 @click.option(
     '--branch',
@@ -78,7 +78,7 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
   job.provision()
 
 
-@apply.command("spec")
+@apply.command("spec")  # type: ignore[untyped-decorator]
 @click.argument('spec_file', type=click.STRING)
 def apply_from_spec_file(spec_file: str) -> None:
   """Apply an OSX Machine Profile from a spec.json file.
@@ -90,7 +90,7 @@ def apply_from_spec_file(spec_file: str) -> None:
   job.provision()
 
 
-@cli.command("version")
+@cli.command("version")  # type: ignore[untyped-decorator]
 def version() -> None:
   """Report the current Mac Maker version."""
   job = jobs.VersionJob()
