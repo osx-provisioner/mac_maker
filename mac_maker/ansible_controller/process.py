@@ -7,23 +7,23 @@ import sys
 
 from mac_maker import config
 from mac_maker.ansible_controller import environment
-from mac_maker.utilities.state import TypeState
+from mac_maker.ansible_controller.spec import Spec
 
 
 class AnsibleProcess:
   """Process management for Ansible commands.
 
-  :param state: The loaded runtime state object.
+  :param spec: The provisioning spec instance.
   """
 
   error_exit_code = 127
 
   def __init__(
       self,
-      state: TypeState,
+      spec: Spec,
   ) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
-    self.state = state
+    self.spec = spec
 
   def spawn(self, command: str) -> None:
     """Spawns an Ansible CLI Command in its own process.
@@ -73,8 +73,8 @@ class AnsibleProcess:
     return command
 
   def _environment(self) -> None:
-    env = environment.AnsibleEnvironment(self.state)
+    env = environment.AnsibleEnvironment(self.spec)
     env.setup()
 
   def _execution_location(self) -> None:
-    os.chdir(self.state['profile_data_path'])
+    os.chdir(self.spec.profile_data_path)

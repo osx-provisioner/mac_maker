@@ -1,13 +1,11 @@
 """A provisioning job for a spec file on the local file system."""
 
-from typing import Optional
-
 import click
 from mac_maker import config
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.profile.precheck import TypePrecheckFileData
-from mac_maker.profile.spec_file import TypeSpecFileData
-from mac_maker.utilities.state import TypeState
+from mac_maker.profile.spec_file.exceptions import SpecFileContentNotDefined
 
 
 class SpecFileJob(ProvisionerJobBase):
@@ -17,19 +15,16 @@ class SpecFileJob(ProvisionerJobBase):
   """
 
   spec_file_location: str
-  spec_file_content: Optional[TypeSpecFileData]
 
   def __init__(self, spec_file_location: str):
     super().__init__()
-    self.spec_file_location = spec_file_location
-    self.spec_file_content = None
+    self.spec_file.path = spec_file_location
 
-  def _extract_spec_file_data(self) -> TypeSpecFileData:
-    if not self.spec_file_content:
-      self.spec_file_content = self.spec_file_extractor.get_spec_file_data(
-          self.spec_file_location
-      )
-    return self.spec_file_content
+  def _load_spec_file_content(self) -> None:
+    try:
+      self.spec_file.content
+    except SpecFileContentNotDefined:
+      self.spec_file.load()
 
   def get_precheck_content(self) -> TypePrecheckFileData:
     """Read the Precheck data defined in a spec file.
@@ -37,19 +32,20 @@ class SpecFileJob(ProvisionerJobBase):
     :returns: The Precheck file data.
     """
 
+    self._load_spec_file_content()
     precheck_data = self.precheck_extractor.get_precheck_data(
-        self._extract_spec_file_data()
+        self.spec_file.content
     )
 
     return precheck_data
 
-  def get_state(self) -> TypeState:
-    """Read a spec file and build a runtime state object.
+  def get_spec(self) -> Spec:
+    """Assemble and return a provisioning spec instance.
 
-    :returns: The created runtime state object.
+    :returns: The created provisioning spec instance.
     """
 
-    spec_file_data = self._extract_spec_file_data()
+    self._load_spec_file_content()
     click.echo(config.SPEC_FILE_LOADED_MESSAGE)
-    click.echo(spec_file_data['spec_file_location'])
-    return spec_file_data['spec_file_content']
+    click.echo(self.spec_file.path)
+    return self.spec_file.content

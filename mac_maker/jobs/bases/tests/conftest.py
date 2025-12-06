@@ -5,22 +5,35 @@ from typing import NamedTuple, Type, cast
 from unittest import mock
 
 import pytest
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.jobs.bases import provisioner
 from mac_maker.profile import precheck
-from mac_maker.utilities import state
 
 
 class ProvisionerMocks(NamedTuple):
-  mocked_ansible_runner: mock.Mock
   mocked_ansible_inventory_file: mock.Mock
-  mocked_state: state.TypeState
+  mocked_ansible_runner: mock.Mock
+  mocked_spec: Spec
   mocked_sudo: mock.Mock
 
 
 @pytest.fixture
-def mocked_ansible_inventory_file(
-    monkeypatch: pytest.MonkeyPatch,
-) -> mock.Mock:
+def provisioner_mocks(
+    global_spec_mock: Spec,
+    mocked_ansible_inventory_file: mock.Mock,
+    mocked_ansible_runner: mock.Mock,
+    mocked_sudo: mock.Mock,
+) -> ProvisionerMocks:
+  return ProvisionerMocks(
+      mocked_ansible_inventory_file=mocked_ansible_inventory_file,
+      mocked_ansible_runner=mocked_ansible_runner,
+      mocked_spec=global_spec_mock,
+      mocked_sudo=mocked_sudo,
+  )
+
+
+@pytest.fixture
+def mocked_ansible_inventory_file(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
   instance = mock.Mock()
   monkeypatch.setattr(
       provisioner,
@@ -28,21 +41,6 @@ def mocked_ansible_inventory_file(
       instance,
   )
   return instance
-
-
-@pytest.fixture
-def provisioner_mocks(
-    global_state_data_mock: state.TypeState,
-    mocked_ansible_runner: mock.Mock,
-    mocked_ansible_inventory_file: mock.Mock,
-    mocked_sudo: mock.Mock,
-) -> ProvisionerMocks:
-  return ProvisionerMocks(
-      mocked_ansible_runner=mocked_ansible_runner,
-      mocked_ansible_inventory_file=mocked_ansible_inventory_file,
-      mocked_state=global_state_data_mock,
-      mocked_sudo=mocked_sudo,
-  )
 
 
 @pytest.fixture
@@ -113,7 +111,7 @@ def mocked_validate_environment(
 @pytest.fixture
 def concrete_provisioning_job_class(
     global_precheck_data_mock: precheck.TypePrecheckFileData,
-    global_state_data_mock: state.TypeState
+    global_spec_mock: Spec
 ) -> Type[provisioner.ProvisionerJobBase]:
 
   class ConcreteJob(provisioner.ProvisionerJobBase):
@@ -122,8 +120,8 @@ def concrete_provisioning_job_class(
     def get_precheck_content(self) -> precheck.TypePrecheckFileData:
       return global_precheck_data_mock
 
-    def get_state(self) -> state.TypeState:
-      return global_state_data_mock
+    def get_spec(self) -> Spec:
+      return global_spec_mock
 
   return ConcreteJob
 

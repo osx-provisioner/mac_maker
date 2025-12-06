@@ -6,12 +6,12 @@ import sys
 import click
 from mac_maker.ansible_controller.inventory import AnsibleInventoryFile
 from mac_maker.ansible_controller.runner import AnsibleRunner
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from mac_maker.profile.precheck import TypePrecheckFileData
 from mac_maker.profile.precheck.precheck_extractor import PrecheckExtractor
 from mac_maker.profile.precheck.precheck_validator import PrecheckValidator
-from mac_maker.profile.spec_file.spec_file_extractor import SpecFileExtractor
-from mac_maker.utilities.state import TypeState
+from mac_maker.profile.spec_file import SpecFile
 from mac_maker.utilities.sudo import SUDO
 
 
@@ -19,7 +19,7 @@ class ProvisionerJobBase(abc.ABC):
   """Job base class, with Ansible provisioning."""
 
   def __init__(self) -> None:
-    self.spec_file_extractor = SpecFileExtractor()
+    self.spec_file = SpecFile()
     self.precheck_extractor = PrecheckExtractor()
 
   @abc.abstractmethod
@@ -28,8 +28,8 @@ class ProvisionerJobBase(abc.ABC):
     raise NotImplementedError  # nocover
 
   @abc.abstractmethod
-  def get_state(self) -> TypeState:
-    """Assemble and return a runtime state object."""
+  def get_spec(self) -> Spec:
+    """Assemble and return a provisioning spec instance."""
     raise NotImplementedError  # nocover
 
   def precheck(self, notes: bool = True) -> None:
@@ -56,13 +56,13 @@ class ProvisionerJobBase(abc.ABC):
   def provision(self) -> None:
     """Begin provisioning with Ansible."""
 
-    loaded_state = self.get_state()
+    spec = self.get_spec()
 
     sudo = SUDO()
     sudo.prompt_for_sudo()
 
-    inventory = AnsibleInventoryFile(loaded_state)
-    inventory.write_inventory_file()
+    inventory = AnsibleInventoryFile(spec)
+    inventory.write()
 
-    ansible_job = AnsibleRunner(loaded_state)
+    ansible_job = AnsibleRunner(spec)
     ansible_job.start()
