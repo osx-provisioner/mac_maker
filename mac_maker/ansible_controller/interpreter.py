@@ -6,7 +6,7 @@ from pathlib import Path
 from mac_maker.ansible_controller.exceptions import AnsibleInterpreterNotFound
 
 
-class Interpreter:
+class AnsibleInterpreter:
   """The local Python interpreter used by Ansible."""
 
   options = [

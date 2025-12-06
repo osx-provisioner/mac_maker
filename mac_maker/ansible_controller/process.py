@@ -73,7 +73,7 @@ class AnsibleProcess:
     return command
 
   def _environment(self) -> None:
-    env = environment.Environment(self.state)
+    env = environment.AnsibleEnvironment(self.state)
     env.setup()
 
   def _execution_location(self) -> None:

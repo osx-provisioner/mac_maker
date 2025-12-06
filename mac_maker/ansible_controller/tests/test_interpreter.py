@@ -1,4 +1,4 @@
-"""Test the Interpreter class."""
+"""Test the AnsibleInterpreter class."""
 
 from pathlib import Path
 from unittest import TestCase, mock
@@ -8,11 +8,11 @@ from mac_maker.ansible_controller import exceptions, interpreter
 INTERPRETER_MODULE = interpreter.__name__
 
 
-class TestInterpreter(TestCase):
-  """Test the Interpreter class."""
+class TestAnsibleInterpreter(TestCase):
+  """Test the AnsibleInterpreter class."""
 
   def setUp(self) -> None:
-    self.interpreter = interpreter.Interpreter()
+    self.interpreter = interpreter.AnsibleInterpreter()
 
   def test_initialize(self) -> None:
     for initialized_interpreter in self.interpreter.options:

@@ -12,21 +12,34 @@ from mac_maker.utilities import state
 
 class ProvisionerMocks(NamedTuple):
   mocked_ansible_runner: mock.Mock
-  mocked_inventory_file: mock.Mock
+  mocked_ansible_inventory_file: mock.Mock
   mocked_state: state.TypeState
   mocked_sudo: mock.Mock
+
+
+@pytest.fixture
+def mocked_ansible_inventory_file(
+    monkeypatch: pytest.MonkeyPatch,
+) -> mock.Mock:
+  instance = mock.Mock()
+  monkeypatch.setattr(
+      provisioner,
+      "AnsibleInventoryFile",
+      instance,
+  )
+  return instance
 
 
 @pytest.fixture
 def provisioner_mocks(
     global_state_data_mock: state.TypeState,
     mocked_ansible_runner: mock.Mock,
-    mocked_inventory_file: mock.Mock,
+    mocked_ansible_inventory_file: mock.Mock,
     mocked_sudo: mock.Mock,
 ) -> ProvisionerMocks:
   return ProvisionerMocks(
       mocked_ansible_runner=mocked_ansible_runner,
-      mocked_inventory_file=mocked_inventory_file,
+      mocked_ansible_inventory_file=mocked_ansible_inventory_file,
       mocked_state=global_state_data_mock,
       mocked_sudo=mocked_sudo,
   )
@@ -50,17 +63,6 @@ def mocked_click_echo(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
       provisioner,
       "click",
       mock.Mock(echo=instance),
-  )
-  return instance
-
-
-@pytest.fixture
-def mocked_inventory_file(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
-  instance = mock.Mock()
-  monkeypatch.setattr(
-      provisioner,
-      "InventoryFile",
-      instance,
   )
   return instance
 

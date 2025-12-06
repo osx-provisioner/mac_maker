@@ -4,7 +4,7 @@ import abc
 import sys
 
 import click
-from mac_maker.ansible_controller.inventory import InventoryFile
+from mac_maker.ansible_controller.inventory import AnsibleInventoryFile
 from mac_maker.ansible_controller.runner import AnsibleRunner
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from mac_maker.profile.precheck import TypePrecheckFileData
@@ -61,7 +61,7 @@ class ProvisionerJobBase(abc.ABC):
     sudo = SUDO()
     sudo.prompt_for_sudo()
 
-    inventory = InventoryFile(loaded_state)
+    inventory = AnsibleInventoryFile(loaded_state)
     inventory.write_inventory_file()
 
     ansible_job = AnsibleRunner(loaded_state)
