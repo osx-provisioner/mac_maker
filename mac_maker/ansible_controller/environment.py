@@ -11,7 +11,7 @@ StateAnsibleValuesType = Union[Literal["roles_path"],
                                Literal["collections_path"]]
 
 
-class Environment:
+class AnsibleEnvironment:
   """Ansible runtime environment.
 
   :param state: The loaded runtime state object.

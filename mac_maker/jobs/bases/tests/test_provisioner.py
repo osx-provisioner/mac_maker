@@ -168,10 +168,10 @@ class TestJobsBase:
   ) -> None:
     concrete_provisioning_job.provision()
 
-    provisioner_mocks.mocked_inventory_file.assert_called_once_with(
+    provisioner_mocks.mocked_ansible_inventory_file.assert_called_once_with(
         concrete_provisioning_job.get_state()
     )
-    provisioner_mocks.mocked_inventory_file.return_value \
+    provisioner_mocks.mocked_ansible_inventory_file.return_value \
         .write_inventory_file.assert_called_once_with()
 
   def test_provision__prompts_for_sudo(

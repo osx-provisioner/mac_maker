@@ -15,7 +15,7 @@ from mac_maker.utilities import state
 PROCESS_MODULE = process.__name__
 
 
-class TestAnsibleProcessClass:
+class TestAnsibleProcess:
   """Test AnsibleProcess class."""
 
   def test_init__attributes(
@@ -102,7 +102,7 @@ class TestAnsibleProcessClass:
       self,
       ansible_process: process.AnsibleProcess,
       mocked_command: str,
-      mocked_environment: mock.Mock,
+      mocked_ansible_environment: mock.Mock,
       mocked_popen_process: mock.Mock,
       m_return_code: int,
   ) -> None:
@@ -114,8 +114,8 @@ class TestAnsibleProcessClass:
     except ChildProcessError:
       pass
 
-    mocked_environment.assert_called_once_with(ansible_process.state)
-    mocked_environment.return_value.setup.assert_called_once_with()
+    mocked_ansible_environment.assert_called_once_with(ansible_process.state)
+    mocked_ansible_environment.return_value.setup.assert_called_once_with()
 
   def test_spawn__fail__raises_exception(
       self,

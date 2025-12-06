@@ -12,6 +12,11 @@ from mac_maker.utilities import state
 
 
 @pytest.fixture
+def mocked_ansible_environment() -> mock.Mock:
+  return mock.Mock()
+
+
+@pytest.fixture
 def mocked_ansible_process() -> mock.Mock:
   return mock.Mock()
 
@@ -29,11 +34,6 @@ def mocked_click_echo() -> mock.Mock:
 @pytest.fixture
 def mocked_command() -> str:
   return "ansible-galaxy install requirements -r requirements.yml"
-
-
-@pytest.fixture
-def mocked_environment() -> mock.Mock:
-  return mock.Mock()
 
 
 @pytest.fixture
@@ -68,7 +68,7 @@ def mocked_state() -> state.State:
 
 @pytest.fixture
 def setup_process_module(
-    mocked_environment: mock.Mock,
+    mocked_ansible_environment: mock.Mock,
     mocked_os_chdir: mock.Mock,
     mocked_popen: mock.MagicMock,
     monkeypatch: pytest.MonkeyPatch,
@@ -78,7 +78,7 @@ def setup_process_module(
     monkeypatch.setattr(
         process,
         "environment",
-        mock.Mock(**{"Environment": mocked_environment}),
+        mock.Mock(**{"AnsibleEnvironment": mocked_ansible_environment}),
     )
     monkeypatch.setattr(
         process,

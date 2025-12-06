@@ -4,12 +4,12 @@ import logging
 import os
 
 from mac_maker import config
-from mac_maker.ansible_controller.interpreter import Interpreter
+from mac_maker.ansible_controller.interpreter import AnsibleInterpreter
 from mac_maker.utilities.mixins.text_file import TextFileWriter
 from mac_maker.utilities.state import TypeState
 
 
-class InventoryFile(TextFileWriter):
+class AnsibleInventoryFile(TextFileWriter):
   """Inventory file for Ansible.
 
   :param state: The loaded runtime state object.
@@ -18,7 +18,7 @@ class InventoryFile(TextFileWriter):
   def __init__(self, state: TypeState) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.state = state
-    self.interpreter = Interpreter()
+    self.interpreter = AnsibleInterpreter()
 
   def _is_already_present(self) -> bool:
     return os.path.exists(self.state['inventory'])

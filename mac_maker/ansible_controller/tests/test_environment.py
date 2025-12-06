@@ -1,4 +1,4 @@
-"""Test the Environment class."""
+"""Test the AnsibleEnvironment class."""
 import os
 from logging import Logger
 from unittest import TestCase, mock
@@ -15,15 +15,15 @@ def mock_environment(**environment_variables: str) -> TypeMockDict:
   return mock.patch.dict(os.environ, environment_variables)
 
 
-class TestEnvironmentClass(TestCase):
-  """Test the Environment class."""
+class TestAnsibleEnvironment(TestCase):
+  """Test the AnsibleEnvironment class."""
 
   def setUp(self) -> None:
     self.mock_root = ""
     self.profile = Profile(self.mock_root)
     self.state = state.State()
     self.mock_state = self.state.state_generate(self.profile)
-    self.environment = environment.Environment(self.mock_state)
+    self.environment = environment.AnsibleEnvironment(self.mock_state)
 
   def test_init(self) -> None:
 

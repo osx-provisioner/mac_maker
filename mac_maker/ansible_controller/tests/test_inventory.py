@@ -1,4 +1,4 @@
-"""Test the InventoryFile class."""
+"""Test the AnsibleInventoryFile class."""
 
 from logging import Logger
 from pathlib import Path
@@ -12,15 +12,15 @@ from mac_maker.utilities import state
 INVENTORY_MODULE = inventory.__name__
 
 
-class TestInventoryFile(TestCase):
-  """Test the InventoryFile class."""
+class TestAnsibleInventoryFile(TestCase):
+  """Test the AnsibleInventoryFile class."""
 
   def setUp(self) -> None:
     self.root_folder = "/root/mock/dir1"
     self.profile = Profile(self.root_folder)
     self.state = state.State()
     self.loaded_state = self.state.state_generate(self.profile)
-    self.inventory = inventory.InventoryFile(self.loaded_state)
+    self.inventory = inventory.AnsibleInventoryFile(self.loaded_state)
 
   def test_initialize(self) -> None:
     self.assertIsInstance(
@@ -28,11 +28,14 @@ class TestInventoryFile(TestCase):
         Logger,
     )
     self.assertEqual(self.inventory.state, self.loaded_state)
-    self.assertIsInstance(self.inventory.interpreter, interpreter.Interpreter)
+    self.assertIsInstance(
+        self.inventory.interpreter,
+        interpreter.AnsibleInterpreter,
+    )
 
   @mock.patch(INVENTORY_MODULE + ".os")
   @mock.patch(INVENTORY_MODULE + ".TextFileWriter.write_text_file")
-  @mock.patch(INVENTORY_MODULE + ".Interpreter.get_interpreter_path")
+  @mock.patch(INVENTORY_MODULE + ".AnsibleInterpreter.get_interpreter_path")
   def test_write_inventory_file(
       self, m_interpreter: mock.Mock, m_write: mock.Mock, m_os: mock.Mock
   ) -> None:
