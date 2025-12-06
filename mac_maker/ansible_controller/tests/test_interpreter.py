@@ -3,7 +3,7 @@
 from pathlib import Path
 from unittest import TestCase, mock
 
-from mac_maker.ansible_controller import interpreter
+from mac_maker.ansible_controller import exceptions, interpreter
 
 INTERPRETER_MODULE = interpreter.__name__
 
@@ -36,5 +36,5 @@ class TestInterpreter(TestCase):
   @mock.patch(INTERPRETER_MODULE + ".os")
   def test_no_interpreter_valid(self, m_os: mock.Mock) -> None:
     m_os.path.exists.side_effect = [False, False]
-    with self.assertRaises(interpreter.InterpreterNotFound):
+    with self.assertRaises(exceptions.AnsibleInterpreterNotFound):
       self.interpreter.get_interpreter_path()
