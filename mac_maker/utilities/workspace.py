@@ -21,8 +21,8 @@ class WorkSpace:
 
   def __init__(self) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
+    self.profile_root: Optional[Path] = None
     self.root = Path(config.WORKSPACE).resolve()
-    self.repository_root: Optional[Path] = None
     self.spec_file: Optional[Path] = None
 
   def add_repository(
@@ -37,12 +37,12 @@ class WorkSpace:
     """
 
     repo.download_zip_bundle_profile(self.root, branch_name)
-    self.repository_root = (
+    self.profile_root = (
         self.root / repo.get_zip_bundle_root_folder(branch_name)
     )
     self.log.debug(
         self.Messages.add_repository,
-        self.repository_root,
+        self.profile_root,
     )
 
   def add_spec_file(self) -> None:
@@ -51,10 +51,10 @@ class WorkSpace:
     :raises: :class:`WorkSpaceInvalid`
     """
 
-    if not self.repository_root:
+    if not self.profile_root:
       raise WorkSpaceInvalid(self.Messages.error_no_repository)
 
-    profile_instance = Profile(str(self.repository_root))
+    profile_instance = Profile(str(self.profile_root))
     spec_file_instance = spec_file.SpecFile()
     spec_file_instance.path = profile_instance.get_spec_file()
     spec_file_instance.content = Spec.from_profile(profile_instance)

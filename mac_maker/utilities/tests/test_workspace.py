@@ -28,7 +28,7 @@ class TestWorkSpace:
   ) -> None:
     assert isinstance(workspace_instance.log, Logger)
     assert workspace_instance.root == Path(config.WORKSPACE).resolve()
-    assert workspace_instance.repository_root is None
+    assert workspace_instance.profile_root is None
     assert workspace_instance.spec_file is None
 
   @vary_branch
@@ -47,10 +47,10 @@ class TestWorkSpace:
         .get_zip_bundle_root_folder.assert_called_once_with(branch_name)
 
   @vary_branch
-  def test_add_repository__vary_branch__assigns_repository_root(
+  def test_add_repository__vary_branch__assigns_profile_root(
       self,
       mocked_github_repository: mock.Mock,
-      mocked_repository_root: Path,
+      mocked_profile_root: Path,
       workspace_instance: workspace.WorkSpace,
       branch_name: Optional[str],
   ) -> None:
@@ -59,8 +59,8 @@ class TestWorkSpace:
         branch_name,
     )
 
-    assert workspace_instance.repository_root == (
-        Path(config.WORKSPACE) / mocked_repository_root
+    assert workspace_instance.profile_root == (
+        Path(config.WORKSPACE) / mocked_profile_root
     ).resolve()
 
   @vary_branch
@@ -81,11 +81,11 @@ class TestWorkSpace:
     assert decode_logs(caplog.records) == [
         (
             "DEBUG:mac_maker:" + workspace_instance.Messages.add_repository %
-            workspace_instance.repository_root
+            workspace_instance.profile_root
         ),
     ]
 
-  def test_add_spec_file__without_repository__raises_exception(
+  def test_add_spec_file__without_profile__raises_exception(
       self,
       workspace_instance: workspace.WorkSpace,
   ) -> None:
@@ -94,61 +94,61 @@ class TestWorkSpace:
 
     assert str(exc.value) == workspace_instance.Messages.error_no_repository
 
-  def test_add_spec_file__with_repository__creates_spec_file(
+  def test_add_spec_file__with_profile__creates_spec_file(
       self,
       mocked_spec_file: mock.Mock,
       mocked_spec_file_instance: mock.Mock,
-      workspace_instance_with_repository: workspace.WorkSpace,
+      workspace_instance_with_profile: workspace.WorkSpace,
   ) -> None:
-    workspace_instance_with_repository.add_spec_file()
+    workspace_instance_with_profile.add_spec_file()
 
     mocked_spec_file.assert_called_once_with()
     mocked_spec_file_instance.write.assert_called_once_with()
 
-  def test_add_spec_file__with_repository__spec_file_uses_profile_values(
+  def test_add_spec_file__with_profile__spec_file_uses_profile_values(
       self,
       mocked_spec_file_instance: mock.Mock,
-      workspace_instance_with_repository: workspace.WorkSpace,
+      workspace_instance_with_profile: workspace.WorkSpace,
   ) -> None:
-    assert workspace_instance_with_repository.repository_root is not None
+    assert workspace_instance_with_profile.profile_root is not None
     expected_profile = profile.Profile(
-        workspace_instance_with_repository.repository_root
+        workspace_instance_with_profile.profile_root
     )
 
-    workspace_instance_with_repository.add_spec_file()
+    workspace_instance_with_profile.add_spec_file()
 
     assert mocked_spec_file_instance.path == \
         expected_profile.get_spec_file()
     assert mocked_spec_file_instance.content == \
         Spec.from_profile(expected_profile)
 
-  def test_add_spec_file__with_repository__logging(
+  def test_add_spec_file__with_profile__logging(
       self,
-      workspace_instance_with_repository: workspace.WorkSpace,
+      workspace_instance_with_profile: workspace.WorkSpace,
       caplog: pytest.LogCaptureFixture,
   ) -> None:
     caplog.set_level(logging.DEBUG)
 
-    workspace_instance_with_repository.add_spec_file()
+    workspace_instance_with_profile.add_spec_file()
 
     assert decode_logs(caplog.records) == [
         (
             "DEBUG:mac_maker:" +
-            workspace_instance_with_repository.Messages.add_spec_file %
-            workspace_instance_with_repository.spec_file
+            workspace_instance_with_profile.Messages.add_spec_file %
+            workspace_instance_with_profile.spec_file
         ),
     ]
 
-  def test_add_spec_file__with_repository__updates_spec_file_attribute(
+  def test_add_spec_file__with_profile__updates_spec_file_attribute(
       self,
-      workspace_instance_with_repository: workspace.WorkSpace,
+      workspace_instance_with_profile: workspace.WorkSpace,
       caplog: pytest.LogCaptureFixture,
   ) -> None:
     caplog.set_level(logging.DEBUG)
 
-    workspace_instance_with_repository.add_spec_file()
+    workspace_instance_with_profile.add_spec_file()
 
-    assert isinstance(workspace_instance_with_repository.repository_root, Path)
-    assert workspace_instance_with_repository.spec_file == (
-        workspace_instance_with_repository.repository_root / "spec.json"
+    assert isinstance(workspace_instance_with_profile.profile_root, Path)
+    assert workspace_instance_with_profile.spec_file == (
+        workspace_instance_with_profile.profile_root / "spec.json"
     )
