@@ -19,3 +19,6 @@ class WorkSpaceExceptionBase(Exception):
 
 class WorkSpaceInvalid(WorkSpaceExceptionBase):
   """Raised when an improperly configured WorkSpace is used."""
+
+class FolderInvalid(WorkSpaceExceptionBase):
+  """Raised when an improperly configured WorkSpace is used."""

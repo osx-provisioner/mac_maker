@@ -32,6 +32,17 @@ def precheck() -> None:
   """Ensure an OSX Machine Profile is ready to be applied."""
 
 
+@precheck.command("folder")  # type: ignore[untyped-decorator]
+@click.argument('folder_location', type=click.STRING)
+def check_from_folder(folder_location: str) -> None:
+  """Precheck an OSX Machine Profile from a local filesystem folder.
+
+  FOLDER_LOCATION: The local filesystem path where a machine profile is saved.
+  """
+  job = jobs.FolderJob(folder_location)
+  job.precheck()
+
+
 @precheck.command("github")  # type: ignore[untyped-decorator]
 @click.argument('github_url', type=click.STRING)
 @click.option(
@@ -58,6 +69,18 @@ def check_from_spec_file(spec_file: str) -> None:
   """
   job = jobs.SpecFileJob(spec_file)
   job.precheck()
+
+
+@apply.command("folder")  # type: ignore[untyped-decorator]
+@click.argument('folder_location', type=click.STRING)
+def apply_from_folder(folder_location: str) -> None:
+  """Apply an OSX Machine Profile from a local filesystem folder.
+
+  FOLDER_LOCATION: The local filesystem path where a machine profile is saved.
+  """
+  job = jobs.FolderJob(folder_location)
+  job.precheck(notes=False)
+  job.provision()
 
 
 @apply.command("github")  # type: ignore[untyped-decorator]
