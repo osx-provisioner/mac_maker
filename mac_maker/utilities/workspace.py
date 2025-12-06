@@ -6,12 +6,9 @@ from typing import Optional
 
 from mac_maker import config
 from mac_maker.profile import Profile
+from mac_maker.utilities.exceptions import WorkSpaceInvalid
 from mac_maker.utilities.github import GithubRepository
 from mac_maker.utilities.state import State
-
-
-class InvalidWorkspace(Exception):
-  """Raised when an improperly configured Workspace is used."""
 
 
 class WorkSpace:
@@ -50,7 +47,7 @@ class WorkSpace:
     """
 
     if not self.repository_root:
-      raise InvalidWorkspace("No GitHub Repository has been added.")
+      raise WorkSpaceInvalid("No GitHub Repository has been added.")
 
     state_manager = State()
     profile = Profile(str(self.repository_root))

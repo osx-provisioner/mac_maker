@@ -6,11 +6,11 @@ from unittest import mock
 import requests.exceptions
 from mac_maker.tests.fixtures import fixtures_git
 from mac_maker.utilities import github as github_module
-from mac_maker.utilities.github import (
+from mac_maker.utilities.exceptions import (
     GithubCommunicationError,
-    GithubRepository,
-    InvalidGithubRepository,
+    GithubRepositoryInvalid,
 )
+from mac_maker.utilities.github import GithubRepository
 
 GITHUB_MODULE = github_module.__name__
 
@@ -19,7 +19,7 @@ class TestGithubRepositoryInitialize(fixtures_git.GitTestHarness):
   """Test the initialization of the GithubRepository class."""
 
   def test_initialize_with_illegal_url(self) -> None:
-    with self.assertRaises(InvalidGithubRepository):
+    with self.assertRaises(GithubRepositoryInvalid):
       GithubRepository("not a valid url")
 
   def test_initialize_with_http(self) -> None:
