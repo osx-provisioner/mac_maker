@@ -3,9 +3,7 @@
 import os
 from pathlib import Path
 
-
-class InterpreterNotFound(Exception):
-  """Raised when a valid Python interpreter is not found."""
+from mac_maker.ansible_controller.exceptions import AnsibleInterpreterNotFound
 
 
 class Interpreter:
@@ -26,4 +24,4 @@ class Interpreter:
       if os.path.exists(interpreter):
         return interpreter
 
-    raise InterpreterNotFound("No Python interpreter found.")
+    raise AnsibleInterpreterNotFound("No Python interpreter found.")
