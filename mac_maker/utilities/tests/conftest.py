@@ -10,14 +10,14 @@ from mac_maker.utilities import workspace
 
 
 @pytest.fixture
-def mocked_repository_root() -> Path:
-  return Path("mocked/repository/root")
+def mocked_profile_root() -> Path:
+  return Path("mocked/profile/root")
 
 
 @pytest.fixture
-def mocked_github_repository(mocked_repository_root: Path,) -> mock.Mock:
+def mocked_github_repository(mocked_profile_root: Path,) -> mock.Mock:
   return mock.Mock(
-      **{"get_zip_bundle_root_folder.return_value": mocked_repository_root}
+      **{"get_zip_bundle_root_folder.return_value": mocked_profile_root}
   )
 
 
@@ -53,9 +53,9 @@ def workspace_instance(
 
 
 @pytest.fixture
-def workspace_instance_with_repository(
+def workspace_instance_with_profile(
     workspace_instance: workspace.WorkSpace,
 ) -> workspace.WorkSpace:
-  workspace_instance.repository_root = Path("/repository/path")
+  workspace_instance.profile_root = Path("/repository/path")
 
   return workspace_instance
