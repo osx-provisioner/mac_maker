@@ -9,7 +9,7 @@ from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.jobs.bases.tests.conftest import ProvisionerMocks
 from mac_maker.profile.precheck import precheck_extractor
-from mac_maker.profile.spec_file import spec_file_extractor
+from mac_maker.profile.spec_file import SpecFile
 
 
 class TestJobsBase:
@@ -20,8 +20,8 @@ class TestJobsBase:
       concrete_provisioning_job: ProvisionerJobBase,
   ) -> None:
     assert isinstance(
-        concrete_provisioning_job.spec_file_extractor,
-        spec_file_extractor.SpecFileExtractor,
+        concrete_provisioning_job.spec_file,
+        SpecFile,
     )
 
   def test_initialize__has_precheck_extractor(
@@ -169,10 +169,10 @@ class TestJobsBase:
     concrete_provisioning_job.provision()
 
     provisioner_mocks.mocked_ansible_inventory_file.assert_called_once_with(
-        concrete_provisioning_job.get_state()
+        concrete_provisioning_job.get_spec()
     )
     provisioner_mocks.mocked_ansible_inventory_file.return_value \
-        .write_inventory_file.assert_called_once_with()
+        .write.assert_called_once_with()
 
   def test_provision__prompts_for_sudo(
       self,
@@ -193,7 +193,7 @@ class TestJobsBase:
     concrete_provisioning_job.provision()
 
     provisioner_mocks.mocked_ansible_runner.assert_called_once_with(
-        concrete_provisioning_job.get_state()
+        concrete_provisioning_job.get_spec()
     )
     provisioner_mocks.mocked_ansible_runner.return_value \
         .start.assert_called_once_with()

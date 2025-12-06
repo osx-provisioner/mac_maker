@@ -5,14 +5,19 @@ from pathlib import Path
 from typing import Optional
 
 from mac_maker import config
-from mac_maker.profile import Profile
+from mac_maker.ansible_controller.spec import Spec
+from mac_maker.profile import Profile, spec_file
 from mac_maker.utilities.exceptions import WorkSpaceInvalid
 from mac_maker.utilities.github import GithubRepository
-from mac_maker.utilities.state import State
 
 
 class WorkSpace:
   """Workspace representation."""
+
+  class Messages:
+    add_repository = "WorkSpace: Attached GitHub repository to workspace: %s."
+    add_spec_file = "WorkSpace: Attached spec file to workspace: %s."
+    error_no_repository = "No GitHub Repository has been added."
 
   def __init__(self) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
@@ -36,25 +41,28 @@ class WorkSpace:
         self.root / repo.get_zip_bundle_root_folder(branch_name)
     )
     self.log.debug(
-        "WorkSpace: Attached GitHub repository to workspace: %s.",
+        self.Messages.add_repository,
         self.repository_root,
     )
 
   def add_spec_file(self) -> None:
     """Generate and write a spec file to this workspace.
 
-    :raises: :class:`InvalidWorkspace`
+    :raises: :class:`WorkSpaceInvalid`
     """
 
     if not self.repository_root:
-      raise WorkSpaceInvalid("No GitHub Repository has been added.")
+      raise WorkSpaceInvalid(self.Messages.error_no_repository)
 
-    state_manager = State()
-    profile = Profile(str(self.repository_root))
-    self.spec_file = profile.get_spec_file()
-    spec_file_content = state_manager.state_generate(profile)
-    state_manager.state_dehydrate(spec_file_content, self.spec_file)
+    profile_instance = Profile(str(self.repository_root))
+    spec_file_instance = spec_file.SpecFile()
+    spec_file_instance.path = profile_instance.get_spec_file()
+    spec_file_instance.content = Spec.from_profile(profile_instance)
+    spec_file_instance.write()
+
     self.log.debug(
-        "WorkSpace: Wrote spec file to workspace: %s.",
-        self.spec_file,
+        self.Messages.add_spec_file,
+        spec_file_instance.path,
     )
+
+    self.spec_file = spec_file_instance.path

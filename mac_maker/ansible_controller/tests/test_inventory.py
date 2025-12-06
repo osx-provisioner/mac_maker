@@ -1,73 +1,98 @@
 """Test the AnsibleInventoryFile class."""
 
 from logging import Logger
-from pathlib import Path
-from unittest import TestCase, mock
+from unittest import mock
 
 from mac_maker import config
-from mac_maker.ansible_controller import interpreter, inventory
-from mac_maker.profile import Profile
-from mac_maker.utilities import state
-
-INVENTORY_MODULE = inventory.__name__
+from mac_maker.ansible_controller import inventory, spec
 
 
-class TestAnsibleInventoryFile(TestCase):
+class TestAnsibleInventoryFile:
   """Test the AnsibleInventoryFile class."""
 
-  def setUp(self) -> None:
-    self.root_folder = "/root/mock/dir1"
-    self.profile = Profile(self.root_folder)
-    self.state = state.State()
-    self.loaded_state = self.state.state_generate(self.profile)
-    self.inventory = inventory.AnsibleInventoryFile(self.loaded_state)
-
-  def test_initialize(self) -> None:
-    self.assertIsInstance(
-        self.inventory.log,
-        Logger,
-    )
-    self.assertEqual(self.inventory.state, self.loaded_state)
-    self.assertIsInstance(
-        self.inventory.interpreter,
-        interpreter.AnsibleInterpreter,
-    )
-
-  @mock.patch(INVENTORY_MODULE + ".os")
-  @mock.patch(INVENTORY_MODULE + ".TextFileWriter.write_text_file")
-  @mock.patch(INVENTORY_MODULE + ".AnsibleInterpreter.get_interpreter_path")
-  def test_write_inventory_file(
-      self, m_interpreter: mock.Mock, m_write: mock.Mock, m_os: mock.Mock
+  def test_initialize__attributes(
+      self,
+      ansible_inventory: inventory.AnsibleInventoryFile,
+      global_spec_mock: spec.Spec,
   ) -> None:
+    assert isinstance(ansible_inventory.log, Logger)
+    assert ansible_inventory.spec == global_spec_mock
 
-    m_os.path.exists.return_value = False
-    m_interpreter.return_value = Path("/usr/bin/mock")
+  def test_initialize__creates_interpreter(
+      self,
+      ansible_inventory: inventory.AnsibleInventoryFile,
+      mocked_ansible_interpreter: mock.Mock,
+  ) -> None:
+    mocked_ansible_interpreter.assert_called_once_with()
+    assert ansible_inventory.interpreter == \
+        mocked_ansible_interpreter.return_value
 
-    self.inventory.write_inventory_file()
+  def test_write__non_existing__creates_directories(
+      self,
+      ansible_inventory: inventory.AnsibleInventoryFile,
+      mocked_os: mock.Mock,
+      mocked_ansible_interpreter_instance: mock.Mock,
+  ) -> None:
+    mocked_os.path.exists.return_value = False
+    mocked_ansible_interpreter_instance.get_interpreter_path.return_value = \
+        "/mock/path"
 
-    m_os.makedirs.assert_called_once_with(
-        self.loaded_state['profile_data_path'],
+    ansible_inventory.write()
+
+    mocked_os.makedirs.assert_called_once_with(
+        ansible_inventory.spec.profile_data_path,
         exist_ok=True,
     )
 
+  def test_write__non_existing__writes_file(
+      self,
+      ansible_inventory: inventory.AnsibleInventoryFile,
+      mocked_os: mock.Mock,
+      mocked_ansible_interpreter_instance: mock.Mock,
+      mocked_textfile_write: mock.Mock,
+  ) -> None:
+    mocked_os.path.exists.return_value = False
+    mocked_ansible_interpreter_instance.get_interpreter_path.return_value = \
+        "/mock/path"
     expected_inventory = config.ANSIBLE_INVENTORY_CONTENT
-
     expected_inventory += "ansible_python_interpreter="
-    expected_inventory += str(m_interpreter.return_value)
+    expected_inventory += (
+        mocked_ansible_interpreter_instance.get_interpreter_path.return_value
+    )
     expected_inventory += "\n"
 
-    m_write.assert_called_once_with(
-        expected_inventory, self.loaded_state['inventory']
+    ansible_inventory.write()
+
+    mocked_textfile_write.assert_called_once_with(
+        expected_inventory,
+        ansible_inventory.spec.inventory,
     )
 
-  @mock.patch(INVENTORY_MODULE + ".os")
-  @mock.patch(INVENTORY_MODULE + ".TextFileWriter.write_text_file")
-  def test_write_inventory_file_already_exists(
-      self, m_write: mock.Mock, m_os: mock.Mock
+  def test_write__existing__does_not_create_directories(
+      self,
+      ansible_inventory: inventory.AnsibleInventoryFile,
+      mocked_os: mock.Mock,
+      mocked_ansible_interpreter_instance: mock.Mock,
   ) -> None:
-    m_os.path.exists.return_value = True
+    mocked_os.path.exists.return_value = True
+    mocked_ansible_interpreter_instance.get_interpreter_path.return_value = \
+        "/mock/path"
 
-    self.inventory.write_inventory_file()
+    ansible_inventory.write()
 
-    m_os.makedirs.assert_not_called()
-    m_write.assert_not_called()
+    mocked_os.makedirs.assert_not_called()
+
+  def test_write__existing__does_not_write_file(
+      self,
+      ansible_inventory: inventory.AnsibleInventoryFile,
+      mocked_os: mock.Mock,
+      mocked_ansible_interpreter_instance: mock.Mock,
+      mocked_textfile_write: mock.Mock,
+  ) -> None:
+    mocked_os.path.exists.return_value = True
+    mocked_ansible_interpreter_instance.get_interpreter_path.return_value = \
+        "/mock/path"
+
+    ansible_inventory.write()
+
+    mocked_textfile_write.assert_not_called()

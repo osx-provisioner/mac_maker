@@ -1,9 +1,13 @@
 """Pytest fixtures for mac_maker."""
 # pylint: disable=redefined-outer-name
 
+from dataclasses import asdict
+from typing import Any, Dict
+from unittest import mock
+
 import pytest
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.profile import precheck, spec_file
-from mac_maker.utilities import state
 
 
 @pytest.fixture
@@ -25,8 +29,13 @@ def global_precheck_data_mock() -> precheck.TypePrecheckFileData:
 
 
 @pytest.fixture
-def global_state_data_mock() -> state.TypeState:
-  return state.TypeState(
+def global_spec_data_mock(global_spec_mock: Spec) -> Dict[str, Any]:
+  return asdict(global_spec_mock)
+
+
+@pytest.fixture
+def global_spec_mock() -> Spec:
+  return Spec(
       workspace_root_path='/path/to/root',
       profile_data_path='/path/to/profile_data',
       galaxy_requirements_file='/path/to/galaxy_requirements_file',
@@ -44,10 +53,42 @@ def global_state_data_mock() -> state.TypeState:
 
 
 @pytest.fixture
+def global_spec_file_instance() -> spec_file.SpecFile:
+  return spec_file.SpecFile()
+
+
+@pytest.fixture
 def global_spec_file_mock(
-    global_state_data_mock: state.TypeState,
-) -> spec_file.TypeSpecFileData:
-  return spec_file.TypeSpecFileData(
-      spec_file_content=global_state_data_mock,
-      spec_file_location="/path/to/spec_file/"
-  )
+    # pylint: disable=unused-argument
+    global_spec_file_instance: spec_file.SpecFile,
+    global_spec_file_reader_mock: mock.Mock,
+    global_spec_file_writer_mock: mock.Mock,
+) -> spec_file.SpecFile:
+  return global_spec_file_instance
+
+
+@pytest.fixture
+def global_spec_file_reader_mock(
+    global_spec_file_instance: spec_file.SpecFile,
+    global_spec_mock: Spec,
+    monkeypatch: pytest.MonkeyPatch,
+) -> mock.Mock:
+
+  def mock_data_assignment() -> None:
+    global_spec_file_instance.content = global_spec_mock
+
+  instance = mock.Mock(side_effect=mock_data_assignment)
+  monkeypatch.setattr(spec_file.SpecFile, "load", instance)
+  return instance
+
+
+@pytest.fixture
+def global_spec_file_writer_mock(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+  instance = mock.Mock()
+  monkeypatch.setattr(spec_file.SpecFile, "write", instance)
+  return instance
+
+
+@pytest.fixture
+def global_spec_file_path_mock() -> str:
+  return "/path/to/spec_file.json"

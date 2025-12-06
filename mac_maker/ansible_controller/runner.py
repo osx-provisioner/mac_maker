@@ -5,21 +5,21 @@ import logging
 import click
 from mac_maker import config
 from mac_maker.ansible_controller import process
-from mac_maker.utilities.state import TypeState
+from mac_maker.ansible_controller.spec import Spec
 
 
 class AnsibleRunner:
   """AnsibleRunner workflow class.
 
-  :param state: The loaded runtime state object.
+  :param spec: The provisioning spec instance.
   :param debug: Enable or disable logs.
   """
 
-  def __init__(self, state: TypeState, debug: bool = False):
+  def __init__(self, spec: Spec, debug: bool = False):
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.debug = debug
-    self.state = state
-    self.process = process.AnsibleProcess(state)
+    self.spec = spec
+    self.process = process.AnsibleProcess(spec)
 
   def start(self) -> None:
     """Start the Ansible provisioning workflow."""
@@ -37,8 +37,8 @@ class AnsibleRunner:
 
   def _construct_galaxy_roles_command(self) -> str:
 
-    requirements_file = self.state['galaxy_requirements_file']
-    role_path = self.state['roles_path'][0]
+    requirements_file = self.spec.galaxy_requirements_file
+    role_path = self.spec.roles_path[0]
     self.log.debug(
         "AnsibleRunner: Reading Profile role requirements from: %s",
         requirements_file,
@@ -51,8 +51,8 @@ class AnsibleRunner:
 
   def _construct_galaxy_col_command(self) -> str:
 
-    requirements_file = self.state['galaxy_requirements_file']
-    col_path = self.state['collections_path'][0]
+    requirements_file = self.spec.galaxy_requirements_file
+    col_path = self.spec.collections_path[0]
     self.log.debug(
         "AnsibleRunner: Reading Profile collection requirements from: %s",
         requirements_file,
@@ -66,8 +66,8 @@ class AnsibleRunner:
   def _construct_ansible_playbook_command(self) -> str:
 
     command = (
-        f"ansible-playbook {self.state['playbook']}"
-        f" -i {self.state['inventory']}"
+        f"ansible-playbook {self.spec.playbook}"
+        f" -i {self.spec.inventory}"
         " -e "
         "\"ansible_become_password="
         "'{{ lookup('env', 'ANSIBLE_BECOME_PASSWORD') }}'\""
@@ -82,7 +82,7 @@ class AnsibleRunner:
     self.log.debug(
         "AnsibleRunner: Profile Ansible Galaxy roles have been "
         "installed to: %s",
-        self.state['roles_path'][0],
+        self.spec.roles_path[0],
     )
 
   def _do_install_galaxy_col(self, galaxy_command: str) -> None:
@@ -91,7 +91,7 @@ class AnsibleRunner:
     self.log.debug(
         "AnsibleRunner: Profile Ansible Galaxy collections have been "
         "installed to: %s",
-        self.state['collections_path'][0],
+        self.spec.collections_path[0],
     )
 
   def _do_ansible_playbook(self, ansible_command: str) -> None:

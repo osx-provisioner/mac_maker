@@ -5,28 +5,28 @@ import os
 
 from mac_maker import config
 from mac_maker.ansible_controller.interpreter import AnsibleInterpreter
+from mac_maker.ansible_controller.spec import Spec
 from mac_maker.utilities.mixins.text_file import TextFileWriter
-from mac_maker.utilities.state import TypeState
 
 
 class AnsibleInventoryFile(TextFileWriter):
   """Inventory file for Ansible.
 
-  :param state: The loaded runtime state object.
+  :param spec: The provisioning spec instance.
   """
 
-  def __init__(self, state: TypeState) -> None:
+  def __init__(self, spec: Spec) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
-    self.state = state
+    self.spec = spec
     self.interpreter = AnsibleInterpreter()
 
   def _is_already_present(self) -> bool:
-    return os.path.exists(self.state['inventory'])
+    return os.path.exists(self.spec.inventory)
 
   def _ensure_path_exists(self) -> None:
-    os.makedirs(self.state['profile_data_path'], exist_ok=True)
+    os.makedirs(self.spec.profile_data_path, exist_ok=True)
 
-  def write_inventory_file(self) -> None:
+  def write(self) -> None:
     """Write the Ansible inventory file to the correct location."""
 
     if self._is_already_present():
@@ -39,8 +39,8 @@ class AnsibleInventoryFile(TextFileWriter):
     )
 
     self._ensure_path_exists()
-    self.write_text_file(content, self.state['inventory'])
+    self.write_text_file(content, self.spec.inventory)
     self.log.debug(
         "InventoryFile: Inventory has been written to %s.",
-        self.state['inventory'],
+        self.spec.inventory,
     )

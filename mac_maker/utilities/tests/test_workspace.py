@@ -1,84 +1,154 @@
 """Test the Workspace class."""
-
+import logging
 from logging import Logger
 from pathlib import Path
+from typing import Optional
 from unittest import mock
 
-from mac_maker import config
-from mac_maker.tests.fixtures import fixtures_git
-from mac_maker.utilities import exceptions, github, workspace
+import pytest
+from mac_maker import config, profile
+from mac_maker.__helpers__.logs import decode_logs
+from mac_maker.__helpers__.parametrize import templated_ids
+from mac_maker.ansible_controller.spec import Spec
+from mac_maker.utilities import exceptions, workspace
 
-WORKSPACE_MODULE = workspace.__name__
 
-
-class TestWorkSpace(fixtures_git.GitTestHarness):
+class TestWorkSpace:
   """Test the Workspace class."""
 
-  def setUp(self) -> None:
-    super().setUp()
-    self.mock_temp_directory = "/mock_temp_directory"
-    self.workspace = workspace.WorkSpace()
-
-  def test_init(self) -> None:
-    self.assertEqual(
-        self.workspace.root,
-        Path(config.WORKSPACE).resolve(),
-    )
-    self.assertIsInstance(
-        self.workspace.log,
-        Logger,
-    )
-    self.assertIsNone(self.workspace.repository_root,)
-    self.assertIsNone(self.workspace.spec_file,)
-
-  @mock.patch(
-      WORKSPACE_MODULE + ".GithubRepository.download_zip_bundle_profile"
+  vary_branch = pytest.mark.parametrize(
+      "branch_name",
+      (None, "develop"),
+      ids=templated_ids("branch:{0}"),
   )
-  def test_add_repository_default(self, m_download: mock.Mock) -> None:
-    branch_name = None
-    repo = github.GithubRepository(self.repository_http_url)
-    self.workspace.add_repository(repo, branch_name)
 
-    self.assertEqual(
-        self.workspace.repository_root,
-        self.workspace.root / repo.get_zip_bundle_root_folder(branch_name)
-    )
-    m_download.assert_called_once_with(self.workspace.root, branch_name)
-
-  @mock.patch(
-      WORKSPACE_MODULE + ".GithubRepository.download_zip_bundle_profile"
-  )
-  def test_add_repository_with_name(self, m_download: mock.Mock) -> None:
-    branch_name = "mock_branch_name"
-    repo = github.GithubRepository(self.repository_http_url)
-    self.workspace.add_repository(repo, branch_name)
-
-    self.assertEqual(
-        self.workspace.repository_root,
-        self.workspace.root / repo.get_zip_bundle_root_folder(branch_name)
-    )
-    m_download.assert_called_once_with(self.workspace.root, branch_name)
-
-  def test_add_spec_file_no_repo(self) -> None:
-    with self.assertRaises(exceptions.WorkSpaceInvalid):
-      self.workspace.add_spec_file()
-    self.assertIsNone(self.workspace.spec_file)
-
-  @mock.patch(WORKSPACE_MODULE + ".State")
-  @mock.patch(WORKSPACE_MODULE + ".Profile")
-  def test_add_spec_file_with_repo(
-      self, m_profile: mock.Mock, m_state: mock.Mock
+  def test_initialize__attributes(
+      self,
+      workspace_instance: workspace.WorkSpace,
   ) -> None:
-    mock_spec_file_path = "/mock/path"
-    mock_spec_file_content = "mock state"
+    assert isinstance(workspace_instance.log, Logger)
+    assert workspace_instance.root == Path(config.WORKSPACE).resolve()
+    assert workspace_instance.repository_root is None
+    assert workspace_instance.spec_file is None
 
-    m_profile.return_value.get_spec_file.return_value = mock_spec_file_path
-    m_state.return_value.state_generate.return_value = mock_spec_file_content
-
-    self.workspace.repository_root = Path("/mock_root_path")
-    self.workspace.add_spec_file()
-
-    m_state.return_value.state_dehydrate.assert_called_once_with(
-        mock_spec_file_content, mock_spec_file_path
+  @vary_branch
+  def test_add_repository__vary_branch__downloads_zip_bundle(
+      self,
+      mocked_github_repository: mock.Mock,
+      workspace_instance: workspace.WorkSpace,
+      branch_name: Optional[str],
+  ) -> None:
+    workspace_instance.add_repository(
+        mocked_github_repository,
+        branch_name,
     )
-    self.assertEqual(self.workspace.spec_file, mock_spec_file_path)
+
+    mocked_github_repository \
+        .get_zip_bundle_root_folder.assert_called_once_with(branch_name)
+
+  @vary_branch
+  def test_add_repository__vary_branch__assigns_repository_root(
+      self,
+      mocked_github_repository: mock.Mock,
+      mocked_repository_root: Path,
+      workspace_instance: workspace.WorkSpace,
+      branch_name: Optional[str],
+  ) -> None:
+    workspace_instance.add_repository(
+        mocked_github_repository,
+        branch_name,
+    )
+
+    assert workspace_instance.repository_root == (
+        Path(config.WORKSPACE) / mocked_repository_root
+    ).resolve()
+
+  @vary_branch
+  def test_add_repository__vary_branch__logging(
+      self,
+      mocked_github_repository: mock.Mock,
+      workspace_instance: workspace.WorkSpace,
+      branch_name: Optional[str],
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    workspace_instance.add_repository(
+        mocked_github_repository,
+        branch_name,
+    )
+
+    assert decode_logs(caplog.records) == [
+        (
+            "DEBUG:mac_maker:" + workspace_instance.Messages.add_repository %
+            workspace_instance.repository_root
+        ),
+    ]
+
+  def test_add_spec_file__without_repository__raises_exception(
+      self,
+      workspace_instance: workspace.WorkSpace,
+  ) -> None:
+    with pytest.raises(exceptions.WorkSpaceInvalid) as exc:
+      workspace_instance.add_spec_file()
+
+    assert str(exc.value) == workspace_instance.Messages.error_no_repository
+
+  def test_add_spec_file__with_repository__creates_spec_file(
+      self,
+      mocked_spec_file: mock.Mock,
+      mocked_spec_file_instance: mock.Mock,
+      workspace_instance_with_repository: workspace.WorkSpace,
+  ) -> None:
+    workspace_instance_with_repository.add_spec_file()
+
+    mocked_spec_file.assert_called_once_with()
+    mocked_spec_file_instance.write.assert_called_once_with()
+
+  def test_add_spec_file__with_repository__spec_file_uses_profile_values(
+      self,
+      mocked_spec_file_instance: mock.Mock,
+      workspace_instance_with_repository: workspace.WorkSpace,
+  ) -> None:
+    assert workspace_instance_with_repository.repository_root is not None
+    expected_profile = profile.Profile(
+        workspace_instance_with_repository.repository_root
+    )
+
+    workspace_instance_with_repository.add_spec_file()
+
+    assert mocked_spec_file_instance.path == \
+        expected_profile.get_spec_file()
+    assert mocked_spec_file_instance.content == \
+        Spec.from_profile(expected_profile)
+
+  def test_add_spec_file__with_repository__logging(
+      self,
+      workspace_instance_with_repository: workspace.WorkSpace,
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    workspace_instance_with_repository.add_spec_file()
+
+    assert decode_logs(caplog.records) == [
+        (
+            "DEBUG:mac_maker:" +
+            workspace_instance_with_repository.Messages.add_spec_file %
+            workspace_instance_with_repository.spec_file
+        ),
+    ]
+
+  def test_add_spec_file__with_repository__updates_spec_file_attribute(
+      self,
+      workspace_instance_with_repository: workspace.WorkSpace,
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    workspace_instance_with_repository.add_spec_file()
+
+    assert isinstance(workspace_instance_with_repository.repository_root, Path)
+    assert workspace_instance_with_repository.spec_file == (
+        workspace_instance_with_repository.repository_root / "spec.json"
+    )

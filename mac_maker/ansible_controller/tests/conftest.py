@@ -1,19 +1,36 @@
-"""Test fixtures for the ansible_controllers module."""
+"""Pytest fixtures for the ansible_controllers module."""
 # pylint: disable=redefined-outer-name
 
 import os
-from typing import Callable, Generator
+from typing import Callable, Generator, cast
 from unittest import mock
 
 import pytest
-from mac_maker.ansible_controller import process, runner
-from mac_maker.profile import Profile
-from mac_maker.utilities import state
+from mac_maker.ansible_controller import (
+    environment,
+    interpreter,
+    inventory,
+    process,
+    runner,
+    spec,
+)
+
+
+@pytest.fixture
+def mocked_ansible_interpreter() -> mock.Mock:
+  return mock.Mock()
 
 
 @pytest.fixture
 def mocked_ansible_environment() -> mock.Mock:
   return mock.Mock()
+
+
+@pytest.fixture
+def mocked_ansible_interpreter_instance(
+    mocked_ansible_interpreter: mock.Mock
+) -> mock.Mock:
+  return cast(mock.Mock, mocked_ansible_interpreter.return_value)
 
 
 @pytest.fixture
@@ -37,8 +54,8 @@ def mocked_command() -> str:
 
 
 @pytest.fixture
-def mocked_folder() -> str:
-  return "/mock/dir1"
+def mocked_os() -> mock.Mock:
+  return mock.Mock()
 
 
 @pytest.fixture
@@ -47,7 +64,7 @@ def mocked_os_chdir() -> mock.Mock:
 
 
 @pytest.fixture
-def mocked_popen(mocked_popen_process: mock.Mock,) -> mock.Mock:
+def mocked_popen(mocked_popen_process: mock.Mock) -> mock.Mock:
   return mock.Mock(return_value=mocked_popen_process)
 
 
@@ -57,13 +74,52 @@ def mocked_popen_process() -> mock.MagicMock:
 
 
 @pytest.fixture
-def mocked_profile(mocked_folder: str) -> Profile:
-  return Profile(mocked_folder)
+def mocked_textfile_write() -> mock.Mock:
+  return mock.Mock()
 
 
 @pytest.fixture
-def mocked_state() -> state.State:
-  return state.State()
+def setup_interpreter_module(
+    mocked_os: mock.Mock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        interpreter,
+        "os",
+        mocked_os,
+    )
+
+  return setup
+
+
+@pytest.fixture
+def setup_inventory_module(
+    mocked_ansible_interpreter: mock.Mock,
+    mocked_os: mock.Mock,
+    mocked_textfile_write: mock.Mock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        inventory,
+        "AnsibleInterpreter",
+        mocked_ansible_interpreter,
+    )
+    monkeypatch.setattr(
+        inventory,
+        "os",
+        mocked_os,
+    )
+    monkeypatch.setattr(
+        inventory.AnsibleInventoryFile,
+        "write_text_file",
+        mocked_textfile_write,
+    )
+
+  return setup
 
 
 @pytest.fixture
@@ -118,14 +174,39 @@ def setup_runner_module(
 
 
 @pytest.fixture
+def ansible_environment(
+    global_spec_mock: spec.Spec
+) -> environment.AnsibleEnvironment:
+  return environment.AnsibleEnvironment(global_spec_mock)
+
+
+@pytest.fixture
+def ansible_interpreter(
+    setup_interpreter_module: Callable[[], None],
+) -> interpreter.AnsibleInterpreter:
+  setup_interpreter_module()
+
+  return interpreter.AnsibleInterpreter()
+
+
+@pytest.fixture
+def ansible_inventory(
+    global_spec_mock: spec.Spec,
+    setup_inventory_module: Callable[[], None],
+) -> inventory.AnsibleInventoryFile:
+  setup_inventory_module()
+
+  return inventory.AnsibleInventoryFile(global_spec_mock)
+
+
+@pytest.fixture
 def ansible_process(
-    mocked_profile: Profile,
-    mocked_state: state.State,
+    global_spec_mock: spec.Spec,
     setup_process_module: Callable[[], None],
 ) -> process.AnsibleProcess:
   setup_process_module()
 
-  return process.AnsibleProcess(mocked_state.state_generate(mocked_profile))
+  return process.AnsibleProcess(global_spec_mock)
 
 
 @pytest.fixture
@@ -150,10 +231,8 @@ def ansible_process_frozen(
 
 @pytest.fixture
 def ansible_runner(
-    mocked_profile: Profile,
-    mocked_state: state.State,
+    global_spec_mock: spec.Spec,
     setup_runner_module: Callable[[], None],
 ) -> runner.AnsibleRunner:
   setup_runner_module()
-
-  return runner.AnsibleRunner(mocked_state.state_generate(mocked_profile))
+  return runner.AnsibleRunner(global_spec_mock)
