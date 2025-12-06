@@ -2181,4 +2181,4 @@ docs = ["myst_parser", "sphinx", "sphinx-autodoc-typehints", "sphinx-autopackage
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11.0,<3.12.0"
-content-hash = "fe57aeede1b9f90ced765b1230f582939774787cbdbabf7bb1fa8cd9e0466fb2"
+content-hash = "ef9ecb8d77ffc2c668f64375188cafa3a286a5c614ce5be7cb78e2a0c5f4629e"
