@@ -6,7 +6,7 @@ from unittest import mock
 
 from mac_maker import config
 from mac_maker.tests.fixtures import fixtures_git
-from mac_maker.utilities import github, workspace
+from mac_maker.utilities import exceptions, github, workspace
 
 WORKSPACE_MODULE = workspace.__name__
 
@@ -60,7 +60,7 @@ class TestWorkSpace(fixtures_git.GitTestHarness):
     m_download.assert_called_once_with(self.workspace.root, branch_name)
 
   def test_add_spec_file_no_repo(self) -> None:
-    with self.assertRaises(workspace.InvalidWorkspace):
+    with self.assertRaises(exceptions.WorkSpaceInvalid):
       self.workspace.add_spec_file()
     self.assertIsNone(self.workspace.spec_file)
 
