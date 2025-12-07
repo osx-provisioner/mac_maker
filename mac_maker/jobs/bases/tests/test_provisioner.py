@@ -5,10 +5,11 @@ from unittest import mock
 
 import pytest
 from mac_maker.__helpers__.parametrize import templated_ids
+from mac_maker.ansible_controller import spec
 from mac_maker.config import PRECHECK_SUCCESS_MESSAGE
 from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.jobs.bases.tests.conftest import ProvisionerMocks
-from mac_maker.profile.precheck import precheck_extractor
+from mac_maker.profile.precheck import TypePrecheckFileData, precheck_extractor
 from mac_maker.profile.spec_file import SpecFile
 
 
@@ -33,6 +34,126 @@ class TestJobsBase:
         precheck_extractor.PrecheckExtractor,
     )
 
+  def test_get_precheck_content__no_spec_file__initializes_spec_file_once(
+      self,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
+      mocked_initialize_spec_file: mock.Mock,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job_with_mocked_extractor.spec_file._content = \
+        None
+
+    concrete_provisioning_job_with_mocked_extractor.get_precheck_content()
+    concrete_provisioning_job_with_mocked_extractor.get_precheck_content()
+
+    mocked_initialize_spec_file.assert_called_once_with()
+
+  def test_get_precheck_content__spec_file__does_not_initialize_spec_file(
+      self,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
+      global_spec_mock: spec.Spec,
+      mocked_initialize_spec_file: mock.Mock,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job_with_mocked_extractor.spec_file._content = \
+        global_spec_mock
+
+    concrete_provisioning_job_with_mocked_extractor.get_precheck_content()
+
+    mocked_initialize_spec_file.assert_not_called()
+
+  @pytest.mark.parametrize(
+      "initialized",
+      ("True", "False"),
+      ids=templated_ids("initialized:{0}", lambda arg: str(arg)[0]),
+  )
+  def test_get_precheck_content__vary_spec_file__returns_correct_value(
+      self,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
+      global_spec_mock: spec.Spec,
+      global_precheck_data_mock: TypePrecheckFileData,
+      initialized: bool,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job_with_mocked_extractor.spec_file._content = (
+        global_spec_mock if initialized else None
+    )
+
+    results = \
+        concrete_provisioning_job_with_mocked_extractor.get_precheck_content()
+
+    assert results == global_precheck_data_mock
+
+  def test_get_spec__no_spec_file__initializes_spec_file_once(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      mocked_initialize_spec_file: mock.Mock,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job.spec_file._content = None
+
+    concrete_provisioning_job.get_spec()
+    concrete_provisioning_job.get_spec()
+
+    mocked_initialize_spec_file.assert_called_once_with()
+
+  def test_get_spec__spec_file__does_not_initialize_spec_file(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      global_spec_mock: spec.Spec,
+      mocked_initialize_spec_file: mock.Mock,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job.spec_file._content = global_spec_mock
+
+    concrete_provisioning_job.get_spec()
+
+    mocked_initialize_spec_file.assert_not_called()
+
+  @pytest.mark.parametrize(
+      "initialized",
+      ("True", "False"),
+      ids=templated_ids("initialized:{0}", lambda arg: str(arg)[0]),
+  )
+  def test_get_spec__vary_spec_file__returns_correct_value(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      global_spec_mock: spec.Spec,
+      initialized: bool,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job.spec_file._content = (
+        global_spec_mock if initialized else None
+    )
+
+    results = concrete_provisioning_job.get_spec()
+
+    assert results == concrete_provisioning_job.spec_file.content
+
+  @pytest.mark.parametrize(
+      "initialized",
+      ("True", "False"),
+      ids=templated_ids("initialized:{0}", lambda arg: str(arg)[0]),
+  )
+  def test_get_spec__vary_spec_file__calls_echo_correctly(
+      self,
+      concrete_provisioning_job: ProvisionerJobBase,
+      global_spec_mock: spec.Spec,
+      initialized: bool,
+      mocked_click_echo: mock.Mock,
+  ) -> None:
+    # pylint: disable=protected-access
+    concrete_provisioning_job.spec_file._content = (
+        global_spec_mock if initialized else None
+    )
+
+    concrete_provisioning_job.get_spec()
+
+    assert mocked_click_echo.mock_calls == [
+        mock.call(concrete_provisioning_job.Messages.spec_file_loaded),
+        mock.call(concrete_provisioning_job.spec_file.path),
+    ]
+
   @pytest.mark.parametrize(
       "precheck_args",
       (
@@ -53,7 +174,7 @@ class TestJobsBase:
   )
   def test_precheck__vary_validity__vary_args__instantiates_validator(
       self,
-      concrete_provisioning_job: ProvisionerJobBase,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
       mocked_precheck_validator: mock.Mock,
       global_precheck_data_mock: precheck_extractor.TypePrecheckFileData,
       precheck_args: Dict[str, bool],
@@ -65,7 +186,7 @@ class TestJobsBase:
             'violations': [],
         }
 
-    concrete_provisioning_job.precheck(**precheck_args)
+    concrete_provisioning_job_with_mocked_extractor.precheck(**precheck_args)
 
     mocked_precheck_validator.assert_called_once_with(
         global_precheck_data_mock['env']
@@ -81,9 +202,9 @@ class TestJobsBase:
       ),
       ids=templated_ids("args:{0}"),
   )
-  def test_precheck__valid_env__with_notes__calls_echo(
+  def test_precheck__valid_env__with_notes__calls_echo_correctly(
       self,
-      concrete_provisioning_job: ProvisionerJobBase,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
       mocked_click_echo: mock.Mock,
       global_precheck_data_mock: precheck_extractor.TypePrecheckFileData,
       mocked_validate_environment: mock.Mock,
@@ -94,7 +215,7 @@ class TestJobsBase:
         'violations': [],
     }
 
-    concrete_provisioning_job.precheck(**precheck_args)
+    concrete_provisioning_job_with_mocked_extractor.precheck(**precheck_args)
 
     assert mocked_click_echo.mock_calls == [
         mock.call(global_precheck_data_mock['notes']),
@@ -110,7 +231,7 @@ class TestJobsBase:
   )
   def test_precheck__valid_env__vary_notes__calls_echo(
       self,
-      concrete_provisioning_job: ProvisionerJobBase,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
       mocked_click_echo: mock.Mock,
       mocked_validate_environment: mock.Mock,
       precheck_args: Dict[str, bool],
@@ -120,7 +241,7 @@ class TestJobsBase:
         'violations': [],
     }
 
-    concrete_provisioning_job.precheck(**precheck_args)
+    concrete_provisioning_job_with_mocked_extractor.precheck(**precheck_args)
 
     assert mocked_click_echo.mock_calls == [
         mock.call(PRECHECK_SUCCESS_MESSAGE),
@@ -141,7 +262,7 @@ class TestJobsBase:
   )
   def test_precheck__invalid_env__vary_notes__calls_echo(
       self,
-      concrete_provisioning_job: ProvisionerJobBase,
+      concrete_provisioning_job_with_mocked_extractor: ProvisionerJobBase,
       mocked_click_echo: mock.Mock,
       mocked_sys: mock.Mock,
       mocked_validate_environment: mock.Mock,
@@ -154,7 +275,7 @@ class TestJobsBase:
     }
 
     with pytest.raises(SystemExit):
-      concrete_provisioning_job.precheck(**precheck_args)
+      concrete_provisioning_job_with_mocked_extractor.precheck(**precheck_args)
 
     assert mocked_click_echo.mock_calls == [
         mock.call(violation)

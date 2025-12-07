@@ -1,7 +1,7 @@
 """Pytest fixtures for mac_maker job classes."""
 # pylint: disable=redefined-outer-name
 
-from typing import Callable, cast
+from typing import Callable
 from unittest import mock
 
 import pytest
@@ -26,13 +26,6 @@ def mocked_precheck_extractor() -> mock.Mock:
 
 
 @pytest.fixture
-def mocked_precheck_extractor_instance(
-    mocked_precheck_extractor: mock.Mock,
-) -> mock.Mock:
-  return cast(mock.Mock, mocked_precheck_extractor.return_value)
-
-
-@pytest.fixture
 def mocked_spec_file(global_spec_file_mock: SpecFile) -> mock.Mock:
   return mock.Mock(return_value=global_spec_file_mock)
 
@@ -52,7 +45,6 @@ def mocked_workspace() -> mock.Mock:
 def setup_github_job_module(
     mocked_click_echo: mock.Mock,
     mocked_github_repository: mock.Mock,
-    mocked_precheck_extractor: mock.Mock,
     mocked_spec_file: mock.Mock,
     mocked_workspace: mock.Mock,
     monkeypatch: pytest.MonkeyPatch,
@@ -68,11 +60,6 @@ def setup_github_job_module(
         github,
         "GithubRepository",
         mocked_github_repository,
-    )
-    monkeypatch.setattr(
-        provisioner,
-        "PrecheckExtractor",
-        mocked_precheck_extractor,
     )
     monkeypatch.setattr(
         provisioner,
@@ -98,7 +85,7 @@ def setup_spec_file_job_module(
 
   def setup() -> None:
     monkeypatch.setattr(
-        spec_file,
+        provisioner,
         "click",
         mock.Mock(echo=mocked_click_echo),
     )

@@ -4,8 +4,8 @@ from typing import Callable, Optional
 from unittest import mock
 
 import pytest
-from mac_maker import config
 from mac_maker.__helpers__.parametrize import templated_parameters
+from mac_maker.jobs.bases.provisioner import ProvisionerJobBase
 from mac_maker.jobs.github import GitHubJob
 
 
@@ -24,14 +24,22 @@ class TestGitHubJob:
   )
 
   @valid_url_parameterization
-  def test_initialize__valid_url__vary_parameters__has_correct_attributes(
+  def test_initialize__valid_url__vary_parameters__has_correct_inheritance(
       self,
-      setup_github_job_module: Callable[[], None],
       url: str,
       branch_name: Optional[str],
   ) -> None:
-    setup_github_job_module()
+    instance = GitHubJob(url, branch_name)
 
+    assert isinstance(instance, GitHubJob)
+    assert isinstance(instance, ProvisionerJobBase)
+
+  @valid_url_parameterization
+  def test_initialize__valid_url__vary_parameters__has_correct_attributes(
+      self,
+      url: str,
+      branch_name: Optional[str],
+  ) -> None:
     instance = GitHubJob(url, branch_name)
 
     assert instance.branch_name == branch_name
@@ -52,126 +60,94 @@ class TestGitHubJob:
     assert instance.repository == mocked_github_repository.return_value
     mocked_github_repository.assert_called_once_with(url)
 
-  def test_get_precheck_content__creates_workspace_and_finds_spec_file(
-      self,
-      mocked_workspace: mock.Mock,
-      github_job_instance: GitHubJob,
-  ) -> None:
-    github_job_instance.get_precheck_content()
-
-    mocked_workspace.assert_called_once_with()
-    mocked_workspace.return_value.add_repository.assert_called_once_with(
-        github_job_instance.repository,
-        github_job_instance.branch_name,
-    )
-    mocked_workspace.return_value.add_spec_file.assert_called_once()
-
-  def test_get_precheck_content__reuses_workspace(
-      self,
-      mocked_workspace: mock.Mock,
-      github_job_instance: GitHubJob,
-  ) -> None:
-    github_job_instance.get_precheck_content()
-    github_job_instance.get_precheck_content()
-
-    mocked_workspace.assert_called_once_with()
-
-  def test_get_precheck_content__loads_spec_file_data(
-      self,
-      global_spec_file_reader_mock: mock.Mock,
-      github_job_instance: GitHubJob,
-  ) -> None:
-    github_job_instance.get_precheck_content()
-
-    assert github_job_instance.workspace is not None
-    assert github_job_instance.spec_file.path == \
-        str(github_job_instance.workspace.spec_file)
-    global_spec_file_reader_mock.assert_called_once_with()
-
-  def test_get_precheck_content__extracts_precheck_data_from_spec_file(
-      self,
-      mocked_precheck_extractor_instance: mock.Mock,
-      github_job_instance: GitHubJob,
-  ) -> None:
-    github_job_instance.get_precheck_content()
-
-    mocked_precheck_extractor_instance \
-        .get_precheck_data.assert_called_once_with(
-          github_job_instance.spec_file.content
-        )
-
-  def test_get_precheck_content__returns_correct_value(
-      self,
-      mocked_precheck_extractor_instance: mock.Mock,
-      github_job_instance: GitHubJob,
-  ) -> None:
-    results = github_job_instance.get_precheck_content()
-
-    assert results == mocked_precheck_extractor_instance \
-        .get_precheck_data.return_value
-
-  def test_get_precheck_content__calls_echo(
+  def test_initialize_spec_file__calls_echo(
       self,
       mocked_click_echo: mock.Mock,
       github_job_instance: GitHubJob,
   ) -> None:
-    github_job_instance.get_precheck_content()
+    github_job_instance.initialize_spec_file()
 
-    assert mocked_click_echo.mock_calls == [
-        mock.call(config.ANSIBLE_RETRIEVE_MESSAGE),
-    ]
-
-  def test_get_state__creates_workspace_and_finds_spec_file(
-      self,
-      mocked_workspace: mock.Mock,
-      github_job_instance: GitHubJob,
-  ) -> None:
-    github_job_instance.get_spec()
-
-    mocked_workspace.assert_called_once_with()
-    mocked_workspace.return_value.add_repository.assert_called_once_with(
-        github_job_instance.repository,
-        github_job_instance.branch_name,
+    mocked_click_echo.assert_called_once_with(
+        github_job_instance.Messages.retrieve_github_profile
     )
-    mocked_workspace.return_value.add_spec_file.assert_called_once()
 
-  def test_get_state__shares_workspace_with_get_precheck_content(
+  @valid_url_parameterization
+  def test_initialize_spec_file__creates_workspace(
       self,
       mocked_workspace: mock.Mock,
-      github_job_instance: GitHubJob,
+      setup_github_job_module: Callable[[], None],
+      url: str,
+      branch_name: Optional[str],
   ) -> None:
-    github_job_instance.get_precheck_content()
-    github_job_instance.get_spec()
+    setup_github_job_module()
+    instance = GitHubJob(url, branch_name)
+
+    instance.initialize_spec_file()
 
     mocked_workspace.assert_called_once_with()
+    assert instance.workspace == mocked_workspace.return_value
 
-  def test_get_state__reuses_workspace(
+  @valid_url_parameterization
+  def test_initialize_spec_file__adds_repository_to_workspace(
       self,
       mocked_workspace: mock.Mock,
-      github_job_instance: GitHubJob,
+      setup_github_job_module: Callable[[], None],
+      url: str,
+      branch_name: Optional[str],
   ) -> None:
-    github_job_instance.get_spec()
-    github_job_instance.get_spec()
+    setup_github_job_module()
+    instance = GitHubJob(url, branch_name)
 
-    mocked_workspace.assert_called_once_with()
+    instance.initialize_spec_file()
 
-  def test_get_state__returns_correct_value(
+    mocked_workspace.return_value.add_repository.assert_called_once_with(
+        instance.repository,
+        branch_name,
+    )
+
+  @valid_url_parameterization
+  def test_initialize_spec_file__adds_spec_file_to_workspace(
       self,
-      github_job_instance: GitHubJob,
+      mocked_workspace: mock.Mock,
+      setup_github_job_module: Callable[[], None],
+      url: str,
+      branch_name: Optional[str],
   ) -> None:
-    results = github_job_instance.get_spec()
+    setup_github_job_module()
+    instance = GitHubJob(url, branch_name)
 
-    assert results == github_job_instance.spec_file.content
+    instance.initialize_spec_file()
 
-  def test_get_state__calls_echo(
+    mocked_workspace.return_value.add_spec_file.assert_called_once_with()
+
+  @valid_url_parameterization
+  def test_initialize_spec_file__initializes_spec_file(
       self,
-      mocked_click_echo: mock.Mock,
-      github_job_instance: GitHubJob,
+      mocked_spec_file: mock.Mock,
+      setup_github_job_module: Callable[[], None],
+      url: str,
+      branch_name: Optional[str],
   ) -> None:
-    github_job_instance.get_spec()
+    setup_github_job_module()
+    instance = GitHubJob(url, branch_name)
 
-    assert mocked_click_echo.mock_calls == [
-        mock.call(config.ANSIBLE_RETRIEVE_MESSAGE),
-        mock.call(config.SPEC_FILE_CREATED_MESSAGE),
-        mock.call(github_job_instance.spec_file.path),
-    ]
+    instance.initialize_spec_file()
+
+    assert instance.workspace is not None
+    assert mocked_spec_file.return_value.path == \
+        str(instance.workspace.spec_file)
+
+  @valid_url_parameterization
+  def test_initialize_spec_file__loads_spec_file(
+      self,
+      mocked_spec_file: mock.Mock,
+      setup_github_job_module: Callable[[], None],
+      url: str,
+      branch_name: Optional[str],
+  ) -> None:
+    setup_github_job_module()
+    instance = GitHubJob(url, branch_name)
+
+    instance.initialize_spec_file()
+
+    mocked_spec_file.return_value.load.assert_called_once_with()
