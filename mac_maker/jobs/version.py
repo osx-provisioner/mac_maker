@@ -9,7 +9,10 @@ from mac_maker.jobs.bases.simple import SimpleJobBase
 class VersionJob(SimpleJobBase):
   """Version command for the Mac Maker CLI."""
 
+  class Messages:
+    version_string = "Mac Maker Version: %s"
+
   def invoke(self) -> None:
     """Report the Mac Maker version."""
 
-    click.echo(f"Mac Maker Version: {version('mac_maker')}")
+    click.echo(self.Messages.version_string % version('mac_maker'))
