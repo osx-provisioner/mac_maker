@@ -17,9 +17,14 @@ class WorkSpace:
   """Workspace representation."""
 
   class Messages:
+    add_folder = "WorkSpace: Copied local folder to workspace: %s."
     add_repository = "WorkSpace: Attached GitHub repository to workspace: %s."
     add_spec_file = "WorkSpace: Attached spec file to workspace: %s."
     error_no_repository = "No GitHub Repository has been added."
+    error_not_a_folder = "The location '%s' is not a directory!"
+    error_profile_copy_failure = (
+        "Unable to copy content from target location '%s'!"
+    )
 
   def __init__(self) -> None:
     self.log = logging.getLogger(config.LOGGER_NAME)
@@ -27,6 +32,34 @@ class WorkSpace:
     self.root = Path(config.WORKSPACE).resolve()
     self.spec_file: Optional[Path] = None
     self._reset()
+
+  def add_folder(
+      self,
+      folder_location: str,
+  ) -> None:
+    """Add a local filesystem folder to the current Workspace.
+
+    :param folder_location: A validated filesystem path to add.
+    """
+
+    # TODO: validate folder_location at CLI level with types from text_lint
+    profile_basename = os.path.basename(folder_location)
+
+    try:
+      shutil.copytree(
+          folder_location,
+          self.root / profile_basename,
+      )
+    except Exception as exc:
+      raise IOError(
+          self.Messages.error_profile_copy_failure % folder_location
+      ) from exc
+
+    self.profile_root = self.root / profile_basename
+    self.log.debug(
+        self.Messages.add_folder,
+        self.profile_root,
+    )
 
   def add_repository(
       self,

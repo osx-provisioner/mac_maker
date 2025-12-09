@@ -1,6 +1,7 @@
 """Pytest fixtures for the Mac Maker utilities."""
 # pylint: disable=redefined-outer-name
 
+import os
 from pathlib import Path
 from typing import Callable, cast
 from unittest import mock
@@ -23,7 +24,9 @@ def mocked_github_repository(mocked_profile_root: Path,) -> mock.Mock:
 
 @pytest.fixture
 def mocked_os_module() -> mock.Mock:
-  return mock.Mock()
+  instance = mock.Mock()
+  instance.path.basename = os.path.basename
+  return instance
 
 
 @pytest.fixture
