@@ -2,7 +2,7 @@
 import logging
 from logging import Logger
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 from unittest import mock
 
 import pytest
@@ -30,6 +30,51 @@ class TestWorkSpace:
     assert workspace_instance.root == Path(config.WORKSPACE).resolve()
     assert workspace_instance.profile_root is None
     assert workspace_instance.spec_file is None
+
+  def test_initialize__root_exists__removes_existing_workspace_root(
+      self,
+      mocked_os_module: mock.Mock,
+      mocked_shutil_module: mock.Mock,
+      setup_workspace_module: Callable[[], None],
+  ) -> None:
+    setup_workspace_module()
+    mocked_os_module.path.exists.return_value = True
+
+    instance = workspace.WorkSpace()
+
+    mocked_os_module.path.exists.assert_called_once_with(instance.root)
+    mocked_shutil_module.rmtree.assert_called_once_with(instance.root)
+
+  def test_initialize__no_root_exists__does_not_remove_existing_workspace_root(
+      self,
+      mocked_os_module: mock.Mock,
+      mocked_shutil_module: mock.Mock,
+      setup_workspace_module: Callable[[], None],
+  ) -> None:
+    setup_workspace_module()
+    mocked_os_module.path.exists.return_value = False
+
+    instance = workspace.WorkSpace()
+
+    mocked_os_module.path.exists.assert_called_once_with(instance.root)
+    mocked_shutil_module.rmtree.assert_not_called()
+
+  @pytest.mark.parametrize(
+      "workspace_exists",
+      (True, False),
+      ids=templated_ids("exists:{0}"),
+  )
+  def test_initialize__vary_root_exists__creates_workspace_root(
+      self, mocked_os_module: mock.Mock,
+      setup_workspace_module: Callable[[], None],
+      workspace_exists: bool,
+  ) -> None:
+    setup_workspace_module()
+    mocked_os_module.path.exists.return_value = workspace_exists
+
+    instance = workspace.WorkSpace()
+
+    mocked_os_module.mkdir.assert_called_once_with(instance.root)
 
   @vary_branch
   def test_add_repository__vary_branch__downloads_zip_bundle(

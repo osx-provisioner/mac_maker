@@ -1,6 +1,8 @@
 """Workspace representation."""
 
 import logging
+import os
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -24,6 +26,7 @@ class WorkSpace:
     self.profile_root: Optional[Path] = None
     self.root = Path(config.WORKSPACE).resolve()
     self.spec_file: Optional[Path] = None
+    self._reset()
 
   def add_repository(
       self,
@@ -66,3 +69,11 @@ class WorkSpace:
     )
 
     self.spec_file = spec_file_instance.path
+
+  def _reset(self) -> None:
+    """If a workspace already exists at the given path, then remove it."""
+
+    if os.path.exists(self.root):
+      shutil.rmtree(self.root)
+
+    os.mkdir(self.root)

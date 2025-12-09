@@ -22,6 +22,16 @@ def mocked_github_repository(mocked_profile_root: Path,) -> mock.Mock:
 
 
 @pytest.fixture
+def mocked_os_module() -> mock.Mock:
+  return mock.Mock()
+
+
+@pytest.fixture
+def mocked_shutil_module() -> mock.Mock:
+  return mock.Mock()
+
+
+@pytest.fixture
 def mocked_spec_file() -> mock.Mock:
   return mock.Mock()
 
@@ -33,12 +43,28 @@ def mocked_spec_file_instance(mocked_spec_file: mock.Mock) -> mock.Mock:
 
 @pytest.fixture
 def setup_workspace_module(
+    mocked_os_module: mock.Mock,
+    mocked_shutil_module: mock.Mock,
     mocked_spec_file: mock.Mock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> Callable[[], None]:
 
   def setup() -> None:
-    monkeypatch.setattr(workspace.spec_file, "SpecFile", mocked_spec_file)
+    monkeypatch.setattr(
+        workspace,
+        "os",
+        mocked_os_module,
+    )
+    monkeypatch.setattr(
+        workspace,
+        "shutil",
+        mocked_shutil_module,
+    )
+    monkeypatch.setattr(
+        workspace.spec_file,
+        "SpecFile",
+        mocked_spec_file,
+    )
 
   return setup
 
