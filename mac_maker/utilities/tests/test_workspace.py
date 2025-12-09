@@ -1,5 +1,6 @@
 """Test the Workspace class."""
 import logging
+import os.path
 from logging import Logger
 from pathlib import Path
 from typing import Callable, Optional
@@ -20,6 +21,12 @@ class TestWorkSpace:
       "branch_name",
       (None, "develop"),
       ids=templated_ids("branch:{0}"),
+  )
+
+  vary_folder = pytest.mark.parametrize(
+      "folder_path",
+      ("/path/folder1", "./relative_path/folder2"),
+      ids=templated_ids("folder:{0}"),
   )
 
   def test_initialize__attributes(
@@ -65,7 +72,8 @@ class TestWorkSpace:
       ids=templated_ids("exists:{0}"),
   )
   def test_initialize__vary_root_exists__creates_workspace_root(
-      self, mocked_os_module: mock.Mock,
+      self,
+      mocked_os_module: mock.Mock,
       setup_workspace_module: Callable[[], None],
       workspace_exists: bool,
   ) -> None:
@@ -75,6 +83,96 @@ class TestWorkSpace:
     instance = workspace.WorkSpace()
 
     mocked_os_module.mkdir.assert_called_once_with(instance.root)
+
+  @vary_folder
+  def test_add_folder__vary_folder__successful_copy__copies_folder_to_root(
+      self,
+      mocked_shutil_module: mock.Mock,
+      workspace_instance: workspace.WorkSpace,
+      folder_path: str,
+  ) -> None:
+    workspace_instance.add_folder(folder_path)
+
+    mocked_shutil_module.copytree.assert_called_once_with(
+        folder_path,
+        workspace_instance.root / os.path.basename(folder_path),
+    )
+
+  @vary_folder
+  def test_add_folder__vary_folder__failed_copy__raises_correct_exception(
+      self,
+      mocked_shutil_module: mock.Mock,
+      workspace_instance: workspace.WorkSpace,
+      folder_path: str,
+  ) -> None:
+    mocked_shutil_module.copytree.side_effect = Exception
+
+    with pytest.raises(IOError) as exc:
+      workspace_instance.add_folder(folder_path)
+
+    assert str(
+        exc.value
+    ) == (workspace_instance.Messages.error_profile_copy_failure % folder_path)
+
+  @vary_folder
+  def test_add_folder__vary_folder__successful_copy__sets_profile_root(
+      self,
+      workspace_instance: workspace.WorkSpace,
+      folder_path: str,
+  ) -> None:
+    workspace_instance.add_folder(folder_path)
+
+    assert workspace_instance.profile_root == (
+        workspace_instance.root / os.path.basename(folder_path)
+    )
+
+  @vary_folder
+  def test_add_folder__vary_folder__failed_copy__does_not_set_profile_root(
+      self,
+      mocked_shutil_module: mock.Mock,
+      workspace_instance: workspace.WorkSpace,
+      folder_path: str,
+  ) -> None:
+    mocked_shutil_module.copytree.side_effect = Exception
+
+    with pytest.raises(IOError):
+      workspace_instance.add_folder(folder_path)
+
+    assert workspace_instance.profile_root is None
+
+  @vary_folder
+  def test_add_folder__vary_folder__successful_copy__logging(
+      self,
+      workspace_instance: workspace.WorkSpace,
+      folder_path: str,
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    workspace_instance.add_folder(folder_path)
+
+    assert decode_logs(caplog.records) == [
+        (
+            "DEBUG:mac_maker:" + workspace_instance.Messages.add_folder %
+            workspace_instance.profile_root
+        ),
+    ]
+
+  @vary_folder
+  def test_add_folder__vary_folder__failed_copy__no_logging(
+      self,
+      mocked_shutil_module: mock.Mock,
+      workspace_instance: workspace.WorkSpace,
+      folder_path: str,
+      caplog: pytest.LogCaptureFixture,
+  ) -> None:
+    mocked_shutil_module.copytree.side_effect = Exception
+    caplog.set_level(logging.DEBUG)
+
+    with pytest.raises(IOError):
+      workspace_instance.add_folder(folder_path)
+
+    assert decode_logs(caplog.records) == []
 
   @vary_branch
   def test_add_repository__vary_branch__downloads_zip_bundle(
