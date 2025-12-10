@@ -1,7 +1,9 @@
 """Pytest fixtures for mac_maker cli."""
-from typing import Protocol, Tuple, Union, cast
+import importlib
+from typing import Callable, Protocol, Tuple, Union, cast
 from unittest import mock
 
+import click
 import pytest
 from click.testing import CliRunner
 from mac_maker import cli
@@ -23,6 +25,13 @@ def mocked_job(request: pytest.FixtureRequest) -> mock.Mock:
       mock.Mock,
       request.getfixturevalue(request.param),  # type: ignore[attr-defined]
   )
+
+
+@pytest.fixture
+def mocked_job_folder(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+  instance = mock.Mock()
+  monkeypatch.setattr(cli.jobs, "FolderJob", instance)
+  return instance
 
 
 @pytest.fixture
@@ -70,3 +79,28 @@ def invoke() -> InvokeType:
     runner.invoke(cli.cli, args=command)
 
   return invoker
+
+
+@pytest.fixture
+def setup_click_paths_exist(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        cli.click,
+        "Path",
+        mock.Mock(return_value=click.Path()),
+    )
+    importlib.reload(cli)
+
+  return setup
+
+
+@pytest.fixture
+def setup_click_do_not_exist() -> Callable[[], None]:
+
+  def setup() -> None:
+    importlib.reload(cli)
+
+  return setup
