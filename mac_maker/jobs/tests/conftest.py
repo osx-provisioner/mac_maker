@@ -5,7 +5,7 @@ from typing import Callable
 from unittest import mock
 
 import pytest
-from mac_maker.jobs import github, spec_file, version
+from mac_maker.jobs import folder, github, spec_file, version
 from mac_maker.jobs.bases import provisioner
 from mac_maker.profile.spec_file import SpecFile
 
@@ -13,6 +13,11 @@ from mac_maker.profile.spec_file import SpecFile
 @pytest.fixture
 def mocked_click_echo() -> mock.Mock:
   return mock.Mock()
+
+
+@pytest.fixture
+def mocked_folder_path() -> str:
+  return "/path/to/folder"
 
 
 @pytest.fixture
@@ -39,6 +44,34 @@ def mocked_spec_file_path() -> str:
 def mocked_workspace() -> mock.Mock:
   instance = mock.Mock()
   return instance
+
+
+@pytest.fixture
+def setup_folder_job_module(
+    mocked_click_echo: mock.Mock,
+    mocked_spec_file: mock.Mock,
+    mocked_workspace: mock.Mock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[[], None]:
+
+  def setup() -> None:
+    monkeypatch.setattr(
+        folder,
+        "click",
+        mock.Mock(echo=mocked_click_echo),
+    )
+    monkeypatch.setattr(
+        provisioner,
+        "SpecFile",
+        mocked_spec_file,
+    )
+    monkeypatch.setattr(
+        folder,
+        "WorkSpace",
+        mocked_workspace,
+    )
+
+  return setup
 
 
 @pytest.fixture
@@ -117,6 +150,16 @@ def setup_version_job_module(
     )
 
   return setup
+
+
+@pytest.fixture
+def folder_job_instance(
+    mocked_folder_path: str,
+    setup_folder_job_module: Callable[[], None],
+) -> folder.FolderJob:
+  setup_folder_job_module()
+
+  return folder.FolderJob(mocked_folder_path)
 
 
 @pytest.fixture
