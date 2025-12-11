@@ -3,4 +3,4 @@ CLI Summary
 
 .. click:: mac_maker.cli:cli
     :prog: mac_maker.cli
-    :nested: short
+    :nested:
