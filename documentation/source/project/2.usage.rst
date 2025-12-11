@@ -43,4 +43,4 @@ Security Considerations
 
 Your sudo password is stored internally as an environment variable by Mac Maker.  It will be propagated to the the forked processes used to run the Ansible commands, but it is NOT written to disk at any point.
 
-If you are using public GitHub profiles to manage your configuration BE SURE to keep secret content out of the repositories.  If you wish to use sensitive material in your Ansible Plays, create a `spec.json` file, and create a USB stick. You should follow standard Ansible best practices, including making use of `vault <https://docs.ansible.com/ansible/latest/user_guide/vault.html>`_ to handle sensitive material.
+If you are using public GitHub profiles to manage your configuration BE SURE to keep secret content out of the repositories.  If you wish to use sensitive material in your Ansible Plays consider using the new `folder` based install method. You should follow standard Ansible best practices, including making use of `vault <https://docs.ansible.com/ansible/latest/user_guide/vault.html>`_ to handle sensitive material.

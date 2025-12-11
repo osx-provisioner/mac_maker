@@ -39,12 +39,18 @@ def cli(debug: bool) -> None:
   logger.setup()
 
 
-@cli.group("apply")  # type: ignore[untyped-decorator]
+@cli.group(  # type: ignore[untyped-decorator]
+    "apply",
+    short_help="Apply an OSX Machine Profile to this system.",
+)
 def apply() -> None:
   """Apply an OSX Machine Profile to this system."""
 
 
-@cli.group("precheck")  # type: ignore[untyped-decorator]
+@cli.group(  # type: ignore[untyped-decorator]
+    "precheck",
+    short_help="Ensure an OSX Machine Profile is ready to be applied.",
+)
 def precheck() -> None:
   """Ensure an OSX Machine Profile is ready to be applied."""
 
@@ -130,7 +136,10 @@ def apply_from_spec_file(spec_file: str) -> None:
   job.provision()
 
 
-@cli.command("version")  # type: ignore[untyped-decorator]
+@cli.command(  # type: ignore[untyped-decorator]
+    "version",
+    short_help="Report the current Mac Maker version.",
+)
 def version() -> None:
   """Report the current Mac Maker version."""
   job = jobs.VersionJob()

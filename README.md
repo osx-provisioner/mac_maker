@@ -19,8 +19,6 @@ A portable single binary configuration tool for OSX machines.
 ### Production Branch Builds
 - GitHub:
   - [![mac_maker Generic Push](https://github.com/osx-provisioner/mac_maker/workflows/mac_maker-push/badge.svg?branch=production)](https://github.com/osx-provisioner/mac_maker/actions)
-- Bitrise:
-  - [![bitrise M1 Binaries](https://app.bitrise.io/app/9a06da738bba2e7a/status.svg?token=fngmPo_dY5PcqQ-uCNRnaQ)](https://app.bitrise.io/app/9a06da738bba2e7a)
 
 ## Quick Start
 
@@ -28,17 +26,27 @@ A portable single binary configuration tool for OSX machines.
 
 If you'd like to try it out, head over to the [Mac Maker Releases](https://github.com/osx-provisioner/mac_maker/releases) and download a pre-built binary.
 
-- There are builds available for **Catalina**, **Big Sur** and **Monterey** for **Intel Macs**.
-- There are now builds for **Monterey** available for **Apple Silicon Macs**.  (Thanks to the folks at [bitrise](https://bitrise.io/))
+- There are builds available for both **Intel** and **Apple Silicon Macs**
+- OSX versions Catalina through Sequoia are known to be compatible, but you must carefully select your download.
 
-If you are unsure, use the tables below to help you find the right binary for your Mac:
+#### How do I select the right download ?
 
-| Version Number  | OS Name  |
-|-----------------|----------|
-| 13              | Ventura  |
-| 12              | Monterey |
-| 11              | Big Sur  |
-| 10              | Catalina |
+All OSX versions have an associated version number:
+
+| Version Number | OS Name  | Supported Build Versions |
+|----------------|----------|--------------------------|
+| 15             | Sequoia  | 15                       |
+| 14             | Sonoma   | 14, 15                   |
+| 13             | Ventura  | 13, 14, 15               |
+| 12             | Monterey | 12, 13, 14, 15           |
+| 11             | Big Sur  | 11, 12, 13, 14, 15       |
+| 10             | Catalina | 10, 11, 12, 13, 14, 15   | 
+
+The binaries created by [pyinstaller](https://pyinstaller.org/en/stable/usage.html#making-macos-apps-forward-compatible) are generally `forward compatible` with later OSX versions.
+- For example, consider a binary built on version 13 (Ventura).  This binary is compatible Ventura, but also Sonoma and Sequoia.
+- Check your target machine's OS version number, and use that to select the most recent compatible `mac_maker` binary.
+
+In addition to making sure your build is compatible with your OS, you must also choose the right CPU architecture:
 
 | Architecture | CPU Type      |
 |--------------|---------------|
@@ -46,16 +54,16 @@ If you are unsure, use the tables below to help you find the right binary for yo
 | x86_64       | Intel         |
 
 **Please Note**:
-- They are unsigned, and not notarized by Apple.
-- As such, they will trigger a warning about software from an unidentified developer.
+- The binaries are unsigned, and not notarized by Apple.
+- As such, they will trigger a warning about software from an `unidentified developer` when executed.
 
 ### OK, but you still didn't tell me how to get started...
 
-Are you on Monterey or Ventura?  It may not ship with python anymore!  We better check:
+Are you on OS version Monterey or later?  It may not ship with python anymore!  We better check:
 - open a terminal and type `python3`, and if prompted to install the [x-code](https://developer.apple.com/xcode/) cli tools click `install`.
 - this is less than ideal, but it gets you into a compatible state quickly
 
-For Catalina, Big Sur, Monterey and Ventura (once you've confirmed [python](https://python.org) is present):
+Once you've confirmed [python](https://python.org) is present):
 - Copy the `mac_maker` binary to the OSX machine you'd like to put under configuration management.
 - If you have a working internet connection, you can start working with `Mac Maker Profiles`.  
 - To try creating your own `Profile`, check out [this](https://github.com/osx-provisioner/profile-generator) repository.
