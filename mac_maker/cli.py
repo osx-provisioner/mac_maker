@@ -28,7 +28,10 @@ cli_argument_file = click.Path(
     intro="Welcome to Mac Maker. (Type 'help' to get started.)",
 )
 @click.option(
-    '--debug', default=False, is_flag=True, help='Enable debug output.'
+    '--debug',
+    default=False,
+    is_flag=True,
+    help='Enable debug output.',
 )
 def cli(debug: bool) -> None:
   """Mac Maker CLI."""
