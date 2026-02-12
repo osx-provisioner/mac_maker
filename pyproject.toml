@@ -98,9 +98,10 @@
       darglint = "^1.8.1"
       parameterized = "^0.8.1"
       pydocstyle = "^6.1.1"
+      setuptools = "<82.0.0"
       types-PyYAML = "^6.0.12.20240917"
       types-requests = "^2.32.4.20250913"
-      types-setuptools = "^71.1.0"
+      types-setuptools = "<82.0.0"
 
       [tool.poetry.dev-dependencies.pib_cli]
         extras = ["types"]
