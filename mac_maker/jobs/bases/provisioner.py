@@ -81,7 +81,7 @@ class ProvisionerJobBase(abc.ABC):
 
     click.echo(self.Messages.precheck_success)
 
-  def provision(self) -> None:
+  def provision(self, debug: bool) -> None:
     """Begin provisioning with Ansible."""
 
     spec = self.get_spec()
@@ -92,5 +92,5 @@ class ProvisionerJobBase(abc.ABC):
     inventory = AnsibleInventoryFile(spec)
     inventory.write()
 
-    ansible_job = AnsibleRunner(spec)
+    ansible_job = AnsibleRunner(spec, debug=debug)
     ansible_job.start()

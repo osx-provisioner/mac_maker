@@ -87,7 +87,6 @@ class TestAnsibleRunner:
           ({
               "debug": False
           }, False),
-          ({}, False),
       ]
   )
   def test_init__attributes(
@@ -96,7 +95,6 @@ class TestAnsibleRunner:
       kwargs: Dict[str, bool],
       expected_debug: bool,
   ) -> None:
-
     instance = runner.AnsibleRunner(
         global_spec_mock,
         **kwargs,

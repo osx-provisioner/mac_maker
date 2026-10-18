@@ -6,6 +6,7 @@ from typing import Optional
 import click
 from click_shell import shell
 from mac_maker import jobs
+from mac_maker.flags import GlobalFlags
 from mac_maker.utilities.logger import Logger
 
 cli_argument_directory = click.Path(
@@ -35,7 +36,9 @@ cli_argument_file = click.Path(
 )
 def cli(debug: bool) -> None:
   """Mac Maker CLI."""
-  logger = Logger(debug=debug)
+  GlobalFlags.debug = debug
+
+  logger = Logger(debug=GlobalFlags.debug)
   logger.setup()
 
 
@@ -103,7 +106,7 @@ def apply_from_folder(folder_path: str) -> None:
   """
   job = jobs.FolderJob(folder_path)
   job.precheck(notes=False)
-  job.provision()
+  job.provision(debug=GlobalFlags.debug)
 
 
 @apply.command("github")  # type: ignore[untyped-decorator]
@@ -121,7 +124,7 @@ def apply_from_github(github_url: str, branch: Optional[str]) -> None:
   """
   job = jobs.GitHubJob(github_url, branch)
   job.precheck(notes=False)
-  job.provision()
+  job.provision(debug=GlobalFlags.debug)
 
 
 @apply.command("spec")  # type: ignore[untyped-decorator]
@@ -133,7 +136,7 @@ def apply_from_spec_file(spec_file: str) -> None:
   """
   job = jobs.SpecFileJob(spec_file)
   job.precheck(notes=False)
-  job.provision()
+  job.provision(debug=GlobalFlags.debug)
 
 
 @cli.command(  # type: ignore[untyped-decorator]
