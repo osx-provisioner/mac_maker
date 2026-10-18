@@ -235,4 +235,4 @@ def ansible_runner(
     setup_runner_module: Callable[[], None],
 ) -> runner.AnsibleRunner:
   setup_runner_module()
-  return runner.AnsibleRunner(global_spec_mock)
+  return runner.AnsibleRunner(global_spec_mock, debug=False)

@@ -15,7 +15,7 @@ class AnsibleRunner:
   :param debug: Enable or disable logs.
   """
 
-  def __init__(self, spec: Spec, debug: bool = False):
+  def __init__(self, spec: Spec, debug: bool):
     self.log = logging.getLogger(config.LOGGER_NAME)
     self.debug = debug
     self.spec = spec

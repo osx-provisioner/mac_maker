@@ -282,12 +282,18 @@ class TestJobsBase:
         for violation in mocked_validate_environment.return_value['violations']
     ]
 
+  @pytest.mark.parametrize(
+      "debug_selected",
+      (True, False),
+      ids=templated_ids("args:{0}"),
+  )
   def test_provision__creates_inventory_file(
       self,
       concrete_provisioning_job: ProvisionerJobBase,
       provisioner_mocks: ProvisionerMocks,
+      debug_selected: bool,
   ) -> None:
-    concrete_provisioning_job.provision()
+    concrete_provisioning_job.provision(debug=debug_selected)
 
     provisioner_mocks.mocked_ansible_inventory_file.assert_called_once_with(
         concrete_provisioning_job.get_spec()
@@ -295,26 +301,38 @@ class TestJobsBase:
     provisioner_mocks.mocked_ansible_inventory_file.return_value \
         .write.assert_called_once_with()
 
+  @pytest.mark.parametrize(
+      "debug_selected",
+      (True, False),
+      ids=templated_ids("args:{0}"),
+  )
   def test_provision__prompts_for_sudo(
       self,
       concrete_provisioning_job: ProvisionerJobBase,
       provisioner_mocks: ProvisionerMocks,
+      debug_selected: bool,
   ) -> None:
-    concrete_provisioning_job.provision()
+    concrete_provisioning_job.provision(debug=debug_selected)
 
     provisioner_mocks.mocked_sudo.assert_called_once_with()
     provisioner_mocks.mocked_sudo.return_value \
         .prompt_for_sudo.assert_called_once_with()
 
+  @pytest.mark.parametrize(
+      "debug_selected",
+      (True, False),
+      ids=templated_ids("args:{0}"),
+  )
   def test_provision__starts_ansible_runner(
       self,
       concrete_provisioning_job: ProvisionerJobBase,
       provisioner_mocks: ProvisionerMocks,
+      debug_selected: bool,
   ) -> None:
-    concrete_provisioning_job.provision()
+    concrete_provisioning_job.provision(debug=debug_selected)
 
     provisioner_mocks.mocked_ansible_runner.assert_called_once_with(
-        concrete_provisioning_job.get_spec()
+        concrete_provisioning_job.get_spec(), debug=debug_selected
     )
     provisioner_mocks.mocked_ansible_runner.return_value \
         .start.assert_called_once_with()

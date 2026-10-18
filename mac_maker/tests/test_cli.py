@@ -164,13 +164,21 @@ class TestCli:
               (mocked_folder_path,),
           ),
           (
+              "mocked_job_folder",
+              f"--debug apply folder {mocked_folder_path}",
+              (mocked_folder_path,),
+          ),
+          (
               "mocked_job_github",
               f"apply github {mocked_git_url}",
               (mocked_git_url, None),
           ),
           (
               "mocked_job_github",
-              f"apply github {mocked_git_url} --branch {mocked_git_branch}",
+              (
+                  f"--debug apply github {mocked_git_url} --branch "
+                  f"{mocked_git_branch}"
+              ),
               (mocked_git_url, mocked_git_branch),
           ),
           (
@@ -191,12 +199,15 @@ class TestCli:
       args: Tuple[str],
   ) -> None:
     setup_click_paths_exist()
+    debug_selected = command.startswith("--debug ")
 
     invoke(command)
 
     mocked_job.assert_called_once_with(*args)
     mocked_job.return_value.precheck.assert_called_once_with(notes=False)
-    mocked_job.return_value.provision.assert_called_once_with()
+    mocked_job.return_value.provision.assert_called_once_with(
+        debug=debug_selected
+    )
 
   @pytest.mark.parametrize(
       "mocked_job,command",
@@ -208,6 +219,10 @@ class TestCli:
           (
               "mocked_job_spec_file",
               f"apply spec {mocked_spec_file}",
+          ),
+          (
+              "mocked_job_spec_file",
+              f"--debug apply spec {mocked_spec_file}",
           ),
           names=[1],
       ),
