@@ -72,9 +72,6 @@ jobs:
       max-parallel: 4
       matrix:
         os:
-          - version_tag: 14
-            version_digit: 14
-            platform: arm64
           - version_tag: 15
             version_digit: 15
             platform: arm64
@@ -142,9 +139,6 @@ jobs:
       max-parallel: 4
       matrix:
         os:
-          - version_tag: 14
-            version_digit: 14
-            platform: arm64
           - version_tag: 15
             version_digit: 15
             platform: arm64
@@ -208,7 +202,6 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: compiled binaries could not be attached to release!"
 
   container_build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -280,7 +273,16 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: container build for Python ${PYTHON_VERSION} failed!"
 
   create_release:
-    needs: [_start_notification, apply, container_build, documentation_test, security_test, shellcheck_test, workflow_lint_test]
+    needs:
+      [
+        _start_notification,
+        apply,
+        container_build,
+        documentation_test,
+        security_test,
+        shellcheck_test,
+        workflow_lint_test,
+      ]
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ fromJSON(steps.create_release.outputs.result).data.upload_url }}
@@ -313,8 +315,7 @@ jobs:
 
       - name: Create Release -- Generate Changelog
         if: steps.branch_filter.outputs.match == 'TRUE'
-        run:
-          source ./.github/scripts/changelog.sh
+        run: source ./.github/scripts/changelog.sh
 
       - name: Create Release -- Generate Github Release Draft
         id: create_release
@@ -353,7 +354,6 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: automated release generation failed!"
 
   documentation_test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -369,9 +369,9 @@ jobs:
       - name: Documentation Test -- Documentation Validation
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
-          config-file: '.github/config/actions/gaurav-nelson-github-action-markdown-link-check.json'
-          use-quiet-mode: 'no'
-          use-verbose-mode: 'yes'
+          config-file: ".github/config/actions/gaurav-nelson-github-action-markdown-link-check.json"
+          use-quiet-mode: "no"
+          use-verbose-mode: "yes"
 
       - name: Documentation Test -- Report Success
         if: env.VERBOSE_NOTIFICATIONS == '1'
@@ -384,11 +384,9 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: documentation checks failed!"
 
   security_test:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Security Test -- Checkout Repository
         uses: actions/checkout@v3
         with:
@@ -421,7 +419,6 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: security checks failed!"
 
   shellcheck_test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -449,7 +446,6 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: shellcheck checks failed!"
 
   workflow_lint_test:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -487,7 +483,6 @@ jobs:
           ./.github/scripts/notifications.sh "${NOTIFICATION}" ":x: workflow linting has failed!"
 
   osx_build:
-
     # Only on tags, main and production branches.
 
     runs-on: macos-${{ matrix.os.version_tag }}
@@ -495,9 +490,6 @@ jobs:
       max-parallel: 4
       matrix:
         os:
-          - version_tag: 14
-            version_digit: 14
-            platform: arm64
           - version_tag: 15
             version_digit: 15
             platform: arm64
